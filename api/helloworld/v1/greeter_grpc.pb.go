@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Greeter_SayHello_FullMethodName  = "/helloworld.v1.Greeter/SayHello"
-	Greeter_GetMarket_FullMethodName = "/helloworld.v1.Greeter/GetMarket"
+	Greeter_SayHello_FullMethodName        = "/helloworld.v1.Greeter/SayHello"
+	Greeter_MarketCondition_FullMethodName = "/helloworld.v1.Greeter/MarketCondition"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -31,7 +31,7 @@ const (
 type GreeterClient interface {
 	// Sends a greeting
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
-	GetMarket(ctx context.Context, in *GetMarketRequest, opts ...grpc.CallOption) (*GetMarketReply, error)
+	MarketCondition(ctx context.Context, in *MarketConditionRequest, opts ...grpc.CallOption) (*MarketConditionReply, error)
 }
 
 type greeterClient struct {
@@ -52,10 +52,10 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
 	return out, nil
 }
 
-func (c *greeterClient) GetMarket(ctx context.Context, in *GetMarketRequest, opts ...grpc.CallOption) (*GetMarketReply, error) {
+func (c *greeterClient) MarketCondition(ctx context.Context, in *MarketConditionRequest, opts ...grpc.CallOption) (*MarketConditionReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetMarketReply)
-	err := c.cc.Invoke(ctx, Greeter_GetMarket_FullMethodName, in, out, cOpts...)
+	out := new(MarketConditionReply)
+	err := c.cc.Invoke(ctx, Greeter_MarketCondition_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (c *greeterClient) GetMarket(ctx context.Context, in *GetMarketRequest, opt
 type GreeterServer interface {
 	// Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
-	GetMarket(context.Context, *GetMarketRequest) (*GetMarketReply, error)
+	MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -84,8 +84,8 @@ type UnimplementedGreeterServer struct{}
 func (UnimplementedGreeterServer) SayHello(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
 }
-func (UnimplementedGreeterServer) GetMarket(context.Context, *GetMarketRequest) (*GetMarketReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetMarket not implemented")
+func (UnimplementedGreeterServer) MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MarketCondition not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -126,20 +126,20 @@ func _Greeter_SayHello_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Greeter_GetMarket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMarketRequest)
+func _Greeter_MarketCondition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MarketConditionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GreeterServer).GetMarket(ctx, in)
+		return srv.(GreeterServer).MarketCondition(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Greeter_GetMarket_FullMethodName,
+		FullMethod: Greeter_MarketCondition_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GreeterServer).GetMarket(ctx, req.(*GetMarketRequest))
+		return srv.(GreeterServer).MarketCondition(ctx, req.(*MarketConditionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -156,8 +156,8 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Greeter_SayHello_Handler,
 		},
 		{
-			MethodName: "GetMarket",
-			Handler:    _Greeter_GetMarket_Handler,
+			MethodName: "MarketCondition",
+			Handler:    _Greeter_MarketCondition_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

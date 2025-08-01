@@ -19,19 +19,19 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationGreeterGetMarket = "/helloworld.v1.Greeter/GetMarket"
+const OperationGreeterMarketCondition = "/helloworld.v1.Greeter/MarketCondition"
 const OperationGreeterSayHello = "/helloworld.v1.Greeter/SayHello"
 
 type GreeterHTTPServer interface {
-	GetMarket(context.Context, *GetMarketRequest) (*GetMarketReply, error)
+	MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error)
 	// SayHello Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
 }
 
 func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r := s.Route("/")
-	r.GET("/helloworld/{name}", _Greeter_SayHello0_HTTP_Handler(srv))
-	r.POST("/v1/market", _Greeter_GetMarket0_HTTP_Handler(srv))
+	r.GET("/helloworld/{name}/{value}", _Greeter_SayHello0_HTTP_Handler(srv))
+	r.POST("/v1/marketCondition", _Greeter_MarketCondition0_HTTP_Handler(srv))
 }
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -56,30 +56,30 @@ func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Contex
 	}
 }
 
-func _Greeter_GetMarket0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+func _Greeter_MarketCondition0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetMarketRequest
+		var in MarketConditionRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGreeterGetMarket)
+		http.SetOperation(ctx, OperationGreeterMarketCondition)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetMarket(ctx, req.(*GetMarketRequest))
+			return srv.MarketCondition(ctx, req.(*MarketConditionRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetMarketReply)
+		reply := out.(*MarketConditionReply)
 		return ctx.Result(200, reply)
 	}
 }
 
 type GreeterHTTPClient interface {
-	GetMarket(ctx context.Context, req *GetMarketRequest, opts ...http.CallOption) (rsp *GetMarketReply, err error)
+	MarketCondition(ctx context.Context, req *MarketConditionRequest, opts ...http.CallOption) (rsp *MarketConditionReply, err error)
 	SayHello(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (rsp *HelloReply, err error)
 }
 
@@ -91,11 +91,11 @@ func NewGreeterHTTPClient(client *http.Client) GreeterHTTPClient {
 	return &GreeterHTTPClientImpl{client}
 }
 
-func (c *GreeterHTTPClientImpl) GetMarket(ctx context.Context, in *GetMarketRequest, opts ...http.CallOption) (*GetMarketReply, error) {
-	var out GetMarketReply
-	pattern := "/v1/market"
+func (c *GreeterHTTPClientImpl) MarketCondition(ctx context.Context, in *MarketConditionRequest, opts ...http.CallOption) (*MarketConditionReply, error) {
+	var out MarketConditionReply
+	pattern := "/v1/marketCondition"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationGreeterGetMarket))
+	opts = append(opts, http.Operation(OperationGreeterMarketCondition))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -106,7 +106,7 @@ func (c *GreeterHTTPClientImpl) GetMarket(ctx context.Context, in *GetMarketRequ
 
 func (c *GreeterHTTPClientImpl) SayHello(ctx context.Context, in *HelloRequest, opts ...http.CallOption) (*HelloReply, error) {
 	var out HelloReply
-	pattern := "/helloworld/{name}"
+	pattern := "/helloworld/{name}/{value}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationGreeterSayHello))
 	opts = append(opts, http.PathTemplate(pattern))

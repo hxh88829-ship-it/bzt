@@ -26,6 +26,7 @@ const (
 type HelloRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Value         uint64                 `protobuf:"varint,2,opt,name=value,proto3" json:"value,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -65,6 +66,13 @@ func (x *HelloRequest) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *HelloRequest) GetValue() uint64 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
 }
 
 // The response message containing the greetings
@@ -112,27 +120,27 @@ func (x *HelloReply) GetMessage() string {
 	return ""
 }
 
-type GetMarketRequest struct {
+type MarketConditionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetMarketRequest) Reset() {
-	*x = GetMarketRequest{}
+func (x *MarketConditionRequest) Reset() {
+	*x = MarketConditionRequest{}
 	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetMarketRequest) String() string {
+func (x *MarketConditionRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetMarketRequest) ProtoMessage() {}
+func (*MarketConditionRequest) ProtoMessage() {}
 
-func (x *GetMarketRequest) ProtoReflect() protoreflect.Message {
+func (x *MarketConditionRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -144,12 +152,12 @@ func (x *GetMarketRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetMarketRequest.ProtoReflect.Descriptor instead.
-func (*GetMarketRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use MarketConditionRequest.ProtoReflect.Descriptor instead.
+func (*MarketConditionRequest) Descriptor() ([]byte, []int) {
 	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetMarketRequest) GetSymbol() string {
+func (x *MarketConditionRequest) GetSymbol() string {
 	if x != nil {
 		return x.Symbol
 	}
@@ -157,27 +165,27 @@ func (x *GetMarketRequest) GetSymbol() string {
 }
 
 // The response message containing the greetings
-type GetMarketReply struct {
+type MarketConditionReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Price         string                 `protobuf:"bytes,1,opt,name=price,proto3" json:"price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetMarketReply) Reset() {
-	*x = GetMarketReply{}
+func (x *MarketConditionReply) Reset() {
+	*x = MarketConditionReply{}
 	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetMarketReply) String() string {
+func (x *MarketConditionReply) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetMarketReply) ProtoMessage() {}
+func (*MarketConditionReply) ProtoMessage() {}
 
-func (x *GetMarketReply) ProtoReflect() protoreflect.Message {
+func (x *MarketConditionReply) ProtoReflect() protoreflect.Message {
 	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -189,12 +197,12 @@ func (x *GetMarketReply) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetMarketReply.ProtoReflect.Descriptor instead.
-func (*GetMarketReply) Descriptor() ([]byte, []int) {
+// Deprecated: Use MarketConditionReply.ProtoReflect.Descriptor instead.
+func (*MarketConditionReply) Descriptor() ([]byte, []int) {
 	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetMarketReply) GetPrice() string {
+func (x *MarketConditionReply) GetPrice() string {
 	if x != nil {
 		return x.Price
 	}
@@ -205,20 +213,20 @@ var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\n" +
-	"\x1bhelloworld/v1/greeter.proto\x12\rhelloworld.v1\x1a\x1cgoogle/api/annotations.proto\"\"\n" +
+	"\x1bhelloworld/v1/greeter.proto\x12\rhelloworld.v1\x1a\x1cgoogle/api/annotations.proto\"8\n" +
 	"\fHelloRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"&\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x04R\x05value\"&\n" +
 	"\n" +
 	"HelloReply\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"*\n" +
-	"\x10GetMarketRequest\x12\x16\n" +
-	"\x06symbol\x18\x01 \x01(\tR\x06symbol\"&\n" +
-	"\x0eGetMarketReply\x12\x14\n" +
-	"\x05price\x18\x01 \x01(\tR\x05price2\xcd\x01\n" +
-	"\aGreeter\x12^\n" +
-	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/helloworld/{name}\x12b\n" +
-	"\tGetMarket\x12\x1f.helloworld.v1.GetMarketRequest\x1a\x1d.helloworld.v1.GetMarketReply\"\x15\x82\xd3\xe4\x93\x02\x0f:\x01*\"\n" +
-	"/v1/marketBT\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"0\n" +
+	"\x16MarketConditionRequest\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\",\n" +
+	"\x14MarketConditionReply\x12\x14\n" +
+	"\x05price\x18\x01 \x01(\tR\x05price2\xf0\x01\n" +
+	"\aGreeter\x12f\n" +
+	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12}\n" +
+	"\x0fMarketCondition\x12%.helloworld.v1.MarketConditionRequest\x1a#.helloworld.v1.MarketConditionReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/marketConditionBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -235,16 +243,16 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 
 var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
-	(*HelloRequest)(nil),     // 0: helloworld.v1.HelloRequest
-	(*HelloReply)(nil),       // 1: helloworld.v1.HelloReply
-	(*GetMarketRequest)(nil), // 2: helloworld.v1.GetMarketRequest
-	(*GetMarketReply)(nil),   // 3: helloworld.v1.GetMarketReply
+	(*HelloRequest)(nil),           // 0: helloworld.v1.HelloRequest
+	(*HelloReply)(nil),             // 1: helloworld.v1.HelloReply
+	(*MarketConditionRequest)(nil), // 2: helloworld.v1.MarketConditionRequest
+	(*MarketConditionReply)(nil),   // 3: helloworld.v1.MarketConditionReply
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	0, // 0: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
-	2, // 1: helloworld.v1.Greeter.GetMarket:input_type -> helloworld.v1.GetMarketRequest
+	2, // 1: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
 	1, // 2: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	3, // 3: helloworld.v1.Greeter.GetMarket:output_type -> helloworld.v1.GetMarketReply
+	3, // 3: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

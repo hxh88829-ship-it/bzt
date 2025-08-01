@@ -7,7 +7,7 @@ info:
     description: The greeting service definition.
     version: 0.0.1
 paths:
-    /helloworld/{name}:
+    /helloworld/{name}/{value}:
         get:
             tags:
                 - Greeter
@@ -19,6 +19,11 @@ paths:
                   required: true
                   schema:
                     type: string
+                - name: value
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -26,16 +31,16 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
-    /v1/market:
+    /v1/marketCondition:
         post:
             tags:
                 - Greeter
-            operationId: Greeter_GetMarket
+            operationId: Greeter_MarketCondition
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/helloworld.v1.GetMarketRequest'
+                            $ref: '#/components/schemas/helloworld.v1.MarketConditionRequest'
                 required: true
             responses:
                 "200":
@@ -43,25 +48,25 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/helloworld.v1.GetMarketReply'
+                                $ref: '#/components/schemas/helloworld.v1.MarketConditionReply'
 components:
     schemas:
-        helloworld.v1.GetMarketReply:
-            type: object
-            properties:
-                price:
-                    type: string
-            description: The response message containing the greetings
-        helloworld.v1.GetMarketRequest:
-            type: object
-            properties:
-                symbol:
-                    type: string
         helloworld.v1.HelloReply:
             type: object
             properties:
                 message:
                     type: string
             description: The response message containing the greetings
+        helloworld.v1.MarketConditionReply:
+            type: object
+            properties:
+                price:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.MarketConditionRequest:
+            type: object
+            properties:
+                symbol:
+                    type: string
 tags:
     - name: Greeter

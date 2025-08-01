@@ -1,8 +1,17 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"os"
+	"sync"
+	"time"
+	"valueguard/internal/api"
+	"valueguard/internal/marketCondition"
+	"valueguard/internal/mongo"
+	"valueguard/internal/monitorBlock"
 
 	"valueguard/internal/conf"
 
@@ -74,6 +83,9 @@ func main() {
 		panic(err)
 	}
 
+	if err := LoadConfigInit(); err != nil {
+	}
+
 	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
 	if err != nil {
 		panic(err)
@@ -84,4 +96,94 @@ func main() {
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
+}
+
+// 加载配置 load
+func LoadConfigInit() error {
+	//初始化mongo数据库
+	cli, err := mongo.NewMongoClient("mongodb://admin:admin@localhost:27017/?directConnection=true")
+	if err != nil {
+		return err
+	}
+	mongo.MonCli = cli
+
+	//初始化节点
+	api.Client, err = ethclient.Dial("http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	if err != nil {
+		return errors.New("BLockChain fail")
+	}
+
+	id, err := api.Client.ChainID(context.Background())
+	if err != nil {
+		log.Error("Client.ChainID", "err", err)
+		return err
+	}
+	api.ChainId = id.Uint64()
+	symbols := []string{"BTCUSDT", "ETHUSDT"}
+	go RunService(context.Background(), symbols)
+
+	return nil
+}
+
+func RunService(ctx context.Context, symbols []string) {
+	var symbolIndexes = make(map[string]int)
+	for _, symbol := range symbols {
+		symbolIndexes[symbol] = 0
+	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				log.Errorf("panic in market price checker: %v", r)
+			}
+		}()
+		ticker := time.NewTicker(3 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				log.Info("Block scanner stopping...")
+				return
+			case <-ticker.C:
+				if err := monitorBlock.ScanBlocks(); err != nil {
+					log.Errorf("Scan failed: %v", err)
+				}
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				log.Errorf("panic in market price checker: %v", r)
+			}
+		}()
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				log.Info("Market price checker stopping...")
+				return
+			case <-ticker.C:
+				for _, symbol := range symbols {
+					index := symbolIndexes[symbol]
+					log.Infof("Market price checker: %v", index)
+					err := marketCondition.GetMarketCondition(symbol, index)
+					if err != nil {
+						log.Errorf("Failed to fetch %s: %v", symbol, err)
+					}
+					symbolIndexes[symbol] = (index + 1) % 30
+				}
+			}
+		}
+	}()
+
+	<-ctx.Done()
+	wg.Wait()
+	log.Info("Service fully stopped")
 }
