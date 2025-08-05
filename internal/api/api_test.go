@@ -85,7 +85,7 @@ func TestGetTransactionReceiptByHash(t *testing.T) {
 		return
 	}
 	defer Client.Close()
-	tx, err := GetTransactionReceiptByHash(common.HexToHash("0x00d34c8f4a5e6c9843528cafb0f7f7c5865507cd75d015070431c110694bf8a5"))
+	tx, err := GetTransactionReceiptByHash(common.HexToHash("0x057eb086df137f5e846451aba3cca59c0ed7c7681526412fbee79afa05c984de"))
 	if err != nil {
 		t.Error("GetTransactionReceiptByHash fail")
 		return

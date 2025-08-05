@@ -14,6 +14,19 @@ import (
 )
 
 var bztAddr = "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a"
+var ErrNoOrderClosed = errors.New("OrderClosed event not found")
+var ErrNoOrderOpened = errors.New("OrderOpened event not found")
+
+type OrderInfo struct {
+	OrderId    *big.Int
+	TokenName  string
+	OpenPrice  *big.Int
+	ClosePrice *big.Int
+	ProfitLoss *big.Int
+	Amount     *big.Int
+	User       common.Address
+	IsClosed   bool
+}
 
 func GetOwner() (string, error) {
 	cli := api.Client
@@ -69,9 +82,7 @@ func GetUsdToken() (string, error) {
 	return addr.String(), nil
 }
 
-func GetOrders(order int64) (interface{}, error) {
-	var out interface{}
-
+func GetOrders(order int64) (*OrderInfo, error) {
 	cli := api.Client
 	con := common.HexToAddress(bztAddr)
 	ca, err := NewBztCaller(con, cli)
@@ -82,11 +93,22 @@ func GetOrders(order int64) (interface{}, error) {
 		Pending: true,
 		Context: context.Background(),
 	}
-	out, err = ca.Orders(&opt, big.NewInt(order))
+
+	res, err := ca.Orders(&opt, big.NewInt(order))
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+
+	return &OrderInfo{
+		OrderId:    res.OrderId,
+		TokenName:  res.TokenName,
+		OpenPrice:  res.OpenPrice,
+		ClosePrice: res.ClosePrice,
+		ProfitLoss: res.ProfitLoss,
+		Amount:     res.Amount,
+		User:       res.User,
+		IsClosed:   res.IsClosed,
+	}, nil
 }
 
 func GetAirdrop(toAddr string, amount int64) (*types.Transaction, error) {
@@ -156,6 +178,7 @@ func GetParseAirdrop(receipt *types.Receipt) (*BztAirdrop, error) {
 				fmt.Printf(" Failed to parse log %d: %+v\n", i, vlog)
 				return nil, err
 			}
+			//0x8c32c568416fcf97be35ce5b27844cfddcd63a67a1a602c3595ba5dac38f303a
 		}
 	}
 	return event, nil
@@ -200,10 +223,6 @@ func GetParseOrderClosed(receipt *types.Receipt) (*BztOrderClosed, error) {
 			result = event
 			break // 假设每个交易只触发一次事件
 		}
-	}
-
-	if result == nil {
-		return nil, errors.New("OrderClosed event not found")
 	}
 	return result, nil
 }
@@ -250,8 +269,5 @@ func GetParseOrderOpened(receipt *types.Receipt) (*BztOrderOpened, error) {
 		}
 	}
 
-	if result == nil {
-		return nil, errors.New("OrderClosed event not found")
-	}
 	return result, nil
 }

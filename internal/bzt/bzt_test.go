@@ -165,15 +165,18 @@ func TestBztFilterer_ParseOrderClosed(t *testing.T) {
 	}
 	defer api.Client.Close()
 	cli := api.Client
-	receipt, err := cli.TransactionReceipt(context.Background(), common.HexToHash("0x0517a6b40663d48504058e09947ec4b52c56c99b61ad93a9844edb1df86f238c"))
+	receipt, err := cli.TransactionReceipt(context.Background(), common.HexToHash("0xe1bbd1fa7f9e644ba25df7211836961e9f4df85809ab80eac5d176838aa7e9e8"))
 	if err != nil {
 		return
 	}
-	_, err = GetParseOrderClosed(receipt)
+	res, err := GetParseOrderClosed(receipt)
 	if err != nil {
-		return
+		t.Log(1, err.Error())
 	}
-	//t.Log(res.ClosePrice, res.OpenPrice, res.OrderId, res.ProfitLoss, res.User)
+	if res == nil {
+		t.Log(1, "parse order closed")
+	}
+	t.Log(res.Raw.BlockTimestamp)
 
 }
 

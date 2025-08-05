@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/redis/go-redis/v9"
 	"os"
 	"sync"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"valueguard/internal/marketCondition"
 	"valueguard/internal/mongo"
 	"valueguard/internal/monitorBlock"
+	"valueguard/internal/redisQuery"
 
 	"valueguard/internal/conf"
 
@@ -119,6 +121,15 @@ func LoadConfigInit() error {
 		return err
 	}
 	api.ChainId = id.Uint64()
+
+	//初始化redis
+	redisCli := redis.NewClient(&redis.Options{
+		Addr:     "127.0.0.1:6379", // Redis 服务器地址
+		Password: "",               // 密码，如果没有则为空字符串
+		DB:       0,                // 使用默认数据库 (0)
+	})
+	redisQuery.RedisCli = redisCli
+
 	symbols := []string{"BTCUSDT", "ETHUSDT"}
 	go RunService(context.Background(), symbols)
 
@@ -136,7 +147,7 @@ func RunService(ctx context.Context, symbols []string) {
 		defer wg.Done()
 		defer func() {
 			if r := recover(); r != nil {
-				log.Errorf("panic in market price checker: %v", r)
+				log.Errorf("panic in Block checker: %v", r)
 			}
 		}()
 		ticker := time.NewTicker(3 * time.Second)
@@ -147,7 +158,7 @@ func RunService(ctx context.Context, symbols []string) {
 				log.Info("Block scanner stopping...")
 				return
 			case <-ticker.C:
-				if err := monitorBlock.ScanBlocks(); err != nil {
+				if err := monitorBlock.ScanBlocks(ctx, 10); err != nil {
 					log.Errorf("Scan failed: %v", err)
 				}
 			}
@@ -178,6 +189,29 @@ func RunService(ctx context.Context, symbols []string) {
 						log.Errorf("Failed to fetch %s: %v", symbol, err)
 					}
 					symbolIndexes[symbol] = (index + 1) % 30
+				}
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				log.Errorf("panic in redis checker: %v", r)
+			}
+		}()
+		ticker := time.NewTicker(10 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				log.Info("redis Add stopping...")
+				return
+			case <-ticker.C:
+				if err := redisQuery.SafeSyncPlatformUsersToRedis(context.Background()); err != nil {
+					log.Errorf("mpngodb Scan failed: %v", err)
 				}
 			}
 		}

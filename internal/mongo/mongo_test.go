@@ -1,8 +1,7 @@
 package mongo
 
 import (
-	"errors"
-	"strings"
+	"strconv"
 	"testing"
 )
 
@@ -31,8 +30,7 @@ func TestAddUser(t *testing.T) {
 	MonCli = cli
 
 }
-
-func TestUpdateLogin(t *testing.T) {
+func TestAddOrder(t *testing.T) {
 	cli, err := NewMongoClient(dbUrl)
 	if err != nil {
 		t.Error(err)
@@ -40,13 +38,42 @@ func TestUpdateLogin(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	err = UpdateLogin(strings.ToLower(userAddr2), "coco", "", "", "", "", "")
+	var res Order
+	res.Symbol = "BTCUSDT"
+	err = AddOrder(res)
 	if err != nil {
-		if errors.Is(err, ErrNoFields) {
-			t.Log("<UNK>123")
-		} else {
-			t.Error(err)
-		}
+		t.Error(err)
 		return
 	}
+}
+
+func TestUpdateOrder(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	err = UpdateOrder("123", strconv.Itoa(333), strconv.Itoa(33))
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func TestGetPriceByTimestamp(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	res, err := GetPriceByTimestamp(1754027483, "BTCUSDT")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(res.Price, res.Timestamp, res.Index, res.Symbol)
 }

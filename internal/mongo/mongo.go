@@ -94,98 +94,13 @@ func GetUser(addr string) (Users, error) {
 	if MonCli == nil {
 		return Users{}, errors.New("mongo client is nil " + "GetUser")
 	}
-	filter := bson.M{
-		"$or": []bson.M{
-			{"address": addr},
-			{"uid": addr},
-		},
-	}
+	filter := bson.D{{"address", addr}}
 	var ma Users
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).FindOne(context.Background(), filter).Decode(&ma)
 	if err != nil {
 		return Users{}, ErrNoDocuments
 	}
 	return ma, nil
-}
-func JudgeUser(from, to string) error {
-	if MonCli == nil {
-		return errors.New("error:mongo.Client is nil" + "JudgeUser")
-	}
-	filter := bson.M{
-		"$or": []bson.M{
-			{"address": from},
-			{"address": to},
-		},
-	}
-	var ma Users
-	err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).FindOne(context.Background(), filter).Decode(&ma)
-	if err != nil {
-		log.Error("FindOne err: ", err)
-		return errors.New("find user fail")
-	}
-	return nil
-}
-func UpdateUser(uid, OriginalMessage string) error {
-	if MonCli == nil {
-		return errors.New("error:mongo.Client is nil")
-	}
-	filter := bson.D{{"uid", uid}}
-	update := bson.D{{"$set", bson.D{
-		{"original_message", OriginalMessage},
-	},
-	}}
-	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).UpdateMany(context.Background(), filter, update)
-	if err != nil {
-		log.Error(err, "UpdateUser fail")
-		return err
-	}
-	return nil
-}
-func UpdateLogin(addr, name, email, twitter, avatar, website, Description string) error {
-	if MonCli == nil {
-		return errors.New("error: mongo.Client is nil (UpdateLogin)")
-	}
-	if addr == "" {
-		return errors.New("error: address is empty")
-	}
-	if len(addr) != 42 {
-		return errors.New("error: address is invalid")
-	}
-	filter := bson.D{{"address", addr}}
-
-	// 动态构造更新字段
-	setFields := bson.D{}
-	if name != "" {
-		setFields = append(setFields, bson.E{"name", name})
-	}
-	if email != "" {
-		setFields = append(setFields, bson.E{"email", email})
-	}
-	if twitter != "" {
-		setFields = append(setFields, bson.E{"twitter", twitter})
-	}
-	if avatar != "" {
-		setFields = append(setFields, bson.E{"avatar", avatar})
-	}
-	if website != "" {
-		setFields = append(setFields, bson.E{"website", website})
-	}
-	if Description != "" {
-		setFields = append(setFields, bson.E{"description", Description})
-	}
-	// 如果没有要更新的字段，直接返回
-	if len(setFields) == 0 {
-		return ErrNoFields
-	}
-
-	update := bson.D{{"$set", setFields}}
-
-	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).UpdateOne(context.Background(), filter, update)
-	if err != nil {
-		log.Error(err, "UpdateLogin failed")
-		return err
-	}
-	return nil
 }
 
 // 最新行情价格
@@ -213,7 +128,6 @@ func GetPriceForIndex(symbol string, ind int) (CoinPrice, error) {
 	}
 	return ma, nil
 }
-
 func SavePrice(symbol, price string, ind int) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil")
@@ -228,6 +142,92 @@ func SavePrice(symbol, price string, ind int) error {
 		return errors.New("save price fail")
 	}
 	return nil
+}
+func GetPriceByTimestamp(blockTime int64, symbol string) (CoinPrice, error) {
+	if MonCli == nil {
+		return CoinPrice{}, errors.New("mongo client is nil" + "GetPriceByTimestamp")
+	}
+	filter := bson.M{
+		"symbol":    symbol,                    // 资产代号，如 "BTCUSDT"
+		"timestamp": bson.M{"$lte": blockTime}, // 小于等于块时间戳
+	}
+	opts := options.FindOne().SetSort(bson.D{{"timestamp", -1}})
+	var priceRecord CoinPrice
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).FindOne(context.Background(), filter, opts).Decode(&priceRecord)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return CoinPrice{}, ErrNoDocuments
+	}
+	return priceRecord, nil
+}
+
+// 订单
+func AddOrder(a Order) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil" + "OrderOpen")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).InsertOne(context.Background(), a)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return errors.New("add order fail")
+	}
+	return nil
+}
+func GetOrder(OrderId string) (Order, error) {
+	if MonCli == nil {
+		return Order{}, errors.New("mongo client is nil" + "GetOrder")
+	}
+	filter := bson.D{{"order_id", OrderId}}
+	var ma Order
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).FindOne(context.Background(), filter).Decode(ma)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return Order{}, ErrNoDocuments
+	}
+	return ma, nil
+}
+func UpdateOrder(OrderId, ClosePri, Profit string, blTime int64) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "UpdateOrder")
+	}
+	filter := bson.D{{"order_id", OrderId}}
+	update := bson.D{{"$set", bson.D{
+		{"close_price", ClosePri},
+		{"profit_loss", Profit},
+		{"order_end_time", blTime},
+	}}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateLogin err: ", err)
+		return errors.New("update order fail")
+	}
+	return nil
+}
+
+// 交易详情
+func AddTransaction(tx Transaction) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "AddTransaction")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction).InsertOne(context.Background(), tx)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return errors.New("add transaction fail")
+	}
+	return nil
+}
+func GetTransaction(tx string) (Transaction, error) {
+	if MonCli == nil {
+		return Transaction{}, errors.New("mongo client is nil" + "GetTransaction")
+	}
+	filter := bson.D{{"tx_hash", tx}}
+	var txh Transaction
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction).FindOne(context.Background(), filter).Decode(&txh)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return Transaction{}, ErrNoDocuments
+	}
+	return txh, nil
 }
 
 // 扫块内容
@@ -273,6 +273,33 @@ func GetScanBlock(i uint64) (ScanBlock, error) {
 	if err != nil {
 		log.Error("FindOne err: ", err)
 		return ScanBlock{}, ErrNoDocuments
+	}
+	return bl, nil
+}
+
+// 错误块
+func AddLossBlock(a LossBlock) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil" + "AddLossBlock")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossBlock).InsertOne(context.Background(), a)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return err
+	}
+	return nil
+}
+func GetLossBlock(i uint64) (LossBlock, error) {
+	if MonCli == nil {
+		return LossBlock{}, errors.New("mongo client is nil " + "GetLossBlock")
+	}
+	filter := bson.D{{"blockNr", i}}
+	var bl LossBlock
+	err := MonCli.Client.Database(DatabaseNameForChain).
+		Collection(lossBlock).FindOne(context.Background(), filter).Decode(&bl)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return LossBlock{}, ErrNoDocuments
 	}
 	return bl, nil
 }

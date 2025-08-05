@@ -9,4 +9,10 @@ const (
 	user                 = "user"
 	scanBlock            = "scanBlock"
 	newPrice             = "newPrice"
+	airdrop              = "airdrop"
+	lossAmount           = "lossAmount"
+	order                = "order"
+	wallet               = "wallet"
+	lossBlock            = "lossBlock"
+	transaction          = "transaction"
 )
