@@ -19,10 +19,14 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationGreeterBindWallet = "/helloworld.v1.Greeter/BindWallet"
+const OperationGreeterLoginWithWallet = "/helloworld.v1.Greeter/LoginWithWallet"
 const OperationGreeterMarketCondition = "/helloworld.v1.Greeter/MarketCondition"
 const OperationGreeterSayHello = "/helloworld.v1.Greeter/SayHello"
 
 type GreeterHTTPServer interface {
+	BindWallet(context.Context, *BindWalletRequest) (*BindWalletReply, error)
+	LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error)
 	MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error)
 	// SayHello Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
@@ -31,6 +35,8 @@ type GreeterHTTPServer interface {
 func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r := s.Route("/")
 	r.GET("/helloworld/{name}/{value}", _Greeter_SayHello0_HTTP_Handler(srv))
+	r.POST("/v1/bindWallet", _Greeter_BindWallet0_HTTP_Handler(srv))
+	r.POST("/v1/loginWithWallet", _Greeter_LoginWithWallet0_HTTP_Handler(srv))
 	r.POST("/v1/marketCondition", _Greeter_MarketCondition0_HTTP_Handler(srv))
 }
 
@@ -52,6 +58,50 @@ func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Contex
 			return err
 		}
 		reply := out.(*HelloReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Greeter_BindWallet0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in BindWalletRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterBindWallet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.BindWallet(ctx, req.(*BindWalletRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BindWalletReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Greeter_LoginWithWallet0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterLoginWithWallet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LoginWithWallet(ctx, req.(*LoginRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -79,6 +129,8 @@ func _Greeter_MarketCondition0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http
 }
 
 type GreeterHTTPClient interface {
+	BindWallet(ctx context.Context, req *BindWalletRequest, opts ...http.CallOption) (rsp *BindWalletReply, err error)
+	LoginWithWallet(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
 	MarketCondition(ctx context.Context, req *MarketConditionRequest, opts ...http.CallOption) (rsp *MarketConditionReply, err error)
 	SayHello(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (rsp *HelloReply, err error)
 }
@@ -89,6 +141,32 @@ type GreeterHTTPClientImpl struct {
 
 func NewGreeterHTTPClient(client *http.Client) GreeterHTTPClient {
 	return &GreeterHTTPClientImpl{client}
+}
+
+func (c *GreeterHTTPClientImpl) BindWallet(ctx context.Context, in *BindWalletRequest, opts ...http.CallOption) (*BindWalletReply, error) {
+	var out BindWalletReply
+	pattern := "/v1/bindWallet"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterBindWallet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *GreeterHTTPClientImpl) LoginWithWallet(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*LoginReply, error) {
+	var out LoginReply
+	pattern := "/v1/loginWithWallet"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterLoginWithWallet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *GreeterHTTPClientImpl) MarketCondition(ctx context.Context, in *MarketConditionRequest, opts ...http.CallOption) (*MarketConditionReply, error) {

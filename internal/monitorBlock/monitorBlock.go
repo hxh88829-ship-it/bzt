@@ -5,11 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/go-kratos/kratos/v2/log"
 	"strings"
-	"sync"
-	"sync/atomic"
 	"time"
 	"valueguard/internal/api"
 	"valueguard/internal/bzt"
@@ -20,163 +19,97 @@ import (
 var BztAddr = "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a"
 var Platform = "0x331E865F47fd1b197d04Fe60E45DEf0C3A1EBA24"
 
-// ScanBlocks 是主扫块逻辑，带 Redis 锁控制并发安全、自动重试与失败块记录
-func ScanBlocks(ctx context.Context, maxConcurrency int) error {
-	lockKey := fmt.Sprintf("lock:block_scan:%d", api.ChainId)
-	lockTTL := 30 * time.Second
-	retryDelay := 300 * time.Millisecond
+func ScanBlocks() error {
+	chainId := api.ChainId
 
-	return redisQuery.WithRedisLock(ctx, lockKey, lockTTL, 3, retryDelay, func() error {
-		// 获取已扫记录与当前链上高度
-		mongoBln, err := mongo.GetScanBlock(api.ChainId)
-		if err != nil {
-			if errors.Is(err, mongo.ErrNoDocuments) {
-				mongoBln = mongo.ScanBlock{
-					NetWork:     api.ChainId,
-					Time:        time.Now().Unix(),
-					LatestBlock: 0,
-				}
-				if err := mongo.AddScanBlock(mongoBln); err != nil {
-					return err
-				}
-			} else {
+	// 1. 从Mongo获取上次扫描的区块号
+	mongoBln, err := mongo.GetScanBlock(chainId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			var bl mongo.ScanBlock
+			bl.NetWork = chainId
+			bl.Time = time.Now().Unix()
+			bl.LatestBlock = 0
+			err = mongo.AddScanBlock(bl)
+			if err != nil {
 				return err
 			}
-		}
-
-		latestBlock, err := api.GetBlockNumber()
-		if err != nil {
+			mongoBln = bl
+		} else {
 			return err
 		}
-		log.Info(latestBlock)
-		safeBlock := latestBlock - 10
-		if mongoBln.LatestBlock >= safeBlock {
-			log.Infof("✅ 无新块可扫，当前高度 %d", mongoBln.LatestBlock)
-			return nil
-		}
+	}
+	//链上新块
+	NewBlockNumber, err := api.GetBlockNumber()
+	if err != nil {
+		log.Error("ScanBlocks: api.GetBlockNumber error:", err)
+		return err
+	}
+	//安全块
+	SafeBlock := NewBlockNumber - 10
 
-		blockCh := make(chan uint64, maxConcurrency)
-		var wg sync.WaitGroup
-		var firstErr atomic.Value         // 存储首个错误
-		var maxSuccessBlock atomic.Uint64 // 当前处理成功的最大块
-
-		// 启动多个并发 worker 处理区块
-		for i := 0; i < maxConcurrency; i++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				defer recoverGoroutine()
-
-				for blockNum := range blockCh {
-					// 🧩 调用封装后的块处理函数（包含重试、错误记录、成功记录等）
-					handleBlockWithRetry(blockNum, &firstErr, &maxSuccessBlock)
-				}
-			}()
-		}
-
-		// 投递区块任务到 blockCh
-		go func() {
-
-			for blockNum := mongoBln.LatestBlock + 1; blockNum <= safeBlock; blockNum++ {
-				blockCh <- blockNum
-			}
-			close(blockCh)
-		}()
-
-		wg.Wait()
-
-		successBlock := maxSuccessBlock.Load()
-		if successBlock == 0 {
-			log.Warn("⚠️ 没有任何区块成功处理")
-			return nil
-		}
-
-		// 更新 MongoDB 中的已扫区块高度
-		if err := UpdateScanBlockPlace(successBlock); err != nil {
-			return err
-		}
-
-		// 若有错误直接返回（只返回首个错误）
-		if errVal := firstErr.Load(); errVal != nil {
-			return errVal.(error)
-		}
-
-		log.Infof("✅ 成功扫块至 %d", successBlock)
+	if mongoBln.LatestBlock >= SafeBlock {
+		log.Infof("无可处理新块，高度为 %d（当前区块 %d）", mongoBln.LatestBlock, NewBlockNumber)
+		time.Sleep(time.Second / 100)
 		return nil
-	})
-}
-
-// handleBlockWithRetry 负责获取区块 + 处理交易 + 错误记录 + 成功块更新
-func handleBlockWithRetry(blockNum uint64, firstErr *atomic.Value, maxSuccessBlock *atomic.Uint64) {
-	var bl *types.Block
-	var err error
-
-	// 尝试获取区块（最多重试 3 次）
-	for attempt := 1; attempt <= 3; attempt++ {
-		bl, err = api.GetBlockByNumber(blockNum)
-		if err == nil {
-			break
-		}
-		log.Warnf("⛏️ 获取区块 %d 第 %d 次失败: %v", blockNum, attempt, err)
-		time.Sleep(time.Second * time.Duration(attempt))
-	}
-	if err != nil {
-		recordFirstError(firstErr, fmt.Errorf("获取区块 %d 失败: %w", blockNum, err))
-		// 🧩 原先遗漏了记录获取失败的块
-		if err := AddLossBlock(blockNum); err != nil {
-			log.Warnf("AddLossBlock %d 错误（GetBlock失败）: %v", blockNum, err)
-		}
-		return
 	}
 
-	// 尝试处理区块交易（最多重试 3 次）
-	for attempt := 1; attempt <= 3; attempt++ {
-		err = ProcessTransactions(bl)
-		if err == nil {
-			break
-		}
-		log.Warnf("📦 处理区块 %d 第 %d 次失败: %v", blockNum, attempt, err)
-		time.Sleep(time.Second * time.Duration(attempt))
-	}
-	if err != nil {
-		recordFirstError(firstErr, fmt.Errorf("处理区块 %d 交易失败: %w", blockNum, err))
+	const maxRetry = 3
 
-		// 持久化失败块用于后续补偿
-		if err := AddLossBlock(blockNum); err != nil {
-			log.Warnf("AddLossBlock %d 错误: %v", blockNum, err)
-		}
-		return
-	}
+	for blockNum := mongoBln.LatestBlock + 1; blockNum <= SafeBlock; blockNum++ {
+		var bl *types.Block
+		var err error
 
-	// ✅ 区块成功处理，尝试记录最大成功高度
-	updateSuccessBlock(blockNum, maxSuccessBlock)
-}
-
-// recoverGoroutine 防止 goroutine 中 panic 崩溃主流程
-func recoverGoroutine() {
-	if r := recover(); r != nil {
-		log.Errorf("🔥 goroutine panic: %v", r)
-	}
-}
-
-// recordFirstError 仅记录第一次出现的错误，线程安全
-func recordFirstError(firstErr *atomic.Value, err error) {
-	firstErr.CompareAndSwap(nil, err)
-}
-
-// updateSuccessBlock 安全更新最大已成功处理区块号
-func updateSuccessBlock(blockNum uint64, maxBlock *atomic.Uint64) {
-	maxBlock.CompareAndSwap(0, blockNum)
-	for {
-		old := maxBlock.Load()
-		if blockNum > old {
-			if maxBlock.CompareAndSwap(old, blockNum) {
+		// ----------------------
+		// Retry GetBlockByNumber
+		// ----------------------
+		for i := 1; i <= maxRetry; i++ {
+			bl, err = api.GetBlockByNumber(blockNum)
+			if err == nil {
 				break
 			}
-		} else {
-			break
+			log.Warnf("获取区块 %d 第 %d 次失败: %v", blockNum, i, err)
+			time.Sleep(time.Second * time.Duration(i))
+		}
+		if err != nil {
+			log.Errorf("获取区块 %d 最终失败，退出处理: %v", blockNum, err)
+			return err
+		}
+
+		// ----------------------
+		// Retry ProcessTransactions
+		// ----------------------
+		for i := 1; i <= maxRetry; i++ {
+			err = ProcessTransactions(bl)
+			if err == nil {
+				break
+			}
+			log.Warnf("处理区块 %d 交易 第 %d 次失败: %v", blockNum, i, err)
+			time.Sleep(time.Second * time.Duration(i))
+		}
+		if err != nil {
+			log.Errorf("处理区块 %d 交易失败，退出处理: %v", blockNum, err)
+			return err
+		}
+
+		// ----------------------
+		// Retry AddScanBlockPlace
+		// ----------------------
+		for i := 1; i <= maxRetry; i++ {
+			err = UpdateScanBlockPlace(blockNum)
+			if err == nil {
+				break
+			}
+			log.Warnf("更新区块 %d 扫描位置 第 %d 次失败: %v", blockNum, i, err)
+			time.Sleep(time.Second * time.Duration(i))
+		}
+		if err != nil {
+			log.Errorf("更新区块 %d 扫描位置失败，退出处理: %v", blockNum, err)
+			return err
 		}
 	}
+
+	return nil
 }
 
 func ProcessTransactions(bl *types.Block) error {
@@ -212,7 +145,7 @@ func ProcessTransactions(bl *types.Block) error {
 				log.Errorf("GetTransactionReceiptByHash err: %v", err)
 				return err
 			}
-			_, err = ParseEvents(receipt, blockTime)
+			_, err = ParseEvents(tx, receipt, blockTime, from)
 			if err != nil {
 				log.Errorf("ParseEvents err: %v", err)
 				return err
@@ -228,12 +161,12 @@ func ProcessTransactions(bl *types.Block) error {
 	return nil
 }
 
-func ParseEvents(receipt *types.Receipt, blTime uint64) (string, error) {
-	OrderClosedSigHash := common.HexToHash("0x06a2f7fd54de050efdb547068782f039f9d20511970de8f48241f64625f52d96")
-	AirdropSigHash := common.HexToHash("0x8c32c568416fcf97be35ce5b27844cfddcd63a67a1a602c3595ba5dac38f303a")
+func ParseEvents(tx *types.Transaction, receipt *types.Receipt, blTime uint64, from common.Address) (string, error) {
+	OrderClosedTopic := common.HexToHash("0x06a2f7fd54de050efdb547068782f039f9d20511970de8f48241f64625f52d96")
+	AirdropTopic := common.HexToHash("0x8c32c568416fcf97be35ce5b27844cfddcd63a67a1a602c3595ba5dac38f303a")
 	for _, vLog := range receipt.Logs {
 		switch vLog.Topics[0] {
-		case OrderClosedSigHash:
+		case OrderClosedTopic:
 			// 解析 关仓 事件
 			order, err := bzt.GetParseOrderClosed(receipt)
 			if err != nil {
@@ -241,14 +174,18 @@ func ParseEvents(receipt *types.Receipt, blTime uint64) (string, error) {
 			}
 			if order != nil {
 				// 关仓事件数据记录
-				err = OrderClosedTrade(order, int64(blTime))
+				err = OrderClosedTrade(order, blTime)
 				if err != nil {
 					return "", fmt.Errorf("<UNK> OrderClosed <UNK>: %w", err)
 				}
 				log.Infof("🔒 识别为关仓事件: TxHash=%s", receipt.TxHash.Hex())
+				err = AddTransactionTrade(tx, receipt, from, blTime, "OrderClosed")
+				if err != nil {
+					return "", fmt.Errorf("<UNK> OrderClosed <UNK>: %w", err)
+				}
 				return "order_closed", nil
 			}
-		case AirdropSigHash:
+		case AirdropTopic:
 			// 解析 空投 事件
 			airdrop, err := bzt.GetParseAirdrop(receipt)
 			if err != nil {
@@ -256,7 +193,16 @@ func ParseEvents(receipt *types.Receipt, blTime uint64) (string, error) {
 			}
 			if airdrop != nil {
 				//空投事件数据记录
+				err = AirdropTrade(airdrop, receipt, blTime)
+				if err != nil {
+					log.Errorf("Airdrop : %v", err)
+					return "", fmt.Errorf("<UNK> Airdrop <UNK>: %w", err)
+				}
 				log.Infof("🎁 识别为空投事件: TxHash=%s", receipt.TxHash.Hex())
+				err = AddTransactionTrade(tx, receipt, from, blTime, "Airdrop")
+				if err != nil {
+					return "", fmt.Errorf("<UNK> Airdrop <UNK>: %w", err)
+				}
 				return "airdrop", nil
 			}
 		}
@@ -269,6 +215,10 @@ func OrderOpenedTrade(tx *types.Transaction, blTime uint64) error {
 	if err != nil {
 		return err
 	}
+	if receipt.Status == 0 {
+		log.Warnf(" TxHash=%s", receipt.TxHash.String())
+		return nil
+	}
 	event, err := bzt.GetParseOrderOpened(receipt)
 	if err != nil {
 		return err
@@ -276,8 +226,7 @@ func OrderOpenedTrade(tx *types.Transaction, blTime uint64) error {
 	_, err = mongo.GetOrder(event.OrderId.String())
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			orderTime := int64(blTime)
-			price, err := mongo.GetPriceByTimestamp(orderTime, event.TokenName)
+			price, err := mongo.GetPriceByTimestamp(blTime, event.TokenName)
 			if err != nil {
 				log.Errorf("GetPriceByTimestamp err: %v", err)
 				return err
@@ -286,7 +235,7 @@ func OrderOpenedTrade(tx *types.Transaction, blTime uint64) error {
 			userOrder.OrderId = event.OrderId.String()
 			userOrder.Symbol = event.TokenName
 			userOrder.OpenPrice = price.Price
-			userOrder.OrderStartTime = orderTime
+			userOrder.OrderStartTime = blTime
 			userOrder.Amount = event.Amount.String()
 			userOrder.UsersAddr = strings.ToLower(event.User.String())
 			userOrder.IsClosed = false
@@ -297,12 +246,12 @@ func OrderOpenedTrade(tx *types.Transaction, blTime uint64) error {
 	}
 	return nil
 }
-func OrderClosedTrade(event *bzt.BztOrderClosed, blTime int64) error {
-	//UserOrder, err := mongo.GetOrder(event.OrderId.String())
-	//if err != nil {
-	//	log.Errorf("GetOrdererr: %v", err)
-	//	return err
-	//}
+func OrderClosedTrade(event *bzt.BztOrderClosed, blTime uint64) error {
+	_, err := mongo.GetOrder(event.OrderId.String())
+	if err != nil {
+		log.Errorf("GetOrdererr: %v\n %v", event.OrderId.String(), err)
+		return err
+	}
 	resOrder, err := bzt.GetOrders(event.OrderId.Int64())
 	if err != nil {
 		log.Errorf("GetOrderserr: %v", err)
@@ -317,12 +266,53 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, blTime int64) error {
 	return nil
 }
 
-func AirdropTrade() error {
-
+func AirdropTrade(event *bzt.BztAirdrop, receipt *types.Receipt, blTime uint64) error {
+	_, err := mongo.GetAirdrop(event.Raw.TxHash.String())
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			var air mongo.Airdrop
+			air.TxHash = strings.ToLower(event.Raw.TxHash.String())
+			air.Symbol = "USDT"
+			air.ToAddr = strings.ToLower(event.Recipient.String())
+			air.Amount = event.Amount.String()
+			air.AirdropTime = blTime
+			air.Status = receipt.Status
+			err = mongo.AddAirdrop(air)
+			if err != nil {
+				log.Errorf("AddAirdrop err: %v", err)
+				return err
+			}
+		} else {
+			log.Errorf("GetAirdroperr: %v", err)
+			return err
+		}
+	}
 	return nil
 }
 
-func AddTransactionTrade() error {
+func AddTransactionTrade(txh *types.Transaction, receipt *types.Receipt,
+	from common.Address, blTime uint64, name string) error {
+	_, err := mongo.GetTransaction(receipt.TxHash.String())
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			var tx mongo.Transaction
+			tx.TxHash = strings.ToLower(receipt.TxHash.String())
+			tx.From = strings.ToLower(from.String())
+			tx.To = strings.ToLower(txh.To().String())
+			tx.Value = txh.Value().String()
+			tx.Data = hexutil.Encode(txh.Data())
+			tx.Nonce = txh.Nonce()
+			tx.Gas = txh.Gas()
+			tx.GasPrice = txh.GasPrice().String()
+			tx.Number = receipt.BlockNumber.Uint64()
+			tx.Status = receipt.Status
+			tx.Time = blTime
+			tx.TransactionType = name
+		} else {
+			log.Errorf("GetTransactionerr: %v", err)
+			return err
+		}
+	}
 	return nil
 }
 

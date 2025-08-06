@@ -17,6 +17,19 @@ service Greeter {
       get: "/helloworld/{name}/{value}"
     };
   }
+  rpc BindWallet (BindWalletRequest) returns (BindWalletReply) {
+    option (google.api.http) = {
+      post: "/v1/bindWallet"
+      body: "*"
+    };
+  }
+
+  rpc LoginWithWallet (LoginRequest) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/v1/loginWithWallet"
+      body: "*"
+    };
+  }
   rpc MarketCondition (MarketConditionRequest) returns (MarketConditionReply) {
     option (google.api.http) = {
       post: "/v1/marketCondition"
@@ -35,6 +48,30 @@ message HelloRequest {
 message HelloReply {
   string message = 1;
 }
+
+message BindWalletRequest {
+  string address = 1;
+  string email = 2;
+  string name = 3;
+}
+
+// The response message containing the greetings
+message BindWalletReply {
+  string uid= 1;
+  string metadata = 2;
+  string hash = 3;
+}
+
+message LoginRequest {
+  string uid = 1;
+  string signature = 2;
+}
+
+// The response message containing the greetings
+message LoginReply {
+  string token = 1;
+}
+
 message MarketConditionRequest {
   string symbol = 1;
 }
@@ -42,4 +79,5 @@ message MarketConditionRequest {
 // The response message containing the greetings
 message MarketConditionReply {
   string price = 1;
+  int64 time = 2;
 }

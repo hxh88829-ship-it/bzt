@@ -120,6 +120,224 @@ func (x *HelloReply) GetMessage() string {
 	return ""
 }
 
+type BindWalletRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindWalletRequest) Reset() {
+	*x = BindWalletRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindWalletRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindWalletRequest) ProtoMessage() {}
+
+func (x *BindWalletRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindWalletRequest.ProtoReflect.Descriptor instead.
+func (*BindWalletRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BindWalletRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *BindWalletRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *BindWalletRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// The response message containing the greetings
+type BindWalletReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Uid           string                 `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	Metadata      string                 `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Hash          string                 `protobuf:"bytes,3,opt,name=hash,proto3" json:"hash,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindWalletReply) Reset() {
+	*x = BindWalletReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindWalletReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindWalletReply) ProtoMessage() {}
+
+func (x *BindWalletReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindWalletReply.ProtoReflect.Descriptor instead.
+func (*BindWalletReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *BindWalletReply) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *BindWalletReply) GetMetadata() string {
+	if x != nil {
+		return x.Metadata
+	}
+	return ""
+}
+
+func (x *BindWalletReply) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
+type LoginRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Uid           string                 `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	Signature     string                 `protobuf:"bytes,2,opt,name=signature,proto3" json:"signature,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginRequest) Reset() {
+	*x = LoginRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginRequest) ProtoMessage() {}
+
+func (x *LoginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
+func (*LoginRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *LoginRequest) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetSignature() string {
+	if x != nil {
+		return x.Signature
+	}
+	return ""
+}
+
+// The response message containing the greetings
+type LoginReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginReply) Reset() {
+	*x = LoginReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginReply) ProtoMessage() {}
+
+func (x *LoginReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginReply.ProtoReflect.Descriptor instead.
+func (*LoginReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *LoginReply) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
 type MarketConditionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
@@ -129,7 +347,7 @@ type MarketConditionRequest struct {
 
 func (x *MarketConditionRequest) Reset() {
 	*x = MarketConditionRequest{}
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -141,7 +359,7 @@ func (x *MarketConditionRequest) String() string {
 func (*MarketConditionRequest) ProtoMessage() {}
 
 func (x *MarketConditionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -154,7 +372,7 @@ func (x *MarketConditionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarketConditionRequest.ProtoReflect.Descriptor instead.
 func (*MarketConditionRequest) Descriptor() ([]byte, []int) {
-	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{2}
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MarketConditionRequest) GetSymbol() string {
@@ -168,13 +386,14 @@ func (x *MarketConditionRequest) GetSymbol() string {
 type MarketConditionReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Price         string                 `protobuf:"bytes,1,opt,name=price,proto3" json:"price,omitempty"`
+	Time          int64                  `protobuf:"varint,2,opt,name=time,proto3" json:"time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MarketConditionReply) Reset() {
 	*x = MarketConditionReply{}
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -186,7 +405,7 @@ func (x *MarketConditionReply) String() string {
 func (*MarketConditionReply) ProtoMessage() {}
 
 func (x *MarketConditionReply) ProtoReflect() protoreflect.Message {
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -199,7 +418,7 @@ func (x *MarketConditionReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarketConditionReply.ProtoReflect.Descriptor instead.
 func (*MarketConditionReply) Descriptor() ([]byte, []int) {
-	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{3}
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *MarketConditionReply) GetPrice() string {
@@ -207,6 +426,13 @@ func (x *MarketConditionReply) GetPrice() string {
 		return x.Price
 	}
 	return ""
+}
+
+func (x *MarketConditionReply) GetTime() int64 {
+	if x != nil {
+		return x.Time
+	}
+	return 0
 }
 
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
@@ -219,13 +445,31 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\x04R\x05value\"&\n" +
 	"\n" +
 	"HelloReply\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"0\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"W\n" +
+	"\x11BindWalletRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\"S\n" +
+	"\x0fBindWalletReply\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x1a\n" +
+	"\bmetadata\x18\x02 \x01(\tR\bmetadata\x12\x12\n" +
+	"\x04hash\x18\x03 \x01(\tR\x04hash\">\n" +
+	"\fLoginRequest\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x1c\n" +
+	"\tsignature\x18\x02 \x01(\tR\tsignature\"\"\n" +
+	"\n" +
+	"LoginReply\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
 	"\x16MarketConditionRequest\x12\x16\n" +
-	"\x06symbol\x18\x01 \x01(\tR\x06symbol\",\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\"@\n" +
 	"\x14MarketConditionReply\x12\x14\n" +
-	"\x05price\x18\x01 \x01(\tR\x05price2\xf0\x01\n" +
+	"\x05price\x18\x01 \x01(\tR\x05price\x12\x12\n" +
+	"\x04time\x18\x02 \x01(\x03R\x04time2\xc6\x03\n" +
 	"\aGreeter\x12f\n" +
-	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12}\n" +
+	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
+	"\n" +
+	"BindWallet\x12 .helloworld.v1.BindWalletRequest\x1a\x1e.helloworld.v1.BindWalletReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/bindWallet\x12i\n" +
+	"\x0fLoginWithWallet\x12\x1b.helloworld.v1.LoginRequest\x1a\x19.helloworld.v1.LoginReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/loginWithWallet\x12}\n" +
 	"\x0fMarketCondition\x12%.helloworld.v1.MarketConditionRequest\x1a#.helloworld.v1.MarketConditionReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/marketConditionBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
@@ -241,20 +485,28 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*HelloRequest)(nil),           // 0: helloworld.v1.HelloRequest
 	(*HelloReply)(nil),             // 1: helloworld.v1.HelloReply
-	(*MarketConditionRequest)(nil), // 2: helloworld.v1.MarketConditionRequest
-	(*MarketConditionReply)(nil),   // 3: helloworld.v1.MarketConditionReply
+	(*BindWalletRequest)(nil),      // 2: helloworld.v1.BindWalletRequest
+	(*BindWalletReply)(nil),        // 3: helloworld.v1.BindWalletReply
+	(*LoginRequest)(nil),           // 4: helloworld.v1.LoginRequest
+	(*LoginReply)(nil),             // 5: helloworld.v1.LoginReply
+	(*MarketConditionRequest)(nil), // 6: helloworld.v1.MarketConditionRequest
+	(*MarketConditionReply)(nil),   // 7: helloworld.v1.MarketConditionReply
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	0, // 0: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
-	2, // 1: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
-	1, // 2: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	3, // 3: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	2, // 1: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
+	4, // 2: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
+	6, // 3: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
+	1, // 4: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	3, // 5: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	5, // 6: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	7, // 7: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -271,7 +523,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

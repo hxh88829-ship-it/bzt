@@ -55,7 +55,7 @@ func TestUpdateOrder(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	err = UpdateOrder("123", strconv.Itoa(333), strconv.Itoa(33))
+	err = UpdateOrder("123", strconv.Itoa(333), strconv.Itoa(33), 0)
 	if err != nil {
 		t.Error(err)
 		return

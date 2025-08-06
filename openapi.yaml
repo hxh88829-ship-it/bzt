@@ -31,6 +31,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1/bindWallet:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_BindWallet
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.BindWalletRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.BindWalletReply'
+    /v1/loginWithWallet:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_LoginWithWallet
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.LoginReply'
     /v1/marketCondition:
         post:
             tags:
@@ -51,16 +87,50 @@ paths:
                                 $ref: '#/components/schemas/helloworld.v1.MarketConditionReply'
 components:
     schemas:
+        helloworld.v1.BindWalletReply:
+            type: object
+            properties:
+                uid:
+                    type: string
+                metadata:
+                    type: string
+                hash:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.BindWalletRequest:
+            type: object
+            properties:
+                address:
+                    type: string
+                email:
+                    type: string
+                name:
+                    type: string
         helloworld.v1.HelloReply:
             type: object
             properties:
                 message:
                     type: string
             description: The response message containing the greetings
+        helloworld.v1.LoginReply:
+            type: object
+            properties:
+                token:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.LoginRequest:
+            type: object
+            properties:
+                uid:
+                    type: string
+                signature:
+                    type: string
         helloworld.v1.MarketConditionReply:
             type: object
             properties:
                 price:
+                    type: string
+                time:
                     type: string
             description: The response message containing the greetings
         helloworld.v1.MarketConditionRequest:

@@ -37,8 +37,8 @@ type Order struct {
 	Amount         string `bson:"amount" json:"amount"`
 	UsersAddr      string `bson:"users_addr" json:"users_addr"`
 	IsClosed       bool   `bson:"is_closed" json:"is_closed"` //nil表示待确定，false开仓中，true关仓
-	OrderStartTime int64  `bson:"order_start_time" json:"order_start_time"`
-	OrderEndTime   int64  `bson:"order_end_time" json:"order_end_time"`
+	OrderStartTime uint64 `bson:"order_start_time" json:"order_start_time"`
+	OrderEndTime   uint64 `bson:"order_end_time" json:"order_end_time"`
 }
 
 type LossAmount struct {
@@ -54,8 +54,8 @@ type Airdrop struct {
 	ToAddr      string `bson:"to_addr" json:"to_addr"`
 	Amount      string `bson:"amount" json:"amount"`
 	Symbol      string `bson:"symbol" json:"symbol"`             // 空投币种
-	Status      int    `bson:"status" json:"status"`             // 状态 (0:失败 1:成功)
-	AirdropTime int64  `bson:"airdrop_time" json:"airdrop_time"` // 空投时间
+	Status      uint64 `bson:"status" json:"status"`             // 状态 (0:失败 1:成功)
+	AirdropTime uint64 `bson:"airdrop_time" json:"airdrop_time"` // 空投时间
 	TxHash      string `bson:"tx_hash" json:"tx_hash"`           // 交易哈希
 }
 
@@ -88,9 +88,8 @@ type Transaction struct {
 	Time            uint64 `bson:"time" json:"time"`
 	Number          uint64 `bson:"number" json:"number"`
 	Value           string `bson:"value" json:"value"`
-	Gas             string `bson:"gas" json:"gas"`
+	Gas             uint64 `bson:"gas" json:"gas"`
 	GasPrice        string `bson:"gas_price" json:"gas_price"`
-	Symbol          string `bson:"symbol" json:"symbol"`
 	TransactionType string `bson:"transaction_type" json:"transaction_type"` //1。充值 2.提现。 3。转账
 	Status          uint64 `bson:"status" json:"status"`
 }

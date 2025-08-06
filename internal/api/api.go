@@ -434,11 +434,12 @@ func StringToBigIntSub(a, b string) (*big.Int, error) {
 func GenerateUID() string {
 	return uuid.New().String() // 默认使用 UUID v4（随机生成）
 }
-func GetJwtKey(uid string) (string, error) {
+func GetJwtKey(uid, addr string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub": uid,
-		"exp": time.Now().Add(time.Hour * 1).Unix(),
-		"iat": time.Now().Unix(),
+		"sub":  uid,
+		"addr": addr,
+		"exp":  time.Now().Add(time.Hour * 1).Unix(),
+		"iat":  time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte("123456"))

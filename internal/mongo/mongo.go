@@ -94,13 +94,34 @@ func GetUser(addr string) (Users, error) {
 	if MonCli == nil {
 		return Users{}, errors.New("mongo client is nil " + "GetUser")
 	}
-	filter := bson.D{{"address", addr}}
+	filter := bson.M{
+		"$or": []bson.M{
+			{"address": addr},
+			{"uid": addr},
+		},
+	}
 	var ma Users
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).FindOne(context.Background(), filter).Decode(&ma)
 	if err != nil {
 		return Users{}, ErrNoDocuments
 	}
 	return ma, nil
+}
+func UpdateUser(uid, OriginalMessage string) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil")
+	}
+	filter := bson.D{{"uid", uid}}
+	update := bson.D{{"$set", bson.D{
+		{"original_message", OriginalMessage},
+	},
+	}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).UpdateMany(context.Background(), filter, update)
+	if err != nil {
+		log.Error(err, "UpdateUser fail")
+		return err
+	}
+	return nil
 }
 
 // 最新行情价格
@@ -143,7 +164,7 @@ func SavePrice(symbol, price string, ind int) error {
 	}
 	return nil
 }
-func GetPriceByTimestamp(blockTime int64, symbol string) (CoinPrice, error) {
+func GetPriceByTimestamp(blockTime uint64, symbol string) (CoinPrice, error) {
 	if MonCli == nil {
 		return CoinPrice{}, errors.New("mongo client is nil" + "GetPriceByTimestamp")
 	}
@@ -186,7 +207,7 @@ func GetOrder(OrderId string) (Order, error) {
 	}
 	return ma, nil
 }
-func UpdateOrder(OrderId, ClosePri, Profit string, blTime int64) error {
+func UpdateOrder(OrderId, ClosePri, Profit string, blTime uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateOrder")
 	}
@@ -202,6 +223,33 @@ func UpdateOrder(OrderId, ClosePri, Profit string, blTime int64) error {
 		return errors.New("update order fail")
 	}
 	return nil
+}
+
+// 空投
+func AddAirdrop(air Airdrop) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "AddAirdrop")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).InsertOne(context.Background(), air)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return errors.New("add airdrop fail")
+	}
+	return nil
+}
+func GetAirdrop(tx string) (Airdrop, error) {
+	if MonCli == nil {
+		return Airdrop{}, errors.New("mongo client is nil" + "GetAirdrop")
+	}
+	filter := bson.D{{"tx_hash", tx}}
+	var a Airdrop
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).FindOne(context.Background(), filter).Decode(&a)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return Airdrop{}, ErrNoDocuments
+	}
+	return a, nil
+
 }
 
 // 交易详情

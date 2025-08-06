@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Greeter_SayHello_FullMethodName        = "/helloworld.v1.Greeter/SayHello"
+	Greeter_BindWallet_FullMethodName      = "/helloworld.v1.Greeter/BindWallet"
+	Greeter_LoginWithWallet_FullMethodName = "/helloworld.v1.Greeter/LoginWithWallet"
 	Greeter_MarketCondition_FullMethodName = "/helloworld.v1.Greeter/MarketCondition"
 )
 
@@ -31,6 +33,8 @@ const (
 type GreeterClient interface {
 	// Sends a greeting
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	BindWallet(ctx context.Context, in *BindWalletRequest, opts ...grpc.CallOption) (*BindWalletReply, error)
+	LoginWithWallet(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error)
 	MarketCondition(ctx context.Context, in *MarketConditionRequest, opts ...grpc.CallOption) (*MarketConditionReply, error)
 }
 
@@ -46,6 +50,26 @@ func (c *greeterClient) SayHello(ctx context.Context, in *HelloRequest, opts ...
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(HelloReply)
 	err := c.cc.Invoke(ctx, Greeter_SayHello_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) BindWallet(ctx context.Context, in *BindWalletRequest, opts ...grpc.CallOption) (*BindWalletReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BindWalletReply)
+	err := c.cc.Invoke(ctx, Greeter_BindWallet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) LoginWithWallet(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginReply)
+	err := c.cc.Invoke(ctx, Greeter_LoginWithWallet_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,6 +94,8 @@ func (c *greeterClient) MarketCondition(ctx context.Context, in *MarketCondition
 type GreeterServer interface {
 	// Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	BindWallet(context.Context, *BindWalletRequest) (*BindWalletReply, error)
+	LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error)
 	MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
@@ -83,6 +109,12 @@ type UnimplementedGreeterServer struct{}
 
 func (UnimplementedGreeterServer) SayHello(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
+}
+func (UnimplementedGreeterServer) BindWallet(context.Context, *BindWalletRequest) (*BindWalletReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BindWallet not implemented")
+}
+func (UnimplementedGreeterServer) LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginWithWallet not implemented")
 }
 func (UnimplementedGreeterServer) MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarketCondition not implemented")
@@ -126,6 +158,42 @@ func _Greeter_SayHello_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_BindWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BindWalletRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).BindWallet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_BindWallet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).BindWallet(ctx, req.(*BindWalletRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_LoginWithWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).LoginWithWallet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_LoginWithWallet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).LoginWithWallet(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Greeter_MarketCondition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MarketConditionRequest)
 	if err := dec(in); err != nil {
@@ -154,6 +222,14 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SayHello",
 			Handler:    _Greeter_SayHello_Handler,
+		},
+		{
+			MethodName: "BindWallet",
+			Handler:    _Greeter_BindWallet_Handler,
+		},
+		{
+			MethodName: "LoginWithWallet",
+			Handler:    _Greeter_LoginWithWallet_Handler,
 		},
 		{
 			MethodName: "MarketCondition",

@@ -158,7 +158,7 @@ func RunService(ctx context.Context, symbols []string) {
 				log.Info("Block scanner stopping...")
 				return
 			case <-ticker.C:
-				if err := monitorBlock.ScanBlocks(ctx, 10); err != nil {
+				if err := monitorBlock.ScanBlocks(); err != nil {
 					log.Errorf("Scan failed: %v", err)
 				}
 			}
@@ -183,7 +183,7 @@ func RunService(ctx context.Context, symbols []string) {
 			case <-ticker.C:
 				for _, symbol := range symbols {
 					index := symbolIndexes[symbol]
-					log.Infof("Market price checker: %v", index)
+					//	log.Infof("Market price checker: %v", index)
 					err := marketCondition.GetMarketCondition(symbol, index)
 					if err != nil {
 						log.Errorf("Failed to fetch %s: %v", symbol, err)
@@ -202,6 +202,10 @@ func RunService(ctx context.Context, symbols []string) {
 				log.Errorf("panic in redis checker: %v", r)
 			}
 		}()
+		// ✅ 第一次立即执行
+		if err := redisQuery.SafeSyncPlatformUsersToRedis(context.Background()); err != nil {
+			log.Errorf("首次同步 Redis 失败: %v", err)
+		}
 		ticker := time.NewTicker(10 * time.Minute)
 		defer ticker.Stop()
 		for {

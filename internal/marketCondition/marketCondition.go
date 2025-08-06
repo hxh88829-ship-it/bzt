@@ -67,7 +67,7 @@ func GetMarketCondition(symbol string, ind int) error {
 		return err
 	}
 
-	log.Infof("✅ [%s] Latest price: %s", result.Symbol, result.Price)
+	//log.Infof("✅ [%s] Latest price: %s", result.Symbol, result.Price)
 
 	// 更新数据库/缓存
 	if err := UpdateNewPrice(symbol, result.Price, ind); err != nil {
