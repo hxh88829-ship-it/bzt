@@ -19,37 +19,13 @@ import (
 var BztAddr = "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a"
 var Platform = "0x331E865F47fd1b197d04Fe60E45DEf0C3A1EBA24"
 
-func ScanBlocks() error {
-	chainId := api.ChainId
-
-	// 1. 从Mongo获取上次扫描的区块号
-	mongoBln, err := mongo.GetScanBlock(chainId)
+func ScanBlocks(ctx context.Context) error {
+	mongoBln, SafeBlock, err := GetMongodbBlockAndLinkBlock()
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			var bl mongo.ScanBlock
-			bl.NetWork = chainId
-			bl.Time = time.Now().Unix()
-			bl.LatestBlock = 0
-			err = mongo.AddScanBlock(bl)
-			if err != nil {
-				return err
-			}
-			mongoBln = bl
-		} else {
-			return err
-		}
-	}
-	//链上新块
-	NewBlockNumber, err := api.GetBlockNumber()
-	if err != nil {
-		log.Error("ScanBlocks: api.GetBlockNumber error:", err)
 		return err
 	}
-	//安全块
-	SafeBlock := NewBlockNumber - 10
-
 	if mongoBln.LatestBlock >= SafeBlock {
-		log.Infof("无可处理新块，高度为 %d（当前区块 %d）", mongoBln.LatestBlock, NewBlockNumber)
+		log.Infof("无可处理新块，高度为 %d（当前区块 %d）", mongoBln.LatestBlock, SafeBlock+10)
 		time.Sleep(time.Second / 100)
 		return nil
 	}
@@ -73,6 +49,10 @@ func ScanBlocks() error {
 		}
 		if err != nil {
 			log.Errorf("获取区块 %d 最终失败，退出处理: %v", blockNum, err)
+			err = AddLossBlock(blockNum, "获取区块最终失败")
+			if err != nil {
+				log.Error(err)
+			}
 			return err
 		}
 
@@ -80,7 +60,7 @@ func ScanBlocks() error {
 		// Retry ProcessTransactions
 		// ----------------------
 		for i := 1; i <= maxRetry; i++ {
-			err = ProcessTransactions(bl)
+			err = ProcessTransactions(bl, ctx)
 			if err == nil {
 				break
 			}
@@ -89,6 +69,10 @@ func ScanBlocks() error {
 		}
 		if err != nil {
 			log.Errorf("处理区块 %d 交易失败，退出处理: %v", blockNum, err)
+			err = AddLossBlock(blockNum, "处理区块交易失败")
+			if err != nil {
+				log.Error(err)
+			}
 			return err
 		}
 
@@ -105,6 +89,10 @@ func ScanBlocks() error {
 		}
 		if err != nil {
 			log.Errorf("更新区块 %d 扫描位置失败，退出处理: %v", blockNum, err)
+			err = AddLossBlock(blockNum, "更新区块扫描位置失败")
+			if err != nil {
+				log.Error(err)
+			}
 			return err
 		}
 	}
@@ -112,9 +100,8 @@ func ScanBlocks() error {
 	return nil
 }
 
-func ProcessTransactions(bl *types.Block) error {
+func ProcessTransactions(bl *types.Block, ctx context.Context) error {
 	blockTime := bl.Time()
-	ctx := context.Background()
 	for _, tx := range bl.Transactions() {
 		from, err := api.GetFromByTransaction(tx)
 		if err != nil {
@@ -329,7 +316,38 @@ func UpdateScanBlockPlace(safeBlock uint64) error {
 	return nil
 }
 
-func AddLossBlock(safeBlock uint64) error {
+func GetMongodbBlockAndLinkBlock() (mongo.ScanBlock, uint64, error) {
+	chainId := api.ChainId
+
+	// 1. 从Mongo获取上次扫描的区块号
+	mongoBln, err := mongo.GetScanBlock(chainId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			var bl mongo.ScanBlock
+			bl.NetWork = chainId
+			bl.Time = time.Now().Unix()
+			bl.LatestBlock = 0
+			err = mongo.AddScanBlock(bl)
+			if err != nil {
+				return mongo.ScanBlock{}, 0, err
+			}
+			mongoBln = bl
+		} else {
+			return mongo.ScanBlock{}, 0, err
+		}
+	}
+	//链上新块
+	NewBlockNumber, err := api.GetBlockNumber()
+	if err != nil {
+		log.Error("ScanBlocks: api.GetBlockNumber error:", err)
+		return mongo.ScanBlock{}, 0, err
+	}
+	//安全块
+	SafeBlock := NewBlockNumber - 10
+	return mongoBln, SafeBlock, nil
+}
+
+func AddLossBlock(safeBlock uint64, reason string) error {
 	_, err := mongo.GetLossBlock(safeBlock)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -337,13 +355,14 @@ func AddLossBlock(safeBlock uint64) error {
 			LossBlock.NetWork = api.ChainId
 			LossBlock.Time = time.Now().Unix()
 			LossBlock.BlockNr = safeBlock
+			LossBlock.Reason = reason
 			err = mongo.AddLossBlock(LossBlock)
 			if err != nil {
 				log.Error("MonitorBlock  AddLossBlock AddLossBlock")
 				return err
 			}
 		} else {
-			log.Error("MonitorBlock  AddLossBlock AddLossBlock")
+			log.Infof("区块 %d 已在失败块列表中,错误：%v", safeBlock, err)
 			return err
 		}
 	}

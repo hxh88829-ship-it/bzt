@@ -158,7 +158,7 @@ func RunService(ctx context.Context, symbols []string) {
 				log.Info("Block scanner stopping...")
 				return
 			case <-ticker.C:
-				if err := monitorBlock.ScanBlocks(); err != nil {
+				if err := monitorBlock.ScanBlocks(ctx); err != nil {
 					log.Errorf("Scan failed: %v", err)
 				}
 			}

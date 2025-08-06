@@ -105,4 +105,5 @@ type LossBlock struct {
 	NetWork uint64 `bson:"netWork" json:"netWork"`
 	BlockNr uint64 `bson:"blockNr" json:"blockNr"`
 	Time    int64  `bson:"time" json:"time"`
+	Reason  string `bson:"reason" json:"reason"`
 }
