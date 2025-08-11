@@ -13,6 +13,7 @@ import (
 	v1 "valueguard/api/helloworld/v1"
 	"valueguard/internal/api"
 	"valueguard/internal/biz"
+	"valueguard/internal/bzt"
 	"valueguard/internal/mongo"
 	"valueguard/internal/redisQuery"
 )
@@ -38,15 +39,6 @@ func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1
 	return &v1.HelloReply{Message: "Hello " + g.Hello + strconv.FormatUint(g.Value, 10)}, nil
 }
 
-// BindWallet TODO
-/*
-  // ...注册逻辑，写入 MongoDB
-
-    // 注册成功后立即写入 Redis
-    if err := RedisCli.SAdd(ctx, redisKey, strings.ToLower(user.Address)).Err(); err != nil {
-        log.Warnf("⚠️ 注册用户后 Redis SAdd 失败: %v", err)
-    }
-*/
 func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletRequest) (*v1.BindWalletReply, error) {
 	isAddress := regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString
 	addr := strings.ToLower(in.GetAddress())
@@ -58,7 +50,7 @@ func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletReques
 		return &v1.BindWalletReply{}, err
 	}
 	if exists {
-		return nil, errors.New("wallet already bound")
+		return &v1.BindWalletReply{Metadata: "wallet already bound"}, nil
 	}
 	uid := api.GenerateUID()
 	nonce := api.GenerateUID()
@@ -90,7 +82,7 @@ func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletReques
 }
 
 func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginRequest) (*v1.LoginReply, error) {
-	us, err := mongo.GetUser(in.GetUid())
+	us, err := mongo.GetUser(in.GetAddress())
 	if err != nil {
 		return nil, err
 	}
@@ -100,12 +92,12 @@ func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginReques
 		return nil, errors.New("signature verification failed")
 	}
 	if addr != us.Address {
-		log.Warnf(addr, "\n", us.Address)
+		log.Warnf("⚠️ 地址不匹配: 签名地址: %s, 绑定地址: %s", addr, us.Address)
 		return nil, errors.New("signature not match with address")
 	}
 
 	// 清除已使用的签名
-	_ = mongo.UpdateUser(us.Uid, "")
+	_ = mongo.UpdateUser(us.Address, "")
 
 	// 生成 JWT
 
@@ -119,16 +111,196 @@ func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginReques
 	}, nil
 }
 
-func (s *GreeterService) MarketCondition(ctx context.Context, in *v1.MarketConditionRequest) (*v1.MarketConditionReply, error) {
-	priTime := time.Now().Unix()
-	res, err := mongo.GetPriceByTimestamp(uint64(priTime), in.GetSymbol())
-	if err != nil {
-		log.Warnf("symbol %v---err:%v", in.GetSymbol(), err)
-		return nil, errors.New("symbol not exist")
+func (s *GreeterService) GetLoginMessage(ctx context.Context, in *v1.GetLoginMessageRequest) (*v1.GetLoginMessageReply, error) {
+	isAddress := regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString
+	addr := strings.ToLower(in.GetAddress())
+	if !isAddress(addr) {
+		return &v1.GetLoginMessageReply{Metadata: "invalid address"}, nil
 	}
+	exists, err := IsWalletBound(ctx, addr)
+	if err != nil {
+		return &v1.GetLoginMessageReply{}, err
+	}
+	if !exists {
+		return &v1.GetLoginMessageReply{Metadata: "wallet not exists"}, nil
+	}
+	nonce := api.GenerateUID()
+	message := fmt.Sprintf("保值通系统请求绑定你的地址：\n%s\n操作类型: bind_wallet\nNonce: %s\nIssued At: %s", addr, nonce, time.Now().Format(time.RFC3339))
+
+	//更新用户元数据
+	_ = mongo.UpdateUser(strings.ToLower(in.GetAddress()), message)
+
+	return &v1.GetLoginMessageReply{
+		Metadata: message,
+		Hash:     hexutil.Encode(api.ComputeMessageHash(message)),
+	}, nil
+}
+
+func (s *GreeterService) WalletBalance(ctx context.Context, in *v1.WalletBalanceRequest) (*v1.WalletBalanceReply, error) {
+	isAddress := regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString
+	addr := strings.ToLower(in.GetAddress())
+	if !isAddress(addr) {
+		return &v1.WalletBalanceReply{}, nil
+	}
+
+	exists, err := IsWalletBound(ctx, addr)
+	if err != nil {
+		return &v1.WalletBalanceReply{}, err
+	}
+	if !exists {
+		log.Warnf("<addr> no exists: %s", addr)
+		return &v1.WalletBalanceReply{}, nil
+	}
+
+	// 查询多个代币余额
+	symbols := []string{"DTT", "DUSDT"}
+	var tokens []*v1.TokenBalance
+
+	for _, symbol := range symbols {
+		balance, err := api.GetTokenBalance(ctx, addr, symbol)
+		if err != nil {
+			log.Warnf("failed to get balance for %s: %v", symbol, err)
+			continue
+		}
+		tokens = append(tokens, &v1.TokenBalance{
+			Symbol:  symbol,
+			Balance: balance,
+		})
+	}
+
+	return &v1.WalletBalanceReply{Tokens: tokens}, nil
+}
+
+func (s *GreeterService) MarketCondition(ctx context.Context, in *v1.MarketConditionRequest) (*v1.MarketConditionReply, error) {
+	symbol := in.GetSymbol()
+	startTime := in.GetStartTime()
+	endTime := in.GetEndTime()
+
+	if startTime >= endTime {
+		return nil, errors.New("invalid time range")
+	}
+
+	// 假设你有这样的方法
+	prices, err := mongo.GetPriceBySymbol(symbol, startTime, endTime)
+	if err != nil {
+		log.Warnf("symbol %v --- err: %v", symbol, err)
+		return nil, errors.New("failed to get price history")
+	}
+
+	var marketPrices []*v1.MarketPrice
+	for _, p := range prices {
+		marketPrices = append(marketPrices, &v1.MarketPrice{
+			Price: p.Price,
+			Time:  p.Timestamp,
+		})
+	}
+
 	return &v1.MarketConditionReply{
-		Price: res.Price,
-		Time:  res.Timestamp,
+		Prices: marketPrices,
+	}, nil
+}
+
+func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest) (*v1.OpenOrderReply, error) {
+	// 1. 参数校验
+	if in.GetAddress() == "" || in.GetAmount() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" {
+		return nil, errors.New("missing required parameters")
+	}
+	ok, err := IsWalletBound(ctx, in.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return &v1.OpenOrderReply{}, nil
+	}
+	orderId := api.GenerateUID()
+	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
+	if err != nil {
+		return nil, err
+	}
+	count, err := mongo.CountOpenOrdersByAddress(in.GetAddress())
+	if err != nil {
+		return nil, errors.New("failed to check open order count")
+	}
+
+	const maxOpenOrders = 10
+	if count >= maxOpenOrders {
+		return nil, fmt.Errorf("too many open orders (max %d)", maxOpenOrders)
+	}
+
+	order := mongo.Order{
+		OrderId:        orderId,
+		Symbol:         in.GetSymbol(),
+		OpenPrice:      res.Price,
+		ClosePrice:     "",
+		ProfitLoss:     "",
+		Amount:         in.GetAmount(),
+		UsersAddr:      in.GetAddress(),
+		IsClosed:       uint64(0), // 0=未开仓确认（待链上确认）
+		OrderStartTime: in.GetTimestamp(),
+		OrderEndTime:   0,
+		OpenTxHash:     "",
+		CloseTxHash:    "",
+	}
+
+	err = mongo.AddOrder(order)
+	if err != nil {
+		log.Errorf("CreateOrder failed: %v", err)
+		return nil, errors.New("failed to create order")
+	}
+
+	return &v1.OpenOrderReply{
+		OrderId: orderId,
+	}, nil
+}
+
+func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderRequest) (*v1.CloseOrderReply, error) {
+	// 1. 参数校验
+	if in.GetAddress() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" || in.GetOrderId() == "" {
+		return nil, errors.New("missing required parameters")
+	}
+	/* 核对地址 */
+	ok, err := IsWalletBound(ctx, in.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return &v1.CloseOrderReply{}, nil
+	}
+	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
+	if err != nil {
+		return nil, err
+	}
+	UserOrderId, err := mongo.GetOrder(in.GetOrderId())
+	if err != nil {
+		return nil, err
+	}
+	orderId, err := api.StringToBigInt(UserOrderId.OrderId)
+	if err != nil {
+		return nil, err
+	}
+	OpenPrice, err := api.StringToBigInt(UserOrderId.OpenPrice)
+	if err != nil {
+		return nil, err
+	}
+	ClosePrice, err := api.StringToBigInt(UserOrderId.ClosePrice)
+	if err != nil {
+		return nil, err
+	}
+	profit, err := api.StringToBigIntSub(ClosePrice.String(), OpenPrice.String())
+	if err != nil {
+		return nil, err
+	}
+	tx, err := bzt.GetCloseOrder(orderId.Int64(), OpenPrice.Int64(), ClosePrice.Int64(), res.Symbol)
+	if err != nil {
+		return nil, err
+	}
+	err = mongo.UpdateOrderClose(orderId.String(), ClosePrice.String(),
+		profit.String(), in.GetTimestamp())
+	if err != nil {
+		return nil, err
+	}
+	return &v1.CloseOrderReply{
+		Tx: tx.Hash().String(),
 	}, nil
 }
 
@@ -138,6 +310,9 @@ func IsWalletBound(ctx context.Context, addr string) (bool, error) {
 	exists, err := redisQuery.RedisCli.SIsMember(ctx, "platform_users_set", addr).Result()
 	if err == nil && exists {
 		return true, nil
+	}
+	if err != nil {
+		log.Warnf("<addr> : %s, <err>: %s", addr, err)
 	}
 	// Mongo 判断
 	_, err = mongo.GetUser(addr)

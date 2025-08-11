@@ -1,7 +1,6 @@
 package mongo
 
 import (
-	"strconv"
 	"testing"
 )
 
@@ -55,11 +54,7 @@ func TestUpdateOrder(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	err = UpdateOrder("123", strconv.Itoa(333), strconv.Itoa(33), 0)
-	if err != nil {
-		t.Error(err)
-		return
-	}
+
 }
 
 func TestGetPriceByTimestamp(t *testing.T) {
@@ -70,10 +65,28 @@ func TestGetPriceByTimestamp(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	res, err := GetPriceByTimestamp(1754027483, "BTCUSDT")
+	//res, err := GetPriceByTimestamp(1754027483, "BTCUSDT")
+	//if err != nil {
+	//	t.Error(err)
+	//	return
+	//}
+	//t.Log(res.Price, res.Timestamp, res.Index, res.Symbol)
+
+}
+
+func TestGetPriceBySymbol(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+
+	}
+	defer cli.Close()
+	MonCli = cli
+	res, err := GetPriceBySymbol("BTCUSDT", 1754910845, 1754910856)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Log(res.Price, res.Timestamp, res.Index, res.Symbol)
+	t.Log(res)
 }

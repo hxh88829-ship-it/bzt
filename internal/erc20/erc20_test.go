@@ -266,7 +266,7 @@ func TestNewErc20Transactor_Approve(t *testing.T) {
 		return
 	}
 	t.Log(tx.Hash().Hex())
-	//0x486fc22a8a86cbec9d7d854214d62f8f1eccf99fdf9bc8ead96bc310efc0dc66
+	//0xe82ea7828aaf59f77b17c09bbf9d3cff72f1c223dbcc22b6ba3c94ea84d9d09a
 }
 
 func TestNewErc20Transactor_TransferFrom(t *testing.T) {

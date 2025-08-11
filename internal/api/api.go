@@ -430,6 +430,23 @@ func StringToBigIntSub(a, b string) (*big.Int, error) {
 	sum.Sub(i, j) // 大整数加法
 	return sum, nil
 }
+func StringToBigIntDiv(a, b string) (*big.Int, error) {
+	i := new(big.Int)
+	_, ok := i.SetString(a, 0) // 支持0x/0前缀的十六进制/八进制
+	if !ok {
+		return nil, errors.New("StringToBigInt fail: invalid format for first argument")
+	}
+
+	j := new(big.Int)
+	_, ok = j.SetString(b, 0)
+	if !ok {
+		return nil, errors.New("StringToBigInt fail: invalid format for second argument")
+	}
+
+	dis := new(big.Int)
+	dis.Div(i, j) // 大整数加法
+	return dis, nil
+}
 
 func GenerateUID() string {
 	return uuid.New().String() // 默认使用 UUID v4（随机生成）
@@ -443,4 +460,20 @@ func GetJwtKey(uid, addr string) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte("123456"))
+}
+
+func GetTokenBalance(ctx context.Context, addr string, symbol string) (string, error) {
+	switch symbol {
+	case "DTT":
+		balance, err := GetBalanceByAddress(addr)
+		if err != nil {
+			return "", err
+		}
+		return balance.String(), nil
+	case "DUSDT":
+
+		return Erc20Transactor_BalanceOf(addr)
+	default:
+		return "", fmt.Errorf("unsupported token symbol: %s", symbol)
+	}
 }

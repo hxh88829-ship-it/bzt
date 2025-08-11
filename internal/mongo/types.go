@@ -23,8 +23,8 @@ type Wallet struct {
 type CoinPrice struct {
 	Symbol    string `bson:"symbol" json:"symbol"`
 	Price     string `bson:"price" json:"price"`
-	Timestamp int64  `bson:"timestamp" json:"timestamp"`
-	Index     int    `bson:"index" json:"index"`
+	Timestamp uint64 `bson:"timestamp" json:"timestamp"`
+	Index     uint64 `bson:"index" json:"index"`
 }
 
 // Order 订单
@@ -36,17 +36,24 @@ type Order struct {
 	ProfitLoss     string `bson:"profit_loss" json:"profit_loss"`
 	Amount         string `bson:"amount" json:"amount"`
 	UsersAddr      string `bson:"users_addr" json:"users_addr"`
-	IsClosed       bool   `bson:"is_closed" json:"is_closed"` //nil表示待确定，false开仓中，true关仓
+	IsClosed       uint64 `bson:"is_closed" json:"is_closed"` //0待确定，1开仓，2关仓
 	OrderStartTime uint64 `bson:"order_start_time" json:"order_start_time"`
 	OrderEndTime   uint64 `bson:"order_end_time" json:"order_end_time"`
+	OpenTxHash     string `bson:"open_tx_hash" json:"open_tx_hash"`
+	CloseTxHash    string `bson:"close_tx_hash" json:"close_tx_hash"`
 }
 
-type LossAmount struct {
-	UserAddr string `bson:"user_addr" json:"user_addr"`
-	Symbol   string `bson:"symbol" json:"symbol"`
-	Amount   string `bson:"amount" json:"amount"`
-	Counts   string `bson:"counts" json:"counts"`
-	UpdateAt int64  `bson:"update_at" json:"update_at"`
+type RewardAmount struct {
+	Symbol      string `bson:"symbol" json:"symbol"`
+	UpdateAt    uint64 `bson:"update_at" json:"update_at"`
+	TotalAmount string `bson:"total_amount" json:"total_amount"`
+}
+
+type UserLossAmount struct {
+	Symbol     string `bson:"symbol" json:"symbol"`
+	UpdateAt   uint64 `bson:"update_at" json:"update_at"`
+	LossAmount string `bson:"loss_amount" json:"loss_amount"`
+	UserAddr   string `bson:"user_addr" json:"user_addr"`
 }
 
 // Airdrop 空投
@@ -54,28 +61,8 @@ type Airdrop struct {
 	ToAddr      string `bson:"to_addr" json:"to_addr"`
 	Amount      string `bson:"amount" json:"amount"`
 	Symbol      string `bson:"symbol" json:"symbol"`             // 空投币种
-	Status      uint64 `bson:"status" json:"status"`             // 状态 (0:失败 1:成功)
 	AirdropTime uint64 `bson:"airdrop_time" json:"airdrop_time"` // 空投时间
 	TxHash      string `bson:"tx_hash" json:"tx_hash"`           // 交易哈希
-}
-
-type WithdrawalAddress struct {
-	UserAddr  string `bson:"user_addr" json:"user_addr"`   // 用户地址
-	Symbol    string `bson:"symbol" json:"symbol"`         // 适用币种
-	Amount    string `bson:"amount" json:"amount"`         // 金额
-	TxHash    string `bson:"tx_hash" json:"tx_hash"`       // 交易哈希
-	Status    int    `bson:"status" json:"status"`         // 状态 (0:失败 1:成功 )
-	CreatedAt int64  `bson:"created_at" json:"created_at"` // 添加时间
-}
-
-type DepositRecord struct {
-	UserAddr   string `bson:"user_addr" json:"user_addr"`     // 用户地址
-	FromAddr   string `bson:"from_addr" json:"from_addr"`     // 来源地址
-	Symbol     string `bson:"symbol" json:"symbol"`           // 币种
-	Amount     string `bson:"amount" json:"amount"`           // 充值数量
-	TxHash     string `bson:"tx_hash" json:"tx_hash"`         // 交易哈希
-	Status     int    `bson:"status" json:"status"`           // 状态 (0:失败 1:成功 )
-	CreateTime int64  `bson:"create_time" json:"create_time"` // 创建时间
 }
 
 // Transaction 交易记录

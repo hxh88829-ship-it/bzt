@@ -119,6 +119,7 @@ func WithRedisLockSeparate(
 
 	return &LockHandle{Locked: false}, fmt.Errorf("🔁 尝试 %d 次仍未获取锁: %s", maxRetry, key)
 }
+
 func SafeSyncPlatformUsersToRedis(ctx context.Context) error {
 	log.Info("🔄 正在从 MongoDB 安全同步平台用户地址到 Redis")
 	addresses, err := GetUserByMongodb(ctx)

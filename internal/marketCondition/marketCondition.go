@@ -13,7 +13,7 @@ import (
 	"valueguard/internal/mongo"
 )
 
-func GetMarketCondition(symbol string, ind int) error {
+func GetMarketCondition(symbol string, ind uint64) error {
 	apiURL := "https://api.binance.com/api/v3/ticker/price?symbol=" + symbol
 
 	// 创建带超时的上下文（总请求控制在 10 秒内）
@@ -67,24 +67,25 @@ func GetMarketCondition(symbol string, ind int) error {
 		return err
 	}
 
-	//log.Infof("✅ [%s] Latest price: %s", result.Symbol, result.Price)
+	log.Infof("✅ [%s] Latest price: %s", result.Symbol, result.Price)
 
 	// 更新数据库/缓存
-	if err := UpdateNewPrice(symbol, result.Price, ind); err != nil {
+	times := uint64(time.Now().Unix())
+	if err := UpdateNewPrice(symbol, result.Price, ind, times); err != nil {
 		log.Errorf("🔧 [%s] Update price error: %v", symbol, err)
 		return err
 	}
 
 	return nil
 }
-func UpdateNewPrice(symbol, newPrice string, ind int) error {
+func UpdateNewPrice(symbol, newPrice string, ind, times uint64) error {
 	_, err := mongo.GetPriceForIndex(symbol, ind)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			var price mongo.CoinPrice
 			price.Symbol = symbol
 			price.Price = newPrice
-			price.Timestamp = time.Now().Unix()
+			price.Timestamp = times
 			price.Index = ind
 			err = mongo.AddPrice(price)
 			if err != nil {
@@ -97,7 +98,7 @@ func UpdateNewPrice(symbol, newPrice string, ind int) error {
 			return err
 		}
 	}
-	err = mongo.SavePrice(symbol, newPrice, ind)
+	err = mongo.SavePrice(symbol, newPrice, ind, times)
 	if err != nil {
 		log.Errorf("mongodb other errors [%s] Update price error: %v", symbol, err)
 		return err

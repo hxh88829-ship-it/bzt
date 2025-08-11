@@ -24,15 +24,39 @@ service Greeter {
     };
   }
 
+  rpc GetLoginMessage (GetLoginMessageRequest) returns (GetLoginMessageReply) {
+    option (google.api.http) = {
+      post: "/v1/getLoginMessage"
+      body: "*"
+    };
+  }
   rpc LoginWithWallet (LoginRequest) returns (LoginReply) {
     option (google.api.http) = {
       post: "/v1/loginWithWallet"
       body: "*"
     };
   }
+  rpc WalletBalance (WalletBalanceRequest) returns (WalletBalanceReply) {
+    option (google.api.http) = {
+      post: "/v1/walletBalance"
+      body: "*"
+    };
+  }
   rpc MarketCondition (MarketConditionRequest) returns (MarketConditionReply) {
     option (google.api.http) = {
       post: "/v1/marketCondition"
+      body: "*"
+    };
+  }
+  rpc OpenOrder (OpenOrderRequest) returns (OpenOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/openOrder"
+      body: "*"
+    };
+  }
+  rpc CloseOrder (CloseOrderRequest) returns (CloseOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/closeOrder"
       body: "*"
     };
   }
@@ -49,6 +73,15 @@ message HelloReply {
   string message = 1;
 }
 
+message GetLoginMessageRequest {
+  string address = 1;
+}
+
+// The response message containing the greetings
+message GetLoginMessageReply {
+  string metadata = 1;
+  string hash = 2;
+}
 message BindWalletRequest {
   string address = 1;
   string email = 2;
@@ -65,6 +98,7 @@ message BindWalletReply {
 message LoginRequest {
   string uid = 1;
   string signature = 2;
+  string address = 3;
 }
 
 // The response message containing the greetings
@@ -72,12 +106,55 @@ message LoginReply {
   string token = 1;
 }
 
+message WalletBalanceRequest {
+  string address = 1;
+}
+
+message TokenBalance {
+  string symbol = 1;
+  string balance = 2;
+}
+
+message WalletBalanceReply {
+  repeated TokenBalance tokens = 1;
+}
+
 message MarketConditionRequest {
   string symbol = 1;
+  int64 start_time = 2;
+  int64 end_time = 3;
+}
+
+message MarketPrice {
+  string price = 1;
+  uint64 time = 2;
+}
+
+message MarketConditionReply {
+  repeated MarketPrice prices = 1;
+}
+
+
+message OpenOrderRequest {
+  string address = 1;
+  string amount = 2;
+  uint64 timestamp = 3;
+  string symbol = 4;
 }
 
 // The response message containing the greetings
-message MarketConditionReply {
-  string price = 1;
-  int64 time = 2;
+message OpenOrderReply {
+  string orderId = 1;
+}
+
+message CloseOrderRequest {
+  string address = 1;
+  uint64 timestamp = 2;
+  string symbol = 3;
+  string orderId = 4;
+}
+
+// The response message containing the greetings
+message CloseOrderReply {
+  string tx = 1;
 }

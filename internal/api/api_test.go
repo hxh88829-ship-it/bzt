@@ -85,7 +85,7 @@ func TestGetTransactionReceiptByHash(t *testing.T) {
 		return
 	}
 	defer Client.Close()
-	tx, err := GetTransactionReceiptByHash(common.HexToHash("0x057eb086df137f5e846451aba3cca59c0ed7c7681526412fbee79afa05c984de"))
+	tx, err := GetTransactionReceiptByHash(common.HexToHash("0xe1bbd1fa7f9e644ba25df7211836961e9f4df85809ab80eac5d176838aa7e9e8"))
 	if err != nil {
 		t.Error("GetTransactionReceiptByHash fail")
 		return
@@ -99,7 +99,7 @@ func TestGetTransactionReceiptByHash(t *testing.T) {
 		t.Error("GetTransactionReceiptByHash fail")
 		return
 	}
-	t.Log(tx.Status)
+	t.Log(tx.EffectiveGasPrice)
 	t.Log(tx.Logs)
 
 }
@@ -112,15 +112,21 @@ func TestGetBalanceByAddress(t *testing.T) {
 		return
 	}
 	defer Client.Close()
-	bl, err := GetBalanceByAddress(userAddr2)
+	//bl, err := GetBalanceByAddress(userAddr2)
+	//if err != nil {
+	//	t.Error("GetBalanceByAddress fail")
+	//	return
+	//}
+	//t.Log(bl)
+	res, err := GetTokenBalance(context.Background(), userAddr2, "DUSDT")
 	if err != nil {
-		t.Error("GetBalanceByAddress fail")
+		t.Error("GetTokenBalance fail")
 		return
 	}
-	t.Log(bl)
+	t.Log(res)
 
-	//1:9890382239990000000
-	//2:100000000010000000
+	//1:9690217625996000000  499992000000
+	//2:29166994011000000  8000000
 }
 
 func TestGetBlockNumber(t *testing.T) {
@@ -345,13 +351,15 @@ func TestDirectLogValue(t *testing.T) {
 }
 
 func TestStringToBigIntSum(t *testing.T) {
-	var a string
-	a = "123"
-	b, err := StringToBigInt(a)
-
+	//res, err := StringToBigIntDiv("12", "6")
+	//if err != nil {
+	//	t.Error("StringToBigIntSum fail")
+	//	return
+	//}
+	res, err := StringToBigIntSum("12", "6")
 	if err != nil {
-		t.Error("StringToBigInt fail:", err)
+		t.Error("StringToBigIntSum fail")
 		return
 	}
-	t.Log(b)
+	t.Log(res)
 }

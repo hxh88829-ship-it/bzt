@@ -49,6 +49,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.BindWalletReply'
+    /v1/closeOrder:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_CloseOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.CloseOrderRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.CloseOrderReply'
+    /v1/getLoginMessage:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_GetLoginMessage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.GetLoginMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.GetLoginMessageReply'
     /v1/loginWithWallet:
         post:
             tags:
@@ -85,6 +121,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.MarketConditionReply'
+    /v1/openOrder:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_OpenOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.OpenOrderRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.OpenOrderReply'
+    /v1/walletBalance:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_WalletBalance
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.WalletBalanceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.WalletBalanceReply'
 components:
     schemas:
         helloworld.v1.BindWalletReply:
@@ -106,6 +178,36 @@ components:
                     type: string
                 name:
                     type: string
+        helloworld.v1.CloseOrderReply:
+            type: object
+            properties:
+                tx:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.CloseOrderRequest:
+            type: object
+            properties:
+                address:
+                    type: string
+                timestamp:
+                    type: string
+                symbol:
+                    type: string
+                orderId:
+                    type: string
+        helloworld.v1.GetLoginMessageReply:
+            type: object
+            properties:
+                metadata:
+                    type: string
+                hash:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.GetLoginMessageRequest:
+            type: object
+            properties:
+                address:
+                    type: string
         helloworld.v1.HelloReply:
             type: object
             properties:
@@ -125,18 +227,66 @@ components:
                     type: string
                 signature:
                     type: string
+                address:
+                    type: string
         helloworld.v1.MarketConditionReply:
+            type: object
+            properties:
+                prices:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.MarketPrice'
+        helloworld.v1.MarketConditionRequest:
+            type: object
+            properties:
+                symbol:
+                    type: string
+                startTime:
+                    type: string
+                endTime:
+                    type: string
+        helloworld.v1.MarketPrice:
             type: object
             properties:
                 price:
                     type: string
                 time:
                     type: string
+        helloworld.v1.OpenOrderReply:
+            type: object
+            properties:
+                orderId:
+                    type: string
             description: The response message containing the greetings
-        helloworld.v1.MarketConditionRequest:
+        helloworld.v1.OpenOrderRequest:
+            type: object
+            properties:
+                address:
+                    type: string
+                amount:
+                    type: string
+                timestamp:
+                    type: string
+                symbol:
+                    type: string
+        helloworld.v1.TokenBalance:
             type: object
             properties:
                 symbol:
+                    type: string
+                balance:
+                    type: string
+        helloworld.v1.WalletBalanceReply:
+            type: object
+            properties:
+                tokens:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.TokenBalance'
+        helloworld.v1.WalletBalanceRequest:
+            type: object
+            properties:
+                address:
                     type: string
 tags:
     - name: Greeter

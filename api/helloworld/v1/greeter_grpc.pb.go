@@ -21,8 +21,12 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Greeter_SayHello_FullMethodName        = "/helloworld.v1.Greeter/SayHello"
 	Greeter_BindWallet_FullMethodName      = "/helloworld.v1.Greeter/BindWallet"
+	Greeter_GetLoginMessage_FullMethodName = "/helloworld.v1.Greeter/GetLoginMessage"
 	Greeter_LoginWithWallet_FullMethodName = "/helloworld.v1.Greeter/LoginWithWallet"
+	Greeter_WalletBalance_FullMethodName   = "/helloworld.v1.Greeter/WalletBalance"
 	Greeter_MarketCondition_FullMethodName = "/helloworld.v1.Greeter/MarketCondition"
+	Greeter_OpenOrder_FullMethodName       = "/helloworld.v1.Greeter/OpenOrder"
+	Greeter_CloseOrder_FullMethodName      = "/helloworld.v1.Greeter/CloseOrder"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -34,8 +38,12 @@ type GreeterClient interface {
 	// Sends a greeting
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
 	BindWallet(ctx context.Context, in *BindWalletRequest, opts ...grpc.CallOption) (*BindWalletReply, error)
+	GetLoginMessage(ctx context.Context, in *GetLoginMessageRequest, opts ...grpc.CallOption) (*GetLoginMessageReply, error)
 	LoginWithWallet(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error)
+	WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceReply, error)
 	MarketCondition(ctx context.Context, in *MarketConditionRequest, opts ...grpc.CallOption) (*MarketConditionReply, error)
+	OpenOrder(ctx context.Context, in *OpenOrderRequest, opts ...grpc.CallOption) (*OpenOrderReply, error)
+	CloseOrder(ctx context.Context, in *CloseOrderRequest, opts ...grpc.CallOption) (*CloseOrderReply, error)
 }
 
 type greeterClient struct {
@@ -66,10 +74,30 @@ func (c *greeterClient) BindWallet(ctx context.Context, in *BindWalletRequest, o
 	return out, nil
 }
 
+func (c *greeterClient) GetLoginMessage(ctx context.Context, in *GetLoginMessageRequest, opts ...grpc.CallOption) (*GetLoginMessageReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetLoginMessageReply)
+	err := c.cc.Invoke(ctx, Greeter_GetLoginMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *greeterClient) LoginWithWallet(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LoginReply)
 	err := c.cc.Invoke(ctx, Greeter_LoginWithWallet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WalletBalanceReply)
+	err := c.cc.Invoke(ctx, Greeter_WalletBalance_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,6 +114,26 @@ func (c *greeterClient) MarketCondition(ctx context.Context, in *MarketCondition
 	return out, nil
 }
 
+func (c *greeterClient) OpenOrder(ctx context.Context, in *OpenOrderRequest, opts ...grpc.CallOption) (*OpenOrderReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OpenOrderReply)
+	err := c.cc.Invoke(ctx, Greeter_OpenOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) CloseOrder(ctx context.Context, in *CloseOrderRequest, opts ...grpc.CallOption) (*CloseOrderReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CloseOrderReply)
+	err := c.cc.Invoke(ctx, Greeter_CloseOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -95,8 +143,12 @@ type GreeterServer interface {
 	// Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
 	BindWallet(context.Context, *BindWalletRequest) (*BindWalletReply, error)
+	GetLoginMessage(context.Context, *GetLoginMessageRequest) (*GetLoginMessageReply, error)
 	LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error)
+	WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceReply, error)
 	MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error)
+	OpenOrder(context.Context, *OpenOrderRequest) (*OpenOrderReply, error)
+	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -113,11 +165,23 @@ func (UnimplementedGreeterServer) SayHello(context.Context, *HelloRequest) (*Hel
 func (UnimplementedGreeterServer) BindWallet(context.Context, *BindWalletRequest) (*BindWalletReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BindWallet not implemented")
 }
+func (UnimplementedGreeterServer) GetLoginMessage(context.Context, *GetLoginMessageRequest) (*GetLoginMessageReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLoginMessage not implemented")
+}
 func (UnimplementedGreeterServer) LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginWithWallet not implemented")
 }
+func (UnimplementedGreeterServer) WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WalletBalance not implemented")
+}
 func (UnimplementedGreeterServer) MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarketCondition not implemented")
+}
+func (UnimplementedGreeterServer) OpenOrder(context.Context, *OpenOrderRequest) (*OpenOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OpenOrder not implemented")
+}
+func (UnimplementedGreeterServer) CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CloseOrder not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -176,6 +240,24 @@ func _Greeter_BindWallet_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_GetLoginMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLoginMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).GetLoginMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_GetLoginMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).GetLoginMessage(ctx, req.(*GetLoginMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Greeter_LoginWithWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LoginRequest)
 	if err := dec(in); err != nil {
@@ -190,6 +272,24 @@ func _Greeter_LoginWithWallet_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GreeterServer).LoginWithWallet(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_WalletBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WalletBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).WalletBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_WalletBalance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).WalletBalance(ctx, req.(*WalletBalanceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -212,6 +312,42 @@ func _Greeter_MarketCondition_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_OpenOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OpenOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).OpenOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_OpenOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).OpenOrder(ctx, req.(*OpenOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_CloseOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CloseOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).CloseOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_CloseOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).CloseOrder(ctx, req.(*CloseOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,12 +364,28 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Greeter_BindWallet_Handler,
 		},
 		{
+			MethodName: "GetLoginMessage",
+			Handler:    _Greeter_GetLoginMessage_Handler,
+		},
+		{
 			MethodName: "LoginWithWallet",
 			Handler:    _Greeter_LoginWithWallet_Handler,
 		},
 		{
+			MethodName: "WalletBalance",
+			Handler:    _Greeter_WalletBalance_Handler,
+		},
+		{
 			MethodName: "MarketCondition",
 			Handler:    _Greeter_MarketCondition_Handler,
+		},
+		{
+			MethodName: "OpenOrder",
+			Handler:    _Greeter_OpenOrder_Handler,
+		},
+		{
+			MethodName: "CloseOrder",
+			Handler:    _Greeter_CloseOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

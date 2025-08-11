@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"strings"
 	"time"
 )
 
@@ -107,11 +108,11 @@ func GetUser(addr string) (Users, error) {
 	}
 	return ma, nil
 }
-func UpdateUser(uid, OriginalMessage string) error {
+func UpdateUser(addr, OriginalMessage string) error {
 	if MonCli == nil {
 		return errors.New("error:mongo.Client is nil")
 	}
-	filter := bson.D{{"uid", uid}}
+	filter := bson.D{{"address", addr}}
 	update := bson.D{{"$set", bson.D{
 		{"original_message", OriginalMessage},
 	},
@@ -136,7 +137,7 @@ func AddPrice(v CoinPrice) error {
 	}
 	return nil
 }
-func GetPriceForIndex(symbol string, ind int) (CoinPrice, error) {
+func GetPriceForIndex(symbol string, ind uint64) (CoinPrice, error) {
 	if MonCli == nil {
 		return CoinPrice{}, errors.New("error:mongo.Client is nil" + "GetPrice")
 	}
@@ -149,13 +150,14 @@ func GetPriceForIndex(symbol string, ind int) (CoinPrice, error) {
 	}
 	return ma, nil
 }
-func SavePrice(symbol, price string, ind int) error {
+func SavePrice(symbol, price string, ind, times uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil")
 	}
 	filter := bson.D{{"symbol", symbol}, {"index", ind}}
 	update := bson.D{{"$set", bson.D{
 		{"price", price},
+		{"timestamp", times},
 	}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).UpdateOne(context.Background(), filter, update)
 	if err != nil {
@@ -180,6 +182,36 @@ func GetPriceByTimestamp(blockTime uint64, symbol string) (CoinPrice, error) {
 		return CoinPrice{}, ErrNoDocuments
 	}
 	return priceRecord, nil
+}
+func GetPriceBySymbol(symbol string, start, end int64) ([]CoinPrice, error) {
+	if MonCli == nil {
+		return nil, errors.New("mongo client is nil: GetPriceBySymbol")
+	}
+
+	collection := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice)
+
+	filter := bson.M{
+		"symbol": symbol,
+		"timestamp": bson.M{
+			"$gte": start,
+			"$lte": end,
+		},
+	}
+
+	opts := options.Find().SetSort(bson.D{{"timestamp", -1}}) // 时间升序排列
+
+	cursor, err := collection.Find(context.Background(), filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var results []CoinPrice
+	if err := cursor.All(context.Background(), &results); err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }
 
 // 订单
@@ -207,7 +239,7 @@ func GetOrder(OrderId string) (Order, error) {
 	}
 	return ma, nil
 }
-func UpdateOrder(OrderId, ClosePri, Profit string, blTime uint64) error {
+func UpdateOrderClose(OrderId, ClosePri, Profit string, timestamp uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateOrder")
 	}
@@ -215,12 +247,153 @@ func UpdateOrder(OrderId, ClosePri, Profit string, blTime uint64) error {
 	update := bson.D{{"$set", bson.D{
 		{"close_price", ClosePri},
 		{"profit_loss", Profit},
-		{"order_end_time", blTime},
+		{"order_end_time", timestamp},
+	}}}
+
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateLogin err: ", err)
+		return errors.New("update order fail")
+	}
+	return nil
+}
+func UpdateOrderOpenStatus(OrderId, OpenTx string, IsClosed uint64) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "UpdateOrderStatus")
+	}
+	filter := bson.D{{"order_id", OrderId}}
+	update := bson.D{{"$set", bson.D{
+		{"is_closed", IsClosed},
+		{"open_tx_hash", OpenTx},
 	}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateLogin err: ", err)
 		return errors.New("update order fail")
+	}
+	return nil
+}
+func UpdateOrderClosedStatus(OrderId, CloseTx string, IsClosed uint64) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "UpdateOrderStatus")
+	}
+	filter := bson.D{{"order_id", OrderId}}
+	update := bson.D{{"$set", bson.D{
+		{"is_closed", IsClosed},
+		{"close_tx_hash", CloseTx},
+	}}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateLogin err: ", err)
+		return errors.New("update order fail")
+	}
+	return nil
+}
+func CountOpenOrdersByAddress(address string) (int64, error) {
+	if MonCli == nil {
+		return 0, errors.New("mongo client is nil" + "CountOpenOrdersByAddress")
+	}
+	filter := bson.M{
+		"users_addr": strings.ToLower(address),
+		"is_closed": bson.M{
+			"$in": []uint64{0, 1}, // 未结算状态
+		},
+	}
+	count, err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).CountDocuments(context.Background(), filter)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+// 奖励池
+func AddRewardAmount(a RewardAmount) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "AddRewardAmount")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).InsertOne(context.Background(), a)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return errors.New("add loss amount fail")
+	}
+	return nil
+}
+func GetRewardAmount(tokenName string) (RewardAmount, error) {
+	if MonCli == nil {
+		return RewardAmount{}, errors.New("mongo client is nil" + "GetRewardAmount")
+	}
+	filter := bson.M{
+		"symbol": strings.ToLower(tokenName),
+	}
+	var loss RewardAmount
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).FindOne(context.Background(), filter).Decode(loss)
+	if err != nil {
+		return RewardAmount{}, ErrNoDocuments
+	}
+	return loss, nil
+}
+func UpdateRewardAmount(tokenName, totalAmount string) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "UpdateRewardAmount")
+	}
+	filter := bson.M{
+		"symbol": strings.ToLower(tokenName),
+	}
+	update := bson.D{
+		{"$set", bson.D{
+			{"total_amount", totalAmount},
+		}}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateLoss err: ", err)
+		return errors.New("update amount fail")
+	}
+	return nil
+}
+
+// 用户亏损记录
+func AddUserLossAmount(a UserLossAmount) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "AddUserLossAmount")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).InsertOne(context.Background(), a)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return errors.New("add user loss amount fail")
+	}
+	return nil
+}
+func GetUserLossAmount(addr, tokenName string) (UserLossAmount, error) {
+	if MonCli == nil {
+		return UserLossAmount{}, errors.New("mongo client is nil" + "GetUserLossAmount")
+	}
+	filter := bson.M{
+		"symbol":    tokenName,
+		"user_addr": strings.ToLower(addr),
+	}
+	var loss UserLossAmount
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).FindOne(context.Background(), filter).Decode(&loss)
+	if err != nil {
+		return UserLossAmount{}, ErrNoDocuments
+	}
+	return loss, nil
+}
+func UpdateUserLossAmount(tokenName, addr, Amount string) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "UpdateUserLossAmount")
+	}
+	filter := bson.M{
+		"symbol":    tokenName,
+		"user_addr": strings.ToLower(addr),
+	}
+	update := bson.D{
+		{"$set", bson.D{
+			{"loss_amount", Amount},
+		}}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateLoss err: ", err)
+		return errors.New("update loss amount fail")
 	}
 	return nil
 }
@@ -350,4 +523,53 @@ func GetLossBlock(i uint64) (LossBlock, error) {
 		return LossBlock{}, ErrNoDocuments
 	}
 	return bl, nil
+}
+func GetLossBlocksByNetwork(networkID uint64) ([]LossBlock, error) {
+	if MonCli == nil {
+		return nil, errors.New("mongo client is nil in GetLossBlocksByNetwork")
+	}
+
+	// 创建查询过滤器：查找指定网络的所有区块
+	filter := bson.D{{"netWork", networkID}}
+
+	// 执行查询
+	cursor, err := MonCli.Client.Database(DatabaseNameForChain).
+		Collection(lossBlock).
+		Find(context.Background(), filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query loss blocks: %v", err)
+	}
+	defer cursor.Close(context.Background())
+
+	// 准备结果切片
+	var blocks []LossBlock
+
+	// 遍历游标，解码所有匹配的文档
+	for cursor.Next(context.Background()) {
+		var block LossBlock
+		if err := cursor.Decode(&block); err != nil {
+			return nil, fmt.Errorf("failed to decode loss block: %v", err)
+		}
+		blocks = append(blocks, block)
+	}
+
+	// 检查游标遍历过程中是否有错误
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("cursor error: %v", err)
+	}
+
+	return blocks, nil
+}
+func DeleteLossBlock(i uint64) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil" + "DeleteLossBlock")
+	}
+	filter := bson.D{{"blockNr", i}}
+	var bl LossBlock
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossBlock).FindOne(context.Background(), filter).Decode(&bl)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return err
+	}
+	return nil
 }

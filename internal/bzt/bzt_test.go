@@ -80,7 +80,7 @@ func TestBztCaller_Orders(t *testing.T) {
 	}
 	cli := api.Client
 	defer cli.Close()
-	res, err := GetOrders(0)
+	res, err := GetOrders(4)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -110,13 +110,15 @@ func TestBztTransactor_OpenOrder(t *testing.T) {
 		return
 	}
 
-	tx, err := ca.OpenOrder(opt, big.NewInt(3), "BTC", big.NewInt(1e+6))
+	tx, err := ca.OpenOrder(opt, big.NewInt(4), "BTCUSDT", big.NewInt(1e+6))
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	t.Log(tx.Hash())
-	//0xa63b3c63131e669dfa803cd882f8852705386a9afaa4675f68305b24ddf6d9ac
+	//0xb8d2ab59a05757bf4e63d715b38b95f2a6b9f6c062bca3f8ad8ea76e1f6aeac4
+	//0x9c0d3ee1d8c5f29980638ea8eed41391fa99f71c6f1fc495ef9e4dc877b46bfe fail
+
 }
 
 func TestBztTransactor_CloseOrder(t *testing.T) {
@@ -128,7 +130,7 @@ func TestBztTransactor_CloseOrder(t *testing.T) {
 	}
 	cli := api.Client
 	defer cli.Close()
-	tx, err := GetCloseOrder(0, 1000000, 1000000, "BTC")
+	tx, err := GetCloseOrder(4, 1000000, 3000000, "BTCUSDT")
 	if err != nil {
 		t.Fatal(err)
 		return

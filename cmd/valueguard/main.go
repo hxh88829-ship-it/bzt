@@ -137,7 +137,8 @@ func LoadConfigInit() error {
 }
 
 func RunService(ctx context.Context, symbols []string) {
-	var symbolIndexes = make(map[string]int)
+	var symbolIndexes = make(map[string]uint64)
+	var index uint64
 	for _, symbol := range symbols {
 		symbolIndexes[symbol] = 0
 	}
@@ -158,13 +159,36 @@ func RunService(ctx context.Context, symbols []string) {
 				log.Info("Block scanner stopping...")
 				return
 			case <-ticker.C:
-				if err := monitorBlock.ScanBlocks(ctx); err != nil {
-					log.Errorf("Scan failed: %v", err)
+				blockCtx, cancel := context.WithTimeout(ctx, 25*time.Second)
+				err := monitorBlock.ScanBlocks(blockCtx)
+				cancel()
+
+				if err != nil {
+					log.Errorf("ScanBlocks error: %v", err)
 				}
 			}
 		}
 	}()
 
+	//wg.Add(1)
+	//go func() {
+	//	defer wg.Done()
+	//	ticker := time.NewTicker(3 * time.Minute)
+	//	defer ticker.Stop()
+	//
+	//	for {
+	//		select {
+	//		case <-ctx.Done():
+	//			log.Info("LossBlock retry task stopping...")
+	//			return
+	//		case <-ticker.C:
+	//			err := monitorBlock.RetryLossBlocks(ctx)
+	//			if err != nil {
+	//				log.Errorf("RetryLossBlocks error: %v", err)
+	//			}
+	//		}
+	//	}
+	//}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -182,8 +206,8 @@ func RunService(ctx context.Context, symbols []string) {
 				return
 			case <-ticker.C:
 				for _, symbol := range symbols {
-					index := symbolIndexes[symbol]
-					//	log.Infof("Market price checker: %v", index)
+					index = symbolIndexes[symbol]
+					log.Infof("Market price checker: %v", index)
 					err := marketCondition.GetMarketCondition(symbol, index)
 					if err != nil {
 						log.Errorf("Failed to fetch %s: %v", symbol, err)

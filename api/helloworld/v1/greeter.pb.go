@@ -120,6 +120,103 @@ func (x *HelloReply) GetMessage() string {
 	return ""
 }
 
+type GetLoginMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLoginMessageRequest) Reset() {
+	*x = GetLoginMessageRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLoginMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLoginMessageRequest) ProtoMessage() {}
+
+func (x *GetLoginMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLoginMessageRequest.ProtoReflect.Descriptor instead.
+func (*GetLoginMessageRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetLoginMessageRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+// The response message containing the greetings
+type GetLoginMessageReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metadata      string                 `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Hash          string                 `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetLoginMessageReply) Reset() {
+	*x = GetLoginMessageReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetLoginMessageReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetLoginMessageReply) ProtoMessage() {}
+
+func (x *GetLoginMessageReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetLoginMessageReply.ProtoReflect.Descriptor instead.
+func (*GetLoginMessageReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetLoginMessageReply) GetMetadata() string {
+	if x != nil {
+		return x.Metadata
+	}
+	return ""
+}
+
+func (x *GetLoginMessageReply) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
 type BindWalletRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
@@ -131,7 +228,7 @@ type BindWalletRequest struct {
 
 func (x *BindWalletRequest) Reset() {
 	*x = BindWalletRequest{}
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -143,7 +240,7 @@ func (x *BindWalletRequest) String() string {
 func (*BindWalletRequest) ProtoMessage() {}
 
 func (x *BindWalletRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[2]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -156,7 +253,7 @@ func (x *BindWalletRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindWalletRequest.ProtoReflect.Descriptor instead.
 func (*BindWalletRequest) Descriptor() ([]byte, []int) {
-	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{2}
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *BindWalletRequest) GetAddress() string {
@@ -192,7 +289,7 @@ type BindWalletReply struct {
 
 func (x *BindWalletReply) Reset() {
 	*x = BindWalletReply{}
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -204,7 +301,7 @@ func (x *BindWalletReply) String() string {
 func (*BindWalletReply) ProtoMessage() {}
 
 func (x *BindWalletReply) ProtoReflect() protoreflect.Message {
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[3]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -217,7 +314,7 @@ func (x *BindWalletReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindWalletReply.ProtoReflect.Descriptor instead.
 func (*BindWalletReply) Descriptor() ([]byte, []int) {
-	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{3}
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *BindWalletReply) GetUid() string {
@@ -245,13 +342,14 @@ type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Uid           string                 `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	Signature     string                 `protobuf:"bytes,2,opt,name=signature,proto3" json:"signature,omitempty"`
+	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[4]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -263,7 +361,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[4]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -276,7 +374,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{4}
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *LoginRequest) GetUid() string {
@@ -293,6 +391,13 @@ func (x *LoginRequest) GetSignature() string {
 	return ""
 }
 
+func (x *LoginRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
 // The response message containing the greetings
 type LoginReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -303,7 +408,7 @@ type LoginReply struct {
 
 func (x *LoginReply) Reset() {
 	*x = LoginReply{}
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[5]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -315,7 +420,7 @@ func (x *LoginReply) String() string {
 func (*LoginReply) ProtoMessage() {}
 
 func (x *LoginReply) ProtoReflect() protoreflect.Message {
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[5]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -328,7 +433,7 @@ func (x *LoginReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginReply.ProtoReflect.Descriptor instead.
 func (*LoginReply) Descriptor() ([]byte, []int) {
-	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{5}
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *LoginReply) GetToken() string {
@@ -338,16 +443,158 @@ func (x *LoginReply) GetToken() string {
 	return ""
 }
 
+type WalletBalanceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WalletBalanceRequest) Reset() {
+	*x = WalletBalanceRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WalletBalanceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WalletBalanceRequest) ProtoMessage() {}
+
+func (x *WalletBalanceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WalletBalanceRequest.ProtoReflect.Descriptor instead.
+func (*WalletBalanceRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *WalletBalanceRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+type TokenBalance struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Balance       string                 `protobuf:"bytes,2,opt,name=balance,proto3" json:"balance,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TokenBalance) Reset() {
+	*x = TokenBalance{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TokenBalance) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TokenBalance) ProtoMessage() {}
+
+func (x *TokenBalance) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TokenBalance.ProtoReflect.Descriptor instead.
+func (*TokenBalance) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *TokenBalance) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *TokenBalance) GetBalance() string {
+	if x != nil {
+		return x.Balance
+	}
+	return ""
+}
+
+type WalletBalanceReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tokens        []*TokenBalance        `protobuf:"bytes,1,rep,name=tokens,proto3" json:"tokens,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WalletBalanceReply) Reset() {
+	*x = WalletBalanceReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WalletBalanceReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WalletBalanceReply) ProtoMessage() {}
+
+func (x *WalletBalanceReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WalletBalanceReply.ProtoReflect.Descriptor instead.
+func (*WalletBalanceReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *WalletBalanceReply) GetTokens() []*TokenBalance {
+	if x != nil {
+		return x.Tokens
+	}
+	return nil
+}
+
 type MarketConditionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	StartTime     int64                  `protobuf:"varint,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       int64                  `protobuf:"varint,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MarketConditionRequest) Reset() {
 	*x = MarketConditionRequest{}
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[6]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -359,7 +606,7 @@ func (x *MarketConditionRequest) String() string {
 func (*MarketConditionRequest) ProtoMessage() {}
 
 func (x *MarketConditionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[6]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -372,7 +619,7 @@ func (x *MarketConditionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarketConditionRequest.ProtoReflect.Descriptor instead.
 func (*MarketConditionRequest) Descriptor() ([]byte, []int) {
-	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{6}
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *MarketConditionRequest) GetSymbol() string {
@@ -382,18 +629,82 @@ func (x *MarketConditionRequest) GetSymbol() string {
 	return ""
 }
 
-// The response message containing the greetings
-type MarketConditionReply struct {
+func (x *MarketConditionRequest) GetStartTime() int64 {
+	if x != nil {
+		return x.StartTime
+	}
+	return 0
+}
+
+func (x *MarketConditionRequest) GetEndTime() int64 {
+	if x != nil {
+		return x.EndTime
+	}
+	return 0
+}
+
+type MarketPrice struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Price         string                 `protobuf:"bytes,1,opt,name=price,proto3" json:"price,omitempty"`
-	Time          int64                  `protobuf:"varint,2,opt,name=time,proto3" json:"time,omitempty"`
+	Time          uint64                 `protobuf:"varint,2,opt,name=time,proto3" json:"time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MarketPrice) Reset() {
+	*x = MarketPrice{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MarketPrice) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MarketPrice) ProtoMessage() {}
+
+func (x *MarketPrice) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MarketPrice.ProtoReflect.Descriptor instead.
+func (*MarketPrice) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *MarketPrice) GetPrice() string {
+	if x != nil {
+		return x.Price
+	}
+	return ""
+}
+
+func (x *MarketPrice) GetTime() uint64 {
+	if x != nil {
+		return x.Time
+	}
+	return 0
+}
+
+type MarketConditionReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Prices        []*MarketPrice         `protobuf:"bytes,1,rep,name=prices,proto3" json:"prices,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MarketConditionReply) Reset() {
 	*x = MarketConditionReply{}
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[7]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -405,7 +716,7 @@ func (x *MarketConditionReply) String() string {
 func (*MarketConditionReply) ProtoMessage() {}
 
 func (x *MarketConditionReply) ProtoReflect() protoreflect.Message {
-	mi := &file_helloworld_v1_greeter_proto_msgTypes[7]
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -418,21 +729,240 @@ func (x *MarketConditionReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarketConditionReply.ProtoReflect.Descriptor instead.
 func (*MarketConditionReply) Descriptor() ([]byte, []int) {
-	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{7}
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *MarketConditionReply) GetPrice() string {
+func (x *MarketConditionReply) GetPrices() []*MarketPrice {
 	if x != nil {
-		return x.Price
+		return x.Prices
+	}
+	return nil
+}
+
+type OpenOrderRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Amount        string                 `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	Timestamp     uint64                 `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Symbol        string                 `protobuf:"bytes,4,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OpenOrderRequest) Reset() {
+	*x = OpenOrderRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OpenOrderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OpenOrderRequest) ProtoMessage() {}
+
+func (x *OpenOrderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OpenOrderRequest.ProtoReflect.Descriptor instead.
+func (*OpenOrderRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *OpenOrderRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
 	}
 	return ""
 }
 
-func (x *MarketConditionReply) GetTime() int64 {
+func (x *OpenOrderRequest) GetAmount() string {
 	if x != nil {
-		return x.Time
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *OpenOrderRequest) GetTimestamp() uint64 {
+	if x != nil {
+		return x.Timestamp
 	}
 	return 0
+}
+
+func (x *OpenOrderRequest) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+// The response message containing the greetings
+type OpenOrderReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       string                 `protobuf:"bytes,1,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OpenOrderReply) Reset() {
+	*x = OpenOrderReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OpenOrderReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OpenOrderReply) ProtoMessage() {}
+
+func (x *OpenOrderReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OpenOrderReply.ProtoReflect.Descriptor instead.
+func (*OpenOrderReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *OpenOrderReply) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+type CloseOrderRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Timestamp     uint64                 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Symbol        string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	OrderId       string                 `protobuf:"bytes,4,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CloseOrderRequest) Reset() {
+	*x = CloseOrderRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CloseOrderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CloseOrderRequest) ProtoMessage() {}
+
+func (x *CloseOrderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CloseOrderRequest.ProtoReflect.Descriptor instead.
+func (*CloseOrderRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *CloseOrderRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *CloseOrderRequest) GetTimestamp() uint64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+func (x *CloseOrderRequest) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *CloseOrderRequest) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+// The response message containing the greetings
+type CloseOrderReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tx            string                 `protobuf:"bytes,1,opt,name=tx,proto3" json:"tx,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CloseOrderReply) Reset() {
+	*x = CloseOrderReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CloseOrderReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CloseOrderReply) ProtoMessage() {}
+
+func (x *CloseOrderReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CloseOrderReply.ProtoReflect.Descriptor instead.
+func (*CloseOrderReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *CloseOrderReply) GetTx() string {
+	if x != nil {
+		return x.Tx
+	}
+	return ""
 }
 
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
@@ -445,7 +975,12 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\x04R\x05value\"&\n" +
 	"\n" +
 	"HelloReply\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"W\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"2\n" +
+	"\x16GetLoginMessageRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\"F\n" +
+	"\x14GetLoginMessageReply\x12\x1a\n" +
+	"\bmetadata\x18\x01 \x01(\tR\bmetadata\x12\x12\n" +
+	"\x04hash\x18\x02 \x01(\tR\x04hash\"W\n" +
 	"\x11BindWalletRequest\x12\x18\n" +
 	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x12\n" +
@@ -453,24 +988,56 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x0fBindWalletReply\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x1a\n" +
 	"\bmetadata\x18\x02 \x01(\tR\bmetadata\x12\x12\n" +
-	"\x04hash\x18\x03 \x01(\tR\x04hash\">\n" +
+	"\x04hash\x18\x03 \x01(\tR\x04hash\"X\n" +
 	"\fLoginRequest\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x1c\n" +
-	"\tsignature\x18\x02 \x01(\tR\tsignature\"\"\n" +
+	"\tsignature\x18\x02 \x01(\tR\tsignature\x12\x18\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\"\"\n" +
 	"\n" +
 	"LoginReply\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
+	"\x14WalletBalanceRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\"@\n" +
+	"\fTokenBalance\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x18\n" +
+	"\abalance\x18\x02 \x01(\tR\abalance\"I\n" +
+	"\x12WalletBalanceReply\x123\n" +
+	"\x06tokens\x18\x01 \x03(\v2\x1b.helloworld.v1.TokenBalanceR\x06tokens\"j\n" +
 	"\x16MarketConditionRequest\x12\x16\n" +
-	"\x06symbol\x18\x01 \x01(\tR\x06symbol\"@\n" +
-	"\x14MarketConditionReply\x12\x14\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x1d\n" +
+	"\n" +
+	"start_time\x18\x02 \x01(\x03R\tstartTime\x12\x19\n" +
+	"\bend_time\x18\x03 \x01(\x03R\aendTime\"7\n" +
+	"\vMarketPrice\x12\x14\n" +
 	"\x05price\x18\x01 \x01(\tR\x05price\x12\x12\n" +
-	"\x04time\x18\x02 \x01(\x03R\x04time2\xc6\x03\n" +
+	"\x04time\x18\x02 \x01(\x04R\x04time\"J\n" +
+	"\x14MarketConditionReply\x122\n" +
+	"\x06prices\x18\x01 \x03(\v2\x1a.helloworld.v1.MarketPriceR\x06prices\"z\n" +
+	"\x10OpenOrderRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x16\n" +
+	"\x06amount\x18\x02 \x01(\tR\x06amount\x12\x1c\n" +
+	"\ttimestamp\x18\x03 \x01(\x04R\ttimestamp\x12\x16\n" +
+	"\x06symbol\x18\x04 \x01(\tR\x06symbol\"*\n" +
+	"\x0eOpenOrderReply\x12\x18\n" +
+	"\aorderId\x18\x01 \x01(\tR\aorderId\"}\n" +
+	"\x11CloseOrderRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1c\n" +
+	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x16\n" +
+	"\x06symbol\x18\x03 \x01(\tR\x06symbol\x12\x18\n" +
+	"\aorderId\x18\x04 \x01(\tR\aorderId\"!\n" +
+	"\x0fCloseOrderReply\x12\x0e\n" +
+	"\x02tx\x18\x01 \x01(\tR\x02tx2\x8e\a\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +
-	"BindWallet\x12 .helloworld.v1.BindWalletRequest\x1a\x1e.helloworld.v1.BindWalletReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/bindWallet\x12i\n" +
-	"\x0fLoginWithWallet\x12\x1b.helloworld.v1.LoginRequest\x1a\x19.helloworld.v1.LoginReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/loginWithWallet\x12}\n" +
-	"\x0fMarketCondition\x12%.helloworld.v1.MarketConditionRequest\x1a#.helloworld.v1.MarketConditionReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/marketConditionBT\n" +
+	"BindWallet\x12 .helloworld.v1.BindWalletRequest\x1a\x1e.helloworld.v1.BindWalletReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/bindWallet\x12}\n" +
+	"\x0fGetLoginMessage\x12%.helloworld.v1.GetLoginMessageRequest\x1a#.helloworld.v1.GetLoginMessageReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/getLoginMessage\x12i\n" +
+	"\x0fLoginWithWallet\x12\x1b.helloworld.v1.LoginRequest\x1a\x19.helloworld.v1.LoginReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/loginWithWallet\x12u\n" +
+	"\rWalletBalance\x12#.helloworld.v1.WalletBalanceRequest\x1a!.helloworld.v1.WalletBalanceReply\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/walletBalance\x12}\n" +
+	"\x0fMarketCondition\x12%.helloworld.v1.MarketConditionRequest\x1a#.helloworld.v1.MarketConditionReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/marketCondition\x12e\n" +
+	"\tOpenOrder\x12\x1f.helloworld.v1.OpenOrderRequest\x1a\x1d.helloworld.v1.OpenOrderReply\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/v1/openOrder\x12i\n" +
+	"\n" +
+	"CloseOrder\x12 .helloworld.v1.CloseOrderRequest\x1a\x1e.helloworld.v1.CloseOrderReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/closeOrderBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -485,31 +1052,51 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*HelloRequest)(nil),           // 0: helloworld.v1.HelloRequest
 	(*HelloReply)(nil),             // 1: helloworld.v1.HelloReply
-	(*BindWalletRequest)(nil),      // 2: helloworld.v1.BindWalletRequest
-	(*BindWalletReply)(nil),        // 3: helloworld.v1.BindWalletReply
-	(*LoginRequest)(nil),           // 4: helloworld.v1.LoginRequest
-	(*LoginReply)(nil),             // 5: helloworld.v1.LoginReply
-	(*MarketConditionRequest)(nil), // 6: helloworld.v1.MarketConditionRequest
-	(*MarketConditionReply)(nil),   // 7: helloworld.v1.MarketConditionReply
+	(*GetLoginMessageRequest)(nil), // 2: helloworld.v1.GetLoginMessageRequest
+	(*GetLoginMessageReply)(nil),   // 3: helloworld.v1.GetLoginMessageReply
+	(*BindWalletRequest)(nil),      // 4: helloworld.v1.BindWalletRequest
+	(*BindWalletReply)(nil),        // 5: helloworld.v1.BindWalletReply
+	(*LoginRequest)(nil),           // 6: helloworld.v1.LoginRequest
+	(*LoginReply)(nil),             // 7: helloworld.v1.LoginReply
+	(*WalletBalanceRequest)(nil),   // 8: helloworld.v1.WalletBalanceRequest
+	(*TokenBalance)(nil),           // 9: helloworld.v1.TokenBalance
+	(*WalletBalanceReply)(nil),     // 10: helloworld.v1.WalletBalanceReply
+	(*MarketConditionRequest)(nil), // 11: helloworld.v1.MarketConditionRequest
+	(*MarketPrice)(nil),            // 12: helloworld.v1.MarketPrice
+	(*MarketConditionReply)(nil),   // 13: helloworld.v1.MarketConditionReply
+	(*OpenOrderRequest)(nil),       // 14: helloworld.v1.OpenOrderRequest
+	(*OpenOrderReply)(nil),         // 15: helloworld.v1.OpenOrderReply
+	(*CloseOrderRequest)(nil),      // 16: helloworld.v1.CloseOrderRequest
+	(*CloseOrderReply)(nil),        // 17: helloworld.v1.CloseOrderReply
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
-	0, // 0: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
-	2, // 1: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
-	4, // 2: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
-	6, // 3: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
-	1, // 4: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	3, // 5: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
-	5, // 6: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
-	7, // 7: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	9,  // 0: helloworld.v1.WalletBalanceReply.tokens:type_name -> helloworld.v1.TokenBalance
+	12, // 1: helloworld.v1.MarketConditionReply.prices:type_name -> helloworld.v1.MarketPrice
+	0,  // 2: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
+	4,  // 3: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
+	2,  // 4: helloworld.v1.Greeter.GetLoginMessage:input_type -> helloworld.v1.GetLoginMessageRequest
+	6,  // 5: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
+	8,  // 6: helloworld.v1.Greeter.WalletBalance:input_type -> helloworld.v1.WalletBalanceRequest
+	11, // 7: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
+	14, // 8: helloworld.v1.Greeter.OpenOrder:input_type -> helloworld.v1.OpenOrderRequest
+	16, // 9: helloworld.v1.Greeter.CloseOrder:input_type -> helloworld.v1.CloseOrderRequest
+	1,  // 10: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	5,  // 11: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	3,  // 12: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
+	7,  // 13: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	10, // 14: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
+	13, // 15: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	15, // 16: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
+	17, // 17: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
+	10, // [10:18] is the sub-list for method output_type
+	2,  // [2:10] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_helloworld_v1_greeter_proto_init() }
@@ -523,7 +1110,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

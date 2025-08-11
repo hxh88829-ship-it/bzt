@@ -10,6 +10,7 @@ const (
 	scanBlock            = "scanBlock"
 	newPrice             = "newPrice"
 	airdrop              = "airdrop"
+	rewardPool           = "rewardPool"
 	lossAmount           = "lossAmount"
 	order                = "order"
 	wallet               = "wallet"
