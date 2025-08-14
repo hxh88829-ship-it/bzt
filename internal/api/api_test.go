@@ -53,7 +53,7 @@ func TestGetTransactionByHash(t *testing.T) {
 		return
 	}
 	defer Client.Close()
-	tx, ok, err := GetTransactionByHash(common.HexToHash(txhashnft))
+	tx, ok, err := GetTransactionByHash(common.HexToHash("0xc72a69de09276336cb9b17f1a0ced56354a06ff3528a0e810a20069c4728c48a"))
 	if err != nil {
 		t.Error("GetTransactionByHash fail")
 		return
@@ -85,7 +85,7 @@ func TestGetTransactionReceiptByHash(t *testing.T) {
 		return
 	}
 	defer Client.Close()
-	tx, err := GetTransactionReceiptByHash(common.HexToHash("0xe1bbd1fa7f9e644ba25df7211836961e9f4df85809ab80eac5d176838aa7e9e8"))
+	tx, err := GetTransactionReceiptByHash(common.HexToHash("0xc72a69de09276336cb9b17f1a0ced56354a06ff3528a0e810a20069c4728c48a"))
 	if err != nil {
 		t.Error("GetTransactionReceiptByHash fail")
 		return
@@ -100,7 +100,6 @@ func TestGetTransactionReceiptByHash(t *testing.T) {
 		return
 	}
 	t.Log(tx.EffectiveGasPrice)
-	t.Log(tx.Logs)
 
 }
 
@@ -171,7 +170,7 @@ func TestGetFromByTransaction(t *testing.T) {
 	//ChainId = 10086
 	defer Client.Close()
 
-	tx, _, err := Client.TransactionByHash(context.Background(), common.HexToHash(txhashnft))
+	tx, _, err := Client.TransactionByHash(context.Background(), common.HexToHash("0xfc97277fb81f841cbdf5ba6bb94e19d37cba537a1d0395fdcbb3dad78abd217b"))
 	if err != nil {
 		t.Error("TransactionByHash fail")
 		return
@@ -356,7 +355,7 @@ func TestStringToBigIntSum(t *testing.T) {
 	//	t.Error("StringToBigIntSum fail")
 	//	return
 	//}
-	res, err := StringToBigIntSum("12", "6")
+	res, err := StringToBigIntDiv("0", "6")
 	if err != nil {
 		t.Error("StringToBigIntSum fail")
 		return

@@ -80,7 +80,7 @@ func TestBztCaller_Orders(t *testing.T) {
 	}
 	cli := api.Client
 	defer cli.Close()
-	res, err := GetOrders(4)
+	res, err := GetOrders(1955168424120287232)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -110,13 +110,13 @@ func TestBztTransactor_OpenOrder(t *testing.T) {
 		return
 	}
 
-	tx, err := ca.OpenOrder(opt, big.NewInt(4), "BTCUSDT", big.NewInt(1e+6))
+	tx, err := ca.OpenOrder(opt, big.NewInt(1955455781419614208), "BTCUSDT", big.NewInt(1e+6))
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	t.Log(tx.Hash())
-	//0xb8d2ab59a05757bf4e63d715b38b95f2a6b9f6c062bca3f8ad8ea76e1f6aeac4
+	//0xe6026a336ca3159a76b6522723af6d63359cf1fd2001d3e164358a7b420aabae
 	//0x9c0d3ee1d8c5f29980638ea8eed41391fa99f71c6f1fc495ef9e4dc877b46bfe fail
 
 }
@@ -130,14 +130,14 @@ func TestBztTransactor_CloseOrder(t *testing.T) {
 	}
 	cli := api.Client
 	defer cli.Close()
-	tx, err := GetCloseOrder(4, 1000000, 3000000, "BTCUSDT")
+	tx, err := GetCloseOrder(1955455781419614208, 119234400000, 119216750000, "BTCUSDT")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 	t.Log(tx.Hash())
-
-	//0xe1bbd1fa7f9e644ba25df7211836961e9f4df85809ab80eac5d176838aa7e9e8
+	//0.00000838684138
+	//0xc72a69de09276336cb9b17f1a0ced56354a06ff3528a0e810a20069c4728c48a
 }
 
 func TestBztTransactor_Airdrop(t *testing.T) {
@@ -167,7 +167,7 @@ func TestBztFilterer_ParseOrderClosed(t *testing.T) {
 	}
 	defer api.Client.Close()
 	cli := api.Client
-	receipt, err := cli.TransactionReceipt(context.Background(), common.HexToHash("0xe1bbd1fa7f9e644ba25df7211836961e9f4df85809ab80eac5d176838aa7e9e8"))
+	receipt, err := cli.TransactionReceipt(context.Background(), common.HexToHash("0x414a9c3476a1c8063179850e7123e28262e65570f0aca88c9ea88d9d8512c076"))
 	if err != nil {
 		return
 	}
@@ -178,7 +178,7 @@ func TestBztFilterer_ParseOrderClosed(t *testing.T) {
 	if res == nil {
 		t.Log(1, "parse order closed")
 	}
-	t.Log(res.Raw.BlockTimestamp)
+	t.Log(res.Raw.BlockNumber)
 
 }
 

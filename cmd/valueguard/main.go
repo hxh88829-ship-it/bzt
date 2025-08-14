@@ -207,7 +207,7 @@ func RunService(ctx context.Context, symbols []string) {
 			case <-ticker.C:
 				for _, symbol := range symbols {
 					index = symbolIndexes[symbol]
-					log.Infof("Market price checker: %v", index)
+					//	log.Infof("Market price checker: %v", index)
 					err := marketCondition.GetMarketCondition(symbol, index)
 					if err != nil {
 						log.Errorf("Failed to fetch %s: %v", symbol, err)

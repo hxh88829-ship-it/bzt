@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/bwmarrin/snowflake"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -450,6 +451,18 @@ func StringToBigIntDiv(a, b string) (*big.Int, error) {
 
 func GenerateUID() string {
 	return uuid.New().String() // 默认使用 UUID v4（随机生成）
+}
+
+// 不同实例不同节点
+func GetSnowflakeID(i int64) string {
+	node, err := snowflake.NewNode(i)
+	if err != nil {
+		panic(err)
+	}
+
+	// 生成一个唯一的 Snowflake ID (int64)
+	id := node.Generate().String()
+	return id
 }
 func GetJwtKey(uid, addr string) (string, error) {
 	claims := jwt.MapClaims{

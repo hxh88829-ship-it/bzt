@@ -263,8 +263,6 @@ components:
             properties:
                 address:
                     type: string
-                amount:
-                    type: string
                 timestamp:
                     type: string
                 symbol:

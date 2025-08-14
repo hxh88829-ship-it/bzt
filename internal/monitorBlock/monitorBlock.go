@@ -19,6 +19,7 @@ import (
 )
 
 var BztAddr = strings.ToLower("0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+var Plat = strings.ToLower("0xc020e62ce44297e86dA12CF15CfDc20B83eF3b72")
 
 func ScanBlocks(ctx context.Context) error {
 	mongoBln, safeBlock, err := GetMongodbBlockAndLinkBlock()
@@ -215,44 +216,46 @@ func ProcessTransactions(bl *types.Block, ctx context.Context) error {
 			continue
 		}
 		if strings.ToLower(tx.To().String()) == BztAddr {
-			//开仓,同时核查from是否为平台用户，防止数据污染
-			ok, err := redisQuery.IsPlatformUser(ctx, strings.ToLower(from.String()))
-			if err != nil {
-				log.Errorf("redisQuery.IsPlatformUser err: %v", err)
-			}
-			if !ok {
-				continue
-			}
-			//拿到开仓数据
-			receipt, err := api.GetTransactionReceiptByHash(tx.Hash())
-			if err != nil {
-				return err
-			}
-			err = OrderOpenedTrade(tx, receipt, blockTime, from, "OrderOpened")
-			if err != nil {
-				return err
-			}
-		} else if strings.ToLower(from.String()) == BztAddr {
-			//空投（用户触发），关仓（平台），需要解析事件区分
-			receipt, err := api.GetTransactionReceiptByHash(tx.Hash())
-			if err != nil {
-				log.Errorf("GetTransactionReceiptByHash err: %v", err)
-				return err
-			}
-			if receipt.Status == 0 {
-				_, err = AddTransactionTrade(tx, receipt, from, blockTime, "unknow")
+			if strings.ToLower(from.String()) != Plat {
+				//开仓,同时核查from是否为平台用户，防止数据污染
+				ok, err := redisQuery.IsPlatformUser(ctx, strings.ToLower(from.String()))
+				if err != nil {
+					log.Errorf("redisQuery.IsPlatformUser err: %v", err)
+				}
+				if !ok {
+					continue
+				}
+				//拿到开仓数据
+				receipt, err := api.GetTransactionReceiptByHash(tx.Hash())
 				if err != nil {
 					return err
 				}
-				continue
-			}
-			_, err = ParseEvents(tx, receipt, blockTime, from)
-			if err != nil {
-				log.Errorf("ParseEvents err: %v", err)
-				return err
+				err = OrderOpenedTrade(tx, receipt, blockTime, from, "OrderOpened")
+				if err != nil {
+					return err
+				}
+			} else {
+				//空投（用户触发），关仓（平台），需要解析事件区分
+				receipt, err := api.GetTransactionReceiptByHash(tx.Hash())
+				if err != nil {
+					log.Errorf("GetTransactionReceiptByHash err: %v", err)
+					return err
+				}
+				if receipt.Status == 0 {
+					_, err = AddTransactionTrade(tx, receipt, from, blockTime, "unknow")
+					if err != nil {
+						return err
+					}
+					continue
+				}
+				_, err = ParseEvents(tx, receipt, blockTime, from)
+				if err != nil {
+					log.Errorf("ParseEvents err: %v", err)
+					return err
+				}
 			}
 		} else {
-			continue //什么都不是
+			continue
 		}
 	}
 	return nil
@@ -274,11 +277,11 @@ func ParseEvents(tx *types.Transaction, receipt *types.Receipt, blTime uint64, f
 				log.Infof("🔒 识别为关仓事件: TxHash=%s", receipt.TxHash.Hex())
 				isNewRecord, err := AddTransactionTrade(tx, receipt, from, blTime, "OrderClosed")
 				if err != nil {
-					return "", fmt.Errorf("<UNK> OrderClosed <UNK>: %w", err)
+					return "", fmt.Errorf("OrderClosed : %w", err)
 				}
 				err = OrderClosedTrade(order, isNewRecord, blTime)
 				if err != nil {
-					return "", fmt.Errorf("<UNK> OrderClosed <UNK>: %w", err)
+					return "", fmt.Errorf(" OrderClosed : %w", err)
 				}
 				return "order_closed", nil
 			}
@@ -295,7 +298,7 @@ func ParseEvents(tx *types.Transaction, receipt *types.Receipt, blTime uint64, f
 				if err != nil {
 					return "", fmt.Errorf("<UNK> Airdrop <UNK>: %w", err)
 				}
-				err = AirdropTrade(airdrop, receipt, blTime, isNewRecord)
+				err = AirdropTrade(airdrop, blTime, isNewRecord)
 				if err != nil {
 					log.Errorf("Airdrop : %v", err)
 					return "", fmt.Errorf("<UNK> Airdrop <UNK>: %w", err)
@@ -326,7 +329,7 @@ func OrderOpenedTrade(tx *types.Transaction, receipt *types.Receipt, blTime uint
 		if err != nil {
 			return err
 		}
-		err = mongo.UpdateOrderOpenStatus(event.OrderId.String(), strings.ToLower(tx.Hash().String()), uint64(1))
+		err = mongo.UpdateOrderOpenStatus(event.OrderId.String(), strings.ToLower(tx.Hash().String()), event.Amount.String(), uint64(1))
 		if err != nil {
 			return err
 		}
@@ -338,7 +341,7 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 	if !status {
 		return nil
 	}
-	err := mongo.UpdateOrderClosedStatus(event.OrderId.String(), strings.ToLower(event.Raw.TxHash.String()), uint64(2))
+	err := mongo.UpdateOrderClosedStatus(event.OrderId.String(), strings.ToLower(event.Raw.TxHash.String()), event.ProfitLoss.String(), uint64(2))
 	if err != nil {
 		return err
 	}
@@ -349,30 +352,35 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 	if event.ProfitLoss.Sign() >= 0 {
 		value, err := api.StringToBigIntDiv(Order.ProfitLoss.String(), "2")
 		if err != nil {
+			log.Errorf("ProfitLoss > 0 StringToBigIntDiv err: %v", err)
 			return err
 		}
 		err = RewardPool(Order, value, blTime)
 		if err != nil {
+			log.Errorf("ProfitLoss > 0 RewardPool : %v", err)
 			return err
 		}
 	} else {
 		value, err := api.StringToBigIntDiv(Order.ProfitLoss.String(), "-1")
 		if err != nil {
+			log.Errorf("ProfitLoss < 0 StringToBigIntDiv err: %v", err)
 			return err
 		}
 		err = RewardPool(Order, value, blTime)
 		if err != nil {
+			log.Errorf("ProfitLoss < 0 RewardPool : %v", err)
 			return err
 		}
 		err = UserLossAmount(Order, value, blTime)
 		if err != nil {
+			log.Errorf("ProfitLoss < 0 UserLossAmount : %v", err)
 			return err
 		}
 	}
 	return nil
 }
 
-func AirdropTrade(event *bzt.BztAirdrop, receipt *types.Receipt, blTime uint64, status bool) error {
+func AirdropTrade(event *bzt.BztAirdrop, blTime uint64, status bool) error {
 	if !status {
 		return nil
 	}

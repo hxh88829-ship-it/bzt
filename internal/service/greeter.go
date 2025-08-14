@@ -202,7 +202,7 @@ func (s *GreeterService) MarketCondition(ctx context.Context, in *v1.MarketCondi
 
 func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest) (*v1.OpenOrderReply, error) {
 	// 1. 参数校验
-	if in.GetAddress() == "" || in.GetAmount() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" {
+	if in.GetAddress() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" {
 		return nil, errors.New("missing required parameters")
 	}
 	ok, err := IsWalletBound(ctx, in.GetAddress())
@@ -210,9 +210,12 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		return nil, err
 	}
 	if !ok {
-		return &v1.OpenOrderReply{}, nil
+		return &v1.OpenOrderReply{
+			OrderId: "非平台用户地址",
+		}, errors.New("wallet not exists")
 	}
-	orderId := api.GenerateUID()
+	// 不同实例不同节点（0～1023）
+	orderId := api.GetSnowflakeID(0)
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
 	if err != nil {
 		return nil, err
@@ -233,7 +236,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		OpenPrice:      res.Price,
 		ClosePrice:     "",
 		ProfitLoss:     "",
-		Amount:         in.GetAmount(),
+		Amount:         "",
 		UsersAddr:      in.GetAddress(),
 		IsClosed:       uint64(0), // 0=未开仓确认（待链上确认）
 		OrderStartTime: in.GetTimestamp(),
@@ -274,6 +277,9 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if err != nil {
 		return nil, err
 	}
+	if UserOrderId.IsClosed == 0 {
+		return &v1.CloseOrderReply{}, errors.New("订单等待链上确认")
+	}
 	orderId, err := api.StringToBigInt(UserOrderId.OrderId)
 	if err != nil {
 		return nil, err
@@ -282,11 +288,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if err != nil {
 		return nil, err
 	}
-	ClosePrice, err := api.StringToBigInt(UserOrderId.ClosePrice)
-	if err != nil {
-		return nil, err
-	}
-	profit, err := api.StringToBigIntSub(ClosePrice.String(), OpenPrice.String())
+	ClosePrice, err := api.StringToBigInt(res.Price)
 	if err != nil {
 		return nil, err
 	}
@@ -294,8 +296,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if err != nil {
 		return nil, err
 	}
-	err = mongo.UpdateOrderClose(orderId.String(), ClosePrice.String(),
-		profit.String(), in.GetTimestamp())
+	err = mongo.UpdateOrderClose(orderId.String(), ClosePrice.String(), in.GetTimestamp())
 	if err != nil {
 		return nil, err
 	}

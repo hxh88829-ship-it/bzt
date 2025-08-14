@@ -256,12 +256,11 @@ func GetParseOrderOpened(receipt *types.Receipt) (*BztOrderOpened, error) {
 				return nil, err
 			}
 			// ✅ 分字段打印
-			fmt.Println("✅ Parsed OrderClosed Event:")
+			fmt.Println("✅ Parsed OrderOpened Event:")
 			fmt.Println("  📦 Order ID     :", event.OrderId.String())
 			fmt.Println("  📈 TokenName    :", event.TokenName)
 			fmt.Println("  🟢 Amount       :", event.Amount)
 			fmt.Println("  👤 User         :", event.User.Hex())
-			fmt.Println("transfer:", event.Raw.Topics[0].String())
 			fmt.Println("transfer:", vlog.Topics[0].String())
 			result = event
 			//	0xee570f04775e144993314e5a0a45e525633d3c8d528ed5fa6fc49eb7bee161b5

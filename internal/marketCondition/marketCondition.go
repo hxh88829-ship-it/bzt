@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"io"
+	"math/big"
 	"net/http"
 	"net/url"
 	"time"
@@ -67,11 +68,15 @@ func GetMarketCondition(symbol string, ind uint64) error {
 		return err
 	}
 
-	log.Infof("✅ [%s] Latest price: %s", result.Symbol, result.Price)
-
+	//log.Infof("✅ [%s] Latest price: %s", result.Symbol, result.Price)
+	value, err := ConvertPriceToBigIntString(result.Price, 100)
+	if err != nil {
+		log.Errorf(" [%s] convert error: %v", symbol, err)
+		return err
+	}
 	// 更新数据库/缓存
 	times := uint64(time.Now().Unix())
-	if err := UpdateNewPrice(symbol, result.Price, ind, times); err != nil {
+	if err := UpdateNewPrice(symbol, value, ind, times); err != nil {
 		log.Errorf("🔧 [%s] Update price error: %v", symbol, err)
 		return err
 	}
@@ -104,4 +109,23 @@ func UpdateNewPrice(symbol, newPrice string, ind, times uint64) error {
 		return err
 	}
 	return nil
+}
+
+func ConvertPriceToBigIntString(priceStr string, precision int64) (string, error) {
+	// 先用 big.Float 解析字符串
+	priceFloat, _, err := big.ParseFloat(priceStr, 10, 256, big.ToNearestEven)
+	if err != nil {
+		return "", err
+	}
+
+	// 乘以精度（转换为整数）
+	multiplier := big.NewFloat(float64(precision))
+	priceFloat.Mul(priceFloat, multiplier)
+
+	// 转为 big.Int（向下取整）
+	priceInt := new(big.Int)
+	priceFloat.Int(priceInt)
+
+	// 返回整数字符串形式
+	return priceInt.String(), nil
 }

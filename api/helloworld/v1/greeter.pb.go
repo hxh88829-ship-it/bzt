@@ -742,9 +742,8 @@ func (x *MarketConditionReply) GetPrices() []*MarketPrice {
 type OpenOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	Amount        string                 `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount,omitempty"`
-	Timestamp     uint64                 `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Symbol        string                 `protobuf:"bytes,4,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Timestamp     uint64                 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Symbol        string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -782,13 +781,6 @@ func (*OpenOrderRequest) Descriptor() ([]byte, []int) {
 func (x *OpenOrderRequest) GetAddress() string {
 	if x != nil {
 		return x.Address
-	}
-	return ""
-}
-
-func (x *OpenOrderRequest) GetAmount() string {
-	if x != nil {
-		return x.Amount
 	}
 	return ""
 }
@@ -1012,12 +1004,11 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x05price\x18\x01 \x01(\tR\x05price\x12\x12\n" +
 	"\x04time\x18\x02 \x01(\x04R\x04time\"J\n" +
 	"\x14MarketConditionReply\x122\n" +
-	"\x06prices\x18\x01 \x03(\v2\x1a.helloworld.v1.MarketPriceR\x06prices\"z\n" +
+	"\x06prices\x18\x01 \x03(\v2\x1a.helloworld.v1.MarketPriceR\x06prices\"b\n" +
 	"\x10OpenOrderRequest\x12\x18\n" +
-	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\tR\x06amount\x12\x1c\n" +
-	"\ttimestamp\x18\x03 \x01(\x04R\ttimestamp\x12\x16\n" +
-	"\x06symbol\x18\x04 \x01(\tR\x06symbol\"*\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1c\n" +
+	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x16\n" +
+	"\x06symbol\x18\x03 \x01(\tR\x06symbol\"*\n" +
 	"\x0eOpenOrderReply\x12\x18\n" +
 	"\aorderId\x18\x01 \x01(\tR\aorderId\"}\n" +
 	"\x11CloseOrderRequest\x12\x18\n" +

@@ -77,13 +77,13 @@ type Transaction struct {
 	Value           string `bson:"value" json:"value"`
 	Gas             uint64 `bson:"gas" json:"gas"`
 	GasPrice        string `bson:"gas_price" json:"gas_price"`
-	TransactionType string `bson:"transaction_type" json:"transaction_type"` //1。充值 2.提现。 3。转账
+	TransactionType string `bson:"transaction_type" json:"transaction_type"`
 	Status          uint64 `bson:"status" json:"status"`
 }
 
 // ScanBlock 扫块记录
 type ScanBlock struct {
-	NetWork     uint64 `bson:"netWork" json:"netWork"`         //DTC
+	NetWork     uint64 `bson:"netWork" json:"netWork"`         //Dtt
 	LatestBlock uint64 `bson:"latestBlock" json:"latestBlock"` //当前
 	Time        int64  `bson:"time" json:"time"`
 }

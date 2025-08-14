@@ -232,21 +232,20 @@ func GetOrder(OrderId string) (Order, error) {
 	}
 	filter := bson.D{{"order_id", OrderId}}
 	var ma Order
-	err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).FindOne(context.Background(), filter).Decode(ma)
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).FindOne(context.Background(), filter).Decode(&ma)
 	if err != nil {
 		log.Error("FindOne err: ", err)
 		return Order{}, ErrNoDocuments
 	}
 	return ma, nil
 }
-func UpdateOrderClose(OrderId, ClosePri, Profit string, timestamp uint64) error {
+func UpdateOrderClose(OrderId, ClosePri string, timestamp uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateOrder")
 	}
 	filter := bson.D{{"order_id", OrderId}}
 	update := bson.D{{"$set", bson.D{
 		{"close_price", ClosePri},
-		{"profit_loss", Profit},
 		{"order_end_time", timestamp},
 	}}}
 
@@ -257,7 +256,7 @@ func UpdateOrderClose(OrderId, ClosePri, Profit string, timestamp uint64) error 
 	}
 	return nil
 }
-func UpdateOrderOpenStatus(OrderId, OpenTx string, IsClosed uint64) error {
+func UpdateOrderOpenStatus(OrderId, OpenTx, Amount string, IsClosed uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateOrderStatus")
 	}
@@ -265,6 +264,7 @@ func UpdateOrderOpenStatus(OrderId, OpenTx string, IsClosed uint64) error {
 	update := bson.D{{"$set", bson.D{
 		{"is_closed", IsClosed},
 		{"open_tx_hash", OpenTx},
+		{"amount", Amount},
 	}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
@@ -273,7 +273,7 @@ func UpdateOrderOpenStatus(OrderId, OpenTx string, IsClosed uint64) error {
 	}
 	return nil
 }
-func UpdateOrderClosedStatus(OrderId, CloseTx string, IsClosed uint64) error {
+func UpdateOrderClosedStatus(OrderId, CloseTx, Profit string, IsClosed uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateOrderStatus")
 	}
@@ -281,6 +281,7 @@ func UpdateOrderClosedStatus(OrderId, CloseTx string, IsClosed uint64) error {
 	update := bson.D{{"$set", bson.D{
 		{"is_closed", IsClosed},
 		{"close_tx_hash", CloseTx},
+		{"profit_loss", Profit},
 	}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
@@ -299,7 +300,7 @@ func CountOpenOrdersByAddress(address string) (int64, error) {
 			"$in": []uint64{0, 1}, // 未结算状态
 		},
 	}
-	count, err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).CountDocuments(context.Background(), filter)
+	count, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).CountDocuments(context.Background(), filter)
 	if err != nil {
 		return 0, err
 	}
@@ -323,10 +324,10 @@ func GetRewardAmount(tokenName string) (RewardAmount, error) {
 		return RewardAmount{}, errors.New("mongo client is nil" + "GetRewardAmount")
 	}
 	filter := bson.M{
-		"symbol": strings.ToLower(tokenName),
+		"symbol": tokenName,
 	}
 	var loss RewardAmount
-	err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).FindOne(context.Background(), filter).Decode(loss)
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).FindOne(context.Background(), filter).Decode(&loss)
 	if err != nil {
 		return RewardAmount{}, ErrNoDocuments
 	}
@@ -337,7 +338,7 @@ func UpdateRewardAmount(tokenName, totalAmount string) error {
 		return errors.New("mongo client is nil" + "UpdateRewardAmount")
 	}
 	filter := bson.M{
-		"symbol": strings.ToLower(tokenName),
+		"symbol": tokenName,
 	}
 	update := bson.D{
 		{"$set", bson.D{
@@ -565,8 +566,7 @@ func DeleteLossBlock(i uint64) error {
 		return errors.New("error:mongo.Client is nil" + "DeleteLossBlock")
 	}
 	filter := bson.D{{"blockNr", i}}
-	var bl LossBlock
-	err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossBlock).FindOne(context.Background(), filter).Decode(&bl)
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossBlock).DeleteOne(context.Background(), filter)
 	if err != nil {
 		log.Error("FindOne err: ", err)
 		return err

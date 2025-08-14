@@ -259,7 +259,7 @@ func TestNewErc20Transactor_Approve(t *testing.T) {
 	if err != nil {
 		return
 	}
-	va := big.NewInt(3000000)
+	va := big.NewInt(1000000)
 	tx, err := ca.Approve(opts, common.HexToAddress("0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a"), va)
 	if err != nil {
 		t.Error(err)

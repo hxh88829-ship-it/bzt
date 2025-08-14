@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -89,4 +90,21 @@ func TestGetPriceBySymbol(t *testing.T) {
 		return
 	}
 	t.Log(res)
+}
+
+func TestGetRewardAmount(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	addr := strings.ToLower("0x331E865F47fd1b197d04Fe60E45DEf0C3A1EBA24")
+	err = UpdateUserLossAmount("BTCUSDT", addr, "150")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	//t.Log(res)
 }
