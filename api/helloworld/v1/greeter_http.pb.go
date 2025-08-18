@@ -21,6 +21,7 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationGreeterBindWallet = "/helloworld.v1.Greeter/BindWallet"
 const OperationGreeterCloseOrder = "/helloworld.v1.Greeter/CloseOrder"
+const OperationGreeterGetAirdrop = "/helloworld.v1.Greeter/GetAirdrop"
 const OperationGreeterGetLoginMessage = "/helloworld.v1.Greeter/GetLoginMessage"
 const OperationGreeterLoginWithWallet = "/helloworld.v1.Greeter/LoginWithWallet"
 const OperationGreeterMarketCondition = "/helloworld.v1.Greeter/MarketCondition"
@@ -31,6 +32,7 @@ const OperationGreeterWalletBalance = "/helloworld.v1.Greeter/WalletBalance"
 type GreeterHTTPServer interface {
 	BindWallet(context.Context, *BindWalletRequest) (*BindWalletReply, error)
 	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error)
+	GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error)
 	GetLoginMessage(context.Context, *GetLoginMessageRequest) (*GetLoginMessageReply, error)
 	LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error)
 	MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error)
@@ -50,6 +52,7 @@ func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r.POST("/v1/marketCondition", _Greeter_MarketCondition0_HTTP_Handler(srv))
 	r.POST("/v1/openOrder", _Greeter_OpenOrder0_HTTP_Handler(srv))
 	r.POST("/v1/closeOrder", _Greeter_CloseOrder0_HTTP_Handler(srv))
+	r.POST("/v1/getAirdrop", _Greeter_GetAirdrop0_HTTP_Handler(srv))
 }
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -228,9 +231,32 @@ func _Greeter_CloseOrder0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Greeter_GetAirdrop0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetAirdropRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterGetAirdrop)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetAirdrop(ctx, req.(*GetAirdropRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetAirdropReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GreeterHTTPClient interface {
 	BindWallet(ctx context.Context, req *BindWalletRequest, opts ...http.CallOption) (rsp *BindWalletReply, err error)
 	CloseOrder(ctx context.Context, req *CloseOrderRequest, opts ...http.CallOption) (rsp *CloseOrderReply, err error)
+	GetAirdrop(ctx context.Context, req *GetAirdropRequest, opts ...http.CallOption) (rsp *GetAirdropReply, err error)
 	GetLoginMessage(ctx context.Context, req *GetLoginMessageRequest, opts ...http.CallOption) (rsp *GetLoginMessageReply, err error)
 	LoginWithWallet(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
 	MarketCondition(ctx context.Context, req *MarketConditionRequest, opts ...http.CallOption) (rsp *MarketConditionReply, err error)
@@ -265,6 +291,19 @@ func (c *GreeterHTTPClientImpl) CloseOrder(ctx context.Context, in *CloseOrderRe
 	pattern := "/v1/closeOrder"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationGreeterCloseOrder))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *GreeterHTTPClientImpl) GetAirdrop(ctx context.Context, in *GetAirdropRequest, opts ...http.CallOption) (*GetAirdropReply, error) {
+	var out GetAirdropReply
+	pattern := "/v1/getAirdrop"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterGetAirdrop))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

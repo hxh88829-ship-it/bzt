@@ -446,6 +446,7 @@ func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 			amount.Symbol = Order.TokenName
 			amount.UpdateAt = blTime
 			amount.TotalAmount = value.String()
+			amount.AirdropReward = "0"
 			err = mongo.AddRewardAmount(amount)
 			if err != nil {
 				return err
@@ -473,6 +474,7 @@ func UserLossAmount(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 			amount.LossAmount = value.String()
 			amount.UpdateAt = blTime
 			amount.UserAddr = strings.ToLower(Order.User.String())
+			amount.ClaimAirdrop = "0"
 			err = mongo.AddUserLossAmount(amount)
 			if err != nil {
 				return err

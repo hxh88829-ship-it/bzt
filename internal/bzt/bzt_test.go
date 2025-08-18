@@ -110,13 +110,13 @@ func TestBztTransactor_OpenOrder(t *testing.T) {
 		return
 	}
 
-	tx, err := ca.OpenOrder(opt, big.NewInt(1955455781419614208), "BTCUSDT", big.NewInt(1e+6))
+	tx, err := ca.OpenOrder(opt, big.NewInt(1957371420652601344), "BTCUSDT", big.NewInt(1e+6))
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	t.Log(tx.Hash())
-	//0xe6026a336ca3159a76b6522723af6d63359cf1fd2001d3e164358a7b420aabae
+	//0xeb86e3f5dfb00e17a6765e4be3a04bfa38a3cb4d4e4c698fc6553c43579d8f9e
 	//0x9c0d3ee1d8c5f29980638ea8eed41391fa99f71c6f1fc495ef9e4dc877b46bfe fail
 
 }
@@ -149,7 +149,12 @@ func TestBztTransactor_Airdrop(t *testing.T) {
 	}
 	cli := api.Client
 	defer cli.Close()
-	tx, err := GetAirdrop(userAddr2, 200000)
+	i := new(big.Int)
+	if _, ok := i.SetString("", 10); !ok {
+		return
+	}
+	t.Log(i, "\n")
+	tx, err := GetAirdrop(userAddr2, i.Int64())
 	if err != nil {
 		t.Fatal(err)
 		return

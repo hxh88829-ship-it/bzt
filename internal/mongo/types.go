@@ -44,25 +44,34 @@ type Order struct {
 }
 
 type RewardAmount struct {
-	Symbol      string `bson:"symbol" json:"symbol"`
-	UpdateAt    uint64 `bson:"update_at" json:"update_at"`
-	TotalAmount string `bson:"total_amount" json:"total_amount"`
+	Symbol        string `bson:"symbol" json:"symbol"`
+	UpdateAt      uint64 `bson:"update_at" json:"update_at"`
+	TotalAmount   string `bson:"total_amount" json:"total_amount"`     // 总量
+	AirdropReward string `bson:"airdrop_reward" json:"airdrop_reward"` //从总量中抽取百分之一的量
 }
 
 type UserLossAmount struct {
-	Symbol     string `bson:"symbol" json:"symbol"`
-	UpdateAt   uint64 `bson:"update_at" json:"update_at"`
-	LossAmount string `bson:"loss_amount" json:"loss_amount"`
-	UserAddr   string `bson:"user_addr" json:"user_addr"`
+	Symbol       string `bson:"symbol" json:"symbol"`
+	UpdateAt     uint64 `bson:"update_at" json:"update_at"`
+	LossAmount   string `bson:"loss_amount" json:"loss_amount"`
+	UserAddr     string `bson:"user_addr" json:"user_addr"`
+	ClaimAirdrop string `bson:"claim_airdrop" json:"claim_airdrop"`
 }
 
-// Airdrop 空投
+// Airdrop 链上扫块空投
 type Airdrop struct {
 	ToAddr      string `bson:"to_addr" json:"to_addr"`
 	Amount      string `bson:"amount" json:"amount"`
 	Symbol      string `bson:"symbol" json:"symbol"`             // 空投币种
 	AirdropTime uint64 `bson:"airdrop_time" json:"airdrop_time"` // 空投时间
 	TxHash      string `bson:"tx_hash" json:"tx_hash"`           // 交易哈希
+}
+
+// 。。。
+type DailyAirdropTrade struct {
+	Symbol string `bson:"symbol" json:"symbol"`
+	Remain string `bson:"remain" json:"remain"`
+	Date   string `bson:"date" json:"date"`
 }
 
 // Transaction 交易记录

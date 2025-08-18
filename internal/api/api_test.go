@@ -355,7 +355,7 @@ func TestStringToBigIntSum(t *testing.T) {
 	//	t.Error("StringToBigIntSum fail")
 	//	return
 	//}
-	res, err := StringToBigIntDiv("0", "6")
+	res, err := StringToBigIntSub("0", "6")
 	if err != nil {
 		t.Error("StringToBigIntSum fail")
 		return

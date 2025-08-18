@@ -401,13 +401,13 @@ func StringToBigIntSum(a, b string) (*big.Int, error) {
 	i := new(big.Int)
 	_, ok := i.SetString(a, 0) // 支持0x/0前缀的十六进制/八进制
 	if !ok {
-		return nil, errors.New("StringToBigInt fail: invalid format for first argument")
+		return nil, errors.New("StringToBigIntSum fail: invalid format for first argument")
 	}
 
 	j := new(big.Int)
 	_, ok = j.SetString(b, 0)
 	if !ok {
-		return nil, errors.New("StringToBigInt fail: invalid format for second argument")
+		return nil, errors.New("StringToBigIntSum fail: invalid format for second argument")
 	}
 
 	sum := new(big.Int)
@@ -418,13 +418,13 @@ func StringToBigIntSub(a, b string) (*big.Int, error) {
 	i := new(big.Int)
 	_, ok := i.SetString(a, 0) // 支持0x/0前缀的十六进制/八进制
 	if !ok {
-		return nil, errors.New("StringToBigInt fail: invalid format for first argument")
+		return nil, errors.New("StringToBigIntSub fail: invalid format for first argument")
 	}
 
 	j := new(big.Int)
 	_, ok = j.SetString(b, 0)
 	if !ok {
-		return nil, errors.New("StringToBigInt fail: invalid format for second argument")
+		return nil, errors.New("StringToBigIntSub fail: invalid format for second argument")
 	}
 
 	sum := new(big.Int)
@@ -435,13 +435,13 @@ func StringToBigIntDiv(a, b string) (*big.Int, error) {
 	i := new(big.Int)
 	_, ok := i.SetString(a, 0) // 支持0x/0前缀的十六进制/八进制
 	if !ok {
-		return nil, errors.New("StringToBigInt fail: invalid format for first argument")
+		return nil, errors.New("StringToBigIntDiv fail: invalid format for first argument")
 	}
 
 	j := new(big.Int)
 	_, ok = j.SetString(b, 0)
 	if !ok {
-		return nil, errors.New("StringToBigInt fail: invalid format for second argument")
+		return nil, errors.New("StringToBigIntDiv fail: invalid format for second argument")
 	}
 
 	dis := new(big.Int)

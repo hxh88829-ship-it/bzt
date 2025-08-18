@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 	"valueguard/internal/api"
+	"valueguard/internal/dailyAirdrop"
 	"valueguard/internal/marketCondition"
 	"valueguard/internal/mongo"
 	"valueguard/internal/monitorBlock"
@@ -133,6 +134,8 @@ func LoadConfigInit() error {
 	symbols := []string{"BTCUSDT", "ETHUSDT"}
 	go RunService(context.Background(), symbols)
 
+	// ✅ 启动空投定时任务
+	go dailyAirdrop.StartAirdropCron(symbols, context.Background())
 	return nil
 }
 
@@ -168,7 +171,7 @@ func RunService(ctx context.Context, symbols []string) {
 				}
 			}
 		}
-	}()
+	}() //扫块
 
 	//wg.Add(1)
 	//go func() {
@@ -216,7 +219,7 @@ func RunService(ctx context.Context, symbols []string) {
 				}
 			}
 		}
-	}()
+	}() //获取实时行情
 
 	wg.Add(1)
 	go func() {
@@ -243,7 +246,7 @@ func RunService(ctx context.Context, symbols []string) {
 				}
 			}
 		}
-	}()
+	}() //同步平台用户
 
 	<-ctx.Done()
 	wg.Wait()

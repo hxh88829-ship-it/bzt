@@ -60,6 +60,12 @@ service Greeter {
       body: "*"
     };
   }
+  rpc GetAirdrop (GetAirdropRequest) returns (GetAirdropReply) {
+    option (google.api.http) = {
+      post: "/v1/getAirdrop"
+      body: "*"
+    };
+  }
 }
 
 // The request message containing the user's name.
@@ -156,4 +162,17 @@ message CloseOrderRequest {
 // The response message containing the greetings
 message CloseOrderReply {
   string tx = 1;
+}
+
+message GetAirdropRequest {
+  string address = 1;
+  uint64 isClaims = 2;
+  string symbol = 3;
+}
+
+// The response message containing the greetings
+message GetAirdropReply {
+  string status = 1;
+  string value = 2;
+  string txHash = 3;
 }

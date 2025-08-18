@@ -27,6 +27,7 @@ const (
 	Greeter_MarketCondition_FullMethodName = "/helloworld.v1.Greeter/MarketCondition"
 	Greeter_OpenOrder_FullMethodName       = "/helloworld.v1.Greeter/OpenOrder"
 	Greeter_CloseOrder_FullMethodName      = "/helloworld.v1.Greeter/CloseOrder"
+	Greeter_GetAirdrop_FullMethodName      = "/helloworld.v1.Greeter/GetAirdrop"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -44,6 +45,7 @@ type GreeterClient interface {
 	MarketCondition(ctx context.Context, in *MarketConditionRequest, opts ...grpc.CallOption) (*MarketConditionReply, error)
 	OpenOrder(ctx context.Context, in *OpenOrderRequest, opts ...grpc.CallOption) (*OpenOrderReply, error)
 	CloseOrder(ctx context.Context, in *CloseOrderRequest, opts ...grpc.CallOption) (*CloseOrderReply, error)
+	GetAirdrop(ctx context.Context, in *GetAirdropRequest, opts ...grpc.CallOption) (*GetAirdropReply, error)
 }
 
 type greeterClient struct {
@@ -134,6 +136,16 @@ func (c *greeterClient) CloseOrder(ctx context.Context, in *CloseOrderRequest, o
 	return out, nil
 }
 
+func (c *greeterClient) GetAirdrop(ctx context.Context, in *GetAirdropRequest, opts ...grpc.CallOption) (*GetAirdropReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAirdropReply)
+	err := c.cc.Invoke(ctx, Greeter_GetAirdrop_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -149,6 +161,7 @@ type GreeterServer interface {
 	MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error)
 	OpenOrder(context.Context, *OpenOrderRequest) (*OpenOrderReply, error)
 	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error)
+	GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -182,6 +195,9 @@ func (UnimplementedGreeterServer) OpenOrder(context.Context, *OpenOrderRequest) 
 }
 func (UnimplementedGreeterServer) CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CloseOrder not implemented")
+}
+func (UnimplementedGreeterServer) GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAirdrop not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -348,6 +364,24 @@ func _Greeter_CloseOrder_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_GetAirdrop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAirdropRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).GetAirdrop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_GetAirdrop_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).GetAirdrop(ctx, req.(*GetAirdropRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -386,6 +420,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CloseOrder",
 			Handler:    _Greeter_CloseOrder_Handler,
+		},
+		{
+			MethodName: "GetAirdrop",
+			Handler:    _Greeter_GetAirdrop_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

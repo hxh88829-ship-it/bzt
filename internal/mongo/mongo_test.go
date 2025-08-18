@@ -92,7 +92,7 @@ func TestGetPriceBySymbol(t *testing.T) {
 	t.Log(res)
 }
 
-func TestGetRewardAmount(t *testing.T) {
+func TestUpdateUserLossAmount(t *testing.T) {
 	cli, err := NewMongoClient(dbUrl)
 	if err != nil {
 		t.Error(err)
@@ -107,4 +107,19 @@ func TestGetRewardAmount(t *testing.T) {
 		return
 	}
 	//t.Log(res)
+}
+
+func TestUpdateRewardPool(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	err = UpdateRewardPool("BTCUSDT", "7114", "71.14")
+	if err != nil {
+		t.Error(err)
+		return
+	}
 }

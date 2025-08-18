@@ -16,4 +16,5 @@ const (
 	wallet               = "wallet"
 	lossBlock            = "lossBlock"
 	transaction          = "transaction"
+	dailyAirdrops        = "dailyAirdrops"
 )

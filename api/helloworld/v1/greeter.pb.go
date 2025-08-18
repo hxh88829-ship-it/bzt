@@ -957,6 +957,127 @@ func (x *CloseOrderReply) GetTx() string {
 	return ""
 }
 
+type GetAirdropRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	IsClaims      uint64                 `protobuf:"varint,2,opt,name=isClaims,proto3" json:"isClaims,omitempty"`
+	Symbol        string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAirdropRequest) Reset() {
+	*x = GetAirdropRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAirdropRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAirdropRequest) ProtoMessage() {}
+
+func (x *GetAirdropRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAirdropRequest.ProtoReflect.Descriptor instead.
+func (*GetAirdropRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetAirdropRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *GetAirdropRequest) GetIsClaims() uint64 {
+	if x != nil {
+		return x.IsClaims
+	}
+	return 0
+}
+
+func (x *GetAirdropRequest) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+// The response message containing the greetings
+type GetAirdropReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	TxHash        string                 `protobuf:"bytes,3,opt,name=txHash,proto3" json:"txHash,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAirdropReply) Reset() {
+	*x = GetAirdropReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAirdropReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAirdropReply) ProtoMessage() {}
+
+func (x *GetAirdropReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAirdropReply.ProtoReflect.Descriptor instead.
+func (*GetAirdropReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetAirdropReply) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *GetAirdropReply) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *GetAirdropReply) GetTxHash() string {
+	if x != nil {
+		return x.TxHash
+	}
+	return ""
+}
+
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_helloworld_v1_greeter_proto_rawDesc = "" +
@@ -1017,7 +1138,15 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x06symbol\x18\x03 \x01(\tR\x06symbol\x12\x18\n" +
 	"\aorderId\x18\x04 \x01(\tR\aorderId\"!\n" +
 	"\x0fCloseOrderReply\x12\x0e\n" +
-	"\x02tx\x18\x01 \x01(\tR\x02tx2\x8e\a\n" +
+	"\x02tx\x18\x01 \x01(\tR\x02tx\"a\n" +
+	"\x11GetAirdropRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1a\n" +
+	"\bisClaims\x18\x02 \x01(\x04R\bisClaims\x12\x16\n" +
+	"\x06symbol\x18\x03 \x01(\tR\x06symbol\"W\n" +
+	"\x0fGetAirdropReply\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\x12\x16\n" +
+	"\x06txHash\x18\x03 \x01(\tR\x06txHash2\xf9\a\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +
@@ -1028,7 +1157,9 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x0fMarketCondition\x12%.helloworld.v1.MarketConditionRequest\x1a#.helloworld.v1.MarketConditionReply\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/marketCondition\x12e\n" +
 	"\tOpenOrder\x12\x1f.helloworld.v1.OpenOrderRequest\x1a\x1d.helloworld.v1.OpenOrderReply\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/v1/openOrder\x12i\n" +
 	"\n" +
-	"CloseOrder\x12 .helloworld.v1.CloseOrderRequest\x1a\x1e.helloworld.v1.CloseOrderReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/closeOrderBT\n" +
+	"CloseOrder\x12 .helloworld.v1.CloseOrderRequest\x1a\x1e.helloworld.v1.CloseOrderReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/closeOrder\x12i\n" +
+	"\n" +
+	"GetAirdrop\x12 .helloworld.v1.GetAirdropRequest\x1a\x1e.helloworld.v1.GetAirdropReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/getAirdropBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -1043,7 +1174,7 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*HelloRequest)(nil),           // 0: helloworld.v1.HelloRequest
 	(*HelloReply)(nil),             // 1: helloworld.v1.HelloReply
@@ -1063,6 +1194,8 @@ var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*OpenOrderReply)(nil),         // 15: helloworld.v1.OpenOrderReply
 	(*CloseOrderRequest)(nil),      // 16: helloworld.v1.CloseOrderRequest
 	(*CloseOrderReply)(nil),        // 17: helloworld.v1.CloseOrderReply
+	(*GetAirdropRequest)(nil),      // 18: helloworld.v1.GetAirdropRequest
+	(*GetAirdropReply)(nil),        // 19: helloworld.v1.GetAirdropReply
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	9,  // 0: helloworld.v1.WalletBalanceReply.tokens:type_name -> helloworld.v1.TokenBalance
@@ -1075,16 +1208,18 @@ var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	11, // 7: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
 	14, // 8: helloworld.v1.Greeter.OpenOrder:input_type -> helloworld.v1.OpenOrderRequest
 	16, // 9: helloworld.v1.Greeter.CloseOrder:input_type -> helloworld.v1.CloseOrderRequest
-	1,  // 10: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	5,  // 11: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
-	3,  // 12: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
-	7,  // 13: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
-	10, // 14: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
-	13, // 15: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	15, // 16: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
-	17, // 17: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
-	10, // [10:18] is the sub-list for method output_type
-	2,  // [2:10] is the sub-list for method input_type
+	18, // 10: helloworld.v1.Greeter.GetAirdrop:input_type -> helloworld.v1.GetAirdropRequest
+	1,  // 11: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	5,  // 12: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	3,  // 13: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
+	7,  // 14: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	10, // 15: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
+	13, // 16: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	15, // 17: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
+	17, // 18: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
+	19, // 19: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
+	11, // [11:20] is the sub-list for method output_type
+	2,  // [2:11] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
@@ -1101,7 +1236,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

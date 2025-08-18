@@ -12,6 +12,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.6.0
 	github.com/redis/go-redis/v9 v9.11.0
+	github.com/robfig/cron/v3 v3.0.1
 	go.mongodb.org/mongo-driver v1.17.4
 	go.uber.org/automaxprocs v1.5.2
 	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157

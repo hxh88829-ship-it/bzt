@@ -14,6 +14,7 @@ import (
 	"valueguard/internal/api"
 	"valueguard/internal/biz"
 	"valueguard/internal/bzt"
+	"valueguard/internal/dailyAirdrop"
 	"valueguard/internal/mongo"
 	"valueguard/internal/redisQuery"
 )
@@ -305,6 +306,68 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	}, nil
 }
 
+func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropRequest) (*v1.GetAirdropReply, error) {
+	// 1. 参数校验
+	isAddress := regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString
+	addr := strings.ToLower(in.GetAddress())
+	if !isAddress(addr) {
+		return &v1.GetAirdropReply{Status: "invalid address"}, nil
+	}
+	ok, err := IsWalletBound(ctx, in.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return &v1.GetAirdropReply{
+			Status: "address not exists",
+		}, nil
+	}
+	// 判断是否领取
+	if in.GetIsClaims() == 0 {
+		return &v1.GetAirdropReply{Status: "no airdrop claimed"}, nil
+	}
+	if in.GetIsClaims() == 1 {
+		today, err := RedisVerify(strings.ToLower(in.GetAddress()), ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		claims, claimed, err := dailyAirdrop.UpdateLossAmount(strings.ToLower(in.GetAddress()), in.GetSymbol())
+		if err != nil {
+			return nil, err
+		}
+		daily, err := mongo.GetDailyAirdrop(today, in.GetSymbol())
+		if err != nil {
+			return nil, err
+		}
+		remain, err := api.StringToBigIntSub(daily.Remain, claims.String())
+		if err != nil {
+			return nil, err
+		}
+		if remain.Sign() < 0 {
+			return &v1.GetAirdropReply{Status: "invalid result"}, nil
+		}
+		tx, err := bzt.GetAirdrop(strings.ToLower(in.GetAddress()), claims.Int64())
+		if err != nil {
+			return nil, err
+		}
+		err = mongo.UpdateUserClaims(in.GetSymbol(), strings.ToLower(in.GetAddress()), claimed)
+		if err != nil {
+			return nil, err
+		}
+		err = mongo.UpdateDailyAirdrop(today, in.GetSymbol(), remain.String())
+		if err != nil {
+			return nil, err
+		}
+		return &v1.GetAirdropReply{
+			Status: "success",
+			Value:  claims.String(),
+			TxHash: tx.Hash().String(),
+		}, nil
+	}
+	return &v1.GetAirdropReply{Status: "success"}, nil
+}
+
 func IsWalletBound(ctx context.Context, addr string) (bool, error) {
 	addr = strings.ToLower(addr)
 	// Redis 判断
@@ -324,4 +387,23 @@ func IsWalletBound(ctx context.Context, addr string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+func RedisVerify(addr string, ctx context.Context) (string, error) {
+	today := time.Now().Format("2006-01-02")
+	key := fmt.Sprintf("airdrop:claim:%s:%s", addr, today)
+
+	ok, err := redisQuery.RedisCli.SetNX(ctx, key, 1, expireAtEndOfDay()).Result()
+	if err != nil {
+		return "", errors.New("redis error")
+	}
+	if !ok {
+		return "", errors.New("<already claimed today>")
+	}
+	return today, nil
+}
+func expireAtEndOfDay() time.Duration {
+	now := time.Now()
+	end := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, now.Location())
+	return time.Until(end)
 }

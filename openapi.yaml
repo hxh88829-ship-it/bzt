@@ -67,6 +67,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.CloseOrderReply'
+    /v1/getAirdrop:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_GetAirdrop
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.GetAirdropRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.GetAirdropReply'
     /v1/getLoginMessage:
         post:
             tags:
@@ -194,6 +212,25 @@ components:
                 symbol:
                     type: string
                 orderId:
+                    type: string
+        helloworld.v1.GetAirdropReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                value:
+                    type: string
+                txHash:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.GetAirdropRequest:
+            type: object
+            properties:
+                address:
+                    type: string
+                isClaims:
+                    type: string
+                symbol:
                     type: string
         helloworld.v1.GetLoginMessageReply:
             type: object
