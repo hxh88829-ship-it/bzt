@@ -1,0 +1,16 @@
+# include:
+#   - project: 'datainter/ci-cd'
+#     file: '/common/ci-cd.yml'
+include:
+  - project: 'datainter/ci-cd'
+    file: '/common/ci-cd.yml'
+    rules:
+      - if: '$CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH'
+
+dummy_job:
+  script:
+    - echo "This is a dummy job"
+  when: manual
+  allow_failure: true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "pipeline-test"'

@@ -66,6 +66,26 @@ service Greeter {
       body: "*"
     };
   }
+  rpc Health (HealthCheckRequest) returns (HealthCheckReply) {
+    option (google.api.http) = {
+      get: "/health"
+    };
+  }
+
+  rpc OrderTrade (OrderTradeRequest) returns (OrderTradeReply) {
+    option (google.api.http) = {
+      post: "/v1/orderTrade"
+      body: "*"
+    };
+  }
+
+  rpc AirdropTrade (AirdropTradeRequest) returns (AirdropTradeReply) {
+    option (google.api.http) = {
+      post: "/v1/airdropTrade"
+      body: "*"
+    };
+  }
+
 }
 
 // The request message containing the user's name.
@@ -90,8 +110,6 @@ message GetLoginMessageReply {
 }
 message BindWalletRequest {
   string address = 1;
-  string email = 2;
-  string name = 3;
 }
 
 // The response message containing the greetings
@@ -175,4 +193,53 @@ message GetAirdropReply {
   string status = 1;
   string value = 2;
   string txHash = 3;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckReply {
+  string status = 1; // "ok" 或 "not ok"
+}
+
+message OrderTradeRequest {
+  string address = 1;
+  int64 page = 2;
+  int64 pageSize = 3;
+}
+
+// The response message containing the greetings
+message OrderTradeReply {
+  repeated OrderDetails result = 1;
+}
+
+message OrderDetails {
+  string orderId = 1;
+  string symbol = 2;
+  string openedPrice = 3;
+  string closePrice = 4;
+  string profitLoss = 5;
+  string amount = 6;
+  string usersAddr = 7;
+  uint64 isClosed = 8;
+  uint64 orderStartTime = 9;
+  uint64 orderEndTime = 10;
+  string openTxHash = 11;
+  string closeTxHash = 12;
+}
+
+message AirdropTradeRequest {
+  string addr = 1;
+}
+
+// The response message containing the greetings
+message AirdropTradeReply {
+  repeated AirdropDetails result = 1;
+}
+
+message AirdropDetails {
+  string usersAddr = 1;
+  string amount = 2;
+  string symbol = 3;
+  string times = 4;
+  string txHash = 5;
 }

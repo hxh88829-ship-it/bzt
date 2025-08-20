@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-kratos/kratos/v2/log"
 	"regexp"
 	"strconv"
@@ -16,14 +17,14 @@ import (
 	"valueguard/internal/bzt"
 	"valueguard/internal/dailyAirdrop"
 	"valueguard/internal/mongo"
-	"valueguard/internal/redisQuery"
 )
 
 // GreeterService is a greeter service.
 type GreeterService struct {
 	v1.UnimplementedGreeterServer
-
-	uc *biz.GreeterUsecase
+	MongoClient *mongo.MongoClient
+	NodeClient  *ethclient.Client
+	uc          *biz.GreeterUsecase
 }
 
 // NewGreeterService new a greeter service.
@@ -46,7 +47,7 @@ func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletReques
 	if !isAddress(addr) {
 		return &v1.BindWalletReply{Metadata: "invalid address"}, nil
 	}
-	exists, err := IsWalletBound(ctx, addr)
+	exists, err := IsWalletBound(addr)
 	if err != nil {
 		return &v1.BindWalletReply{}, err
 	}
@@ -56,12 +57,9 @@ func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletReques
 	uid := api.GenerateUID()
 	nonce := api.GenerateUID()
 	message := fmt.Sprintf("保值通系统请求绑定你的地址：\n%s\n操作类型: bind_wallet\nNonce: %s\nIssued At: %s", addr, nonce, time.Now().Format(time.RFC3339))
-
 	user := mongo.Users{
 		Address:         addr,
 		Uid:             uid,
-		Email:           in.GetEmail(),
-		Name:            in.GetName(),
 		OriginalMessage: message,
 		CreateTimeAt:    time.Now().Unix(),
 		Status:          "0",
@@ -71,10 +69,6 @@ func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletReques
 	if err != nil {
 		return nil, err
 	}
-	if err := redisQuery.RedisCli.SAdd(ctx, "platform_users_set", strings.ToLower(user.Address)).Err(); err != nil {
-		log.Warnf("⚠️ 注册用户后 Redis SAdd 失败: %v", err)
-	}
-
 	return &v1.BindWalletReply{
 		Uid:      uid,
 		Metadata: message,
@@ -118,7 +112,7 @@ func (s *GreeterService) GetLoginMessage(ctx context.Context, in *v1.GetLoginMes
 	if !isAddress(addr) {
 		return &v1.GetLoginMessageReply{Metadata: "invalid address"}, nil
 	}
-	exists, err := IsWalletBound(ctx, addr)
+	exists, err := IsWalletBound(addr)
 	if err != nil {
 		return &v1.GetLoginMessageReply{}, err
 	}
@@ -144,7 +138,7 @@ func (s *GreeterService) WalletBalance(ctx context.Context, in *v1.WalletBalance
 		return &v1.WalletBalanceReply{}, nil
 	}
 
-	exists, err := IsWalletBound(ctx, addr)
+	exists, err := IsWalletBound(addr)
 	if err != nil {
 		return &v1.WalletBalanceReply{}, err
 	}
@@ -206,7 +200,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 	if in.GetAddress() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" {
 		return nil, errors.New("missing required parameters")
 	}
-	ok, err := IsWalletBound(ctx, in.GetAddress())
+	ok, err := IsWalletBound(in.GetAddress())
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +257,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		return nil, errors.New("missing required parameters")
 	}
 	/* 核对地址 */
-	ok, err := IsWalletBound(ctx, in.GetAddress())
+	ok, err := IsWalletBound(in.GetAddress())
 	if err != nil {
 		return nil, err
 	}
@@ -313,7 +307,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	if !isAddress(addr) {
 		return &v1.GetAirdropReply{Status: "invalid address"}, nil
 	}
-	ok, err := IsWalletBound(ctx, in.GetAddress())
+	ok, err := IsWalletBound(in.GetAddress())
 	if err != nil {
 		return nil, err
 	}
@@ -327,59 +321,114 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 		return &v1.GetAirdropReply{Status: "no airdrop claimed"}, nil
 	}
 	if in.GetIsClaims() == 1 {
-		today, err := RedisVerify(strings.ToLower(in.GetAddress()), ctx)
+		today := time.Now().Format("2006-01-02")
+		claims, claimed, err := dailyAirdrop.UpdateLossAmount(strings.ToLower(in.GetAddress()), in.GetSymbol()) // 用户今日可领，领后总额
 		if err != nil {
 			return nil, err
 		}
-
-		claims, claimed, err := dailyAirdrop.UpdateLossAmount(strings.ToLower(in.GetAddress()), in.GetSymbol())
+		daily, err := mongo.GetDailyAirdrop(today, in.GetSymbol()) // 今日空投总额
 		if err != nil {
 			return nil, err
 		}
-		daily, err := mongo.GetDailyAirdrop(today, in.GetSymbol())
-		if err != nil {
-			return nil, err
-		}
-		remain, err := api.StringToBigIntSub(daily.Remain, claims.String())
+		remain, err := api.StringToBigIntSub(daily.Remain, claims.String()) //空投剩余
 		if err != nil {
 			return nil, err
 		}
 		if remain.Sign() < 0 {
 			return &v1.GetAirdropReply{Status: "invalid result"}, nil
 		}
-		tx, err := bzt.GetAirdrop(strings.ToLower(in.GetAddress()), claims.Int64())
+		err = mongo.QueryAirdropByTimes(today, strings.ToLower(in.GetAddress()))
 		if err != nil {
-			return nil, err
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				tx, err := bzt.GetAirdrop(strings.ToLower(in.GetAddress()), claims.Int64())
+				if err != nil {
+					return nil, err
+				}
+				err = mongo.UpdateUserClaims(in.GetSymbol(), strings.ToLower(in.GetAddress()), claimed)
+				if err != nil {
+					return nil, err
+				}
+				err = mongo.UpdateDailyAirdrop(today, in.GetSymbol(), remain.String())
+				if err != nil {
+					return nil, err
+				}
+				return &v1.GetAirdropReply{
+					Status: "success",
+					Value:  claims.String(),
+					TxHash: tx.Hash().String(),
+				}, nil
+			} else {
+				return nil, err
+			}
 		}
-		err = mongo.UpdateUserClaims(in.GetSymbol(), strings.ToLower(in.GetAddress()), claimed)
-		if err != nil {
-			return nil, err
-		}
-		err = mongo.UpdateDailyAirdrop(today, in.GetSymbol(), remain.String())
-		if err != nil {
-			return nil, err
-		}
-		return &v1.GetAirdropReply{
-			Status: "success",
-			Value:  claims.String(),
-			TxHash: tx.Hash().String(),
-		}, nil
 	}
-	return &v1.GetAirdropReply{Status: "success"}, nil
+	return &v1.GetAirdropReply{Status: "address already claim"}, nil
 }
 
-func IsWalletBound(ctx context.Context, addr string) (bool, error) {
-	addr = strings.ToLower(addr)
-	// Redis 判断
-	exists, err := redisQuery.RedisCli.SIsMember(ctx, "platform_users_set", addr).Result()
-	if err == nil && exists {
-		return true, nil
+func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeRequest) (*v1.OrderTradeReply, error) {
+	// 1. 参数校验
+	if in.GetAddress() == "" {
+		return nil, errors.New("missing required parameters")
 	}
+	ok, err := IsWalletBound(in.GetAddress())
 	if err != nil {
-		log.Warnf("<addr> : %s, <err>: %s", addr, err)
+		return nil, err
 	}
-	// Mongo 判断
-	_, err = mongo.GetUser(addr)
+	if !ok {
+		return &v1.OrderTradeReply{}, errors.New("wallet not exists")
+	}
+	res, err := mongo.GetOrderForAll(in.GetAddress(), in.GetPage(), in.GetPageSize())
+	if err != nil {
+		return nil, err
+	}
+	var result v1.OrderTradeReply
+	for _, value := range res {
+		var rel v1.OrderDetails
+		rel.OrderId = value.OrderId
+		rel.Symbol = value.Symbol
+		rel.OpenedPrice = value.OpenPrice
+		rel.ClosePrice = value.ClosePrice
+		rel.ProfitLoss = value.ProfitLoss
+		rel.Amount = value.Amount
+		rel.UsersAddr = value.UsersAddr
+		rel.IsClosed = value.IsClosed
+		rel.OrderStartTime = value.OrderStartTime
+		rel.OrderEndTime = value.OrderEndTime
+		rel.OpenTxHash = value.OpenTxHash
+		rel.CloseTxHash = value.CloseTxHash
+		result.Result = append(result.Result, &rel)
+	}
+	return &result, nil
+}
+
+func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRequest) (*v1.AirdropTradeReply, error) {
+	res, err := mongo.GetAirdropForAll(strings.ToLower(in.GetAddr()))
+	if err != nil {
+		return nil, err
+	}
+	var result v1.AirdropTradeReply
+	for _, v := range res {
+		var rel v1.AirdropDetails
+		rel.Symbol = v.Symbol
+		rel.Amount = v.Amount
+		rel.UsersAddr = v.ToAddr
+		rel.Times = v.AirdropTime
+		result.Result = append(result.Result, &rel)
+	}
+	return &result, nil
+}
+
+// Check 健康检查
+func (s *GreeterService) Health(ctx context.Context, _ *v1.HealthCheckRequest) (*v1.HealthCheckReply, error) {
+
+	return &v1.HealthCheckReply{
+		Status: "ok",
+	}, nil
+}
+
+func IsWalletBound(addr string) (bool, error) {
+	addr = strings.ToLower(addr)
+	_, err := mongo.GetUser(addr)
 	if err == nil {
 		return true, nil
 	}
@@ -387,23 +436,4 @@ func IsWalletBound(ctx context.Context, addr string) (bool, error) {
 		return false, nil
 	}
 	return false, err
-}
-
-func RedisVerify(addr string, ctx context.Context) (string, error) {
-	today := time.Now().Format("2006-01-02")
-	key := fmt.Sprintf("airdrop:claim:%s:%s", addr, today)
-
-	ok, err := redisQuery.RedisCli.SetNX(ctx, key, 1, expireAtEndOfDay()).Result()
-	if err != nil {
-		return "", errors.New("redis error")
-	}
-	if !ok {
-		return "", errors.New("<already claimed today>")
-	}
-	return today, nil
-}
-func expireAtEndOfDay() time.Duration {
-	now := time.Now()
-	end := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, now.Location())
-	return time.Until(end)
 }

@@ -220,8 +220,6 @@ func (x *GetLoginMessageReply) GetHash() string {
 type BindWalletRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -259,20 +257,6 @@ func (*BindWalletRequest) Descriptor() ([]byte, []int) {
 func (x *BindWalletRequest) GetAddress() string {
 	if x != nil {
 		return x.Address
-	}
-	return ""
-}
-
-func (x *BindWalletRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
-func (x *BindWalletRequest) GetName() string {
-	if x != nil {
-		return x.Name
 	}
 	return ""
 }
@@ -1078,6 +1062,488 @@ func (x *GetAirdropReply) GetTxHash() string {
 	return ""
 }
 
+type HealthCheckRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HealthCheckRequest) Reset() {
+	*x = HealthCheckRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HealthCheckRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HealthCheckRequest) ProtoMessage() {}
+
+func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
+func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{20}
+}
+
+type HealthCheckReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"` // "ok" 或 "not ok"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HealthCheckReply) Reset() {
+	*x = HealthCheckReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HealthCheckReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HealthCheckReply) ProtoMessage() {}
+
+func (x *HealthCheckReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HealthCheckReply.ProtoReflect.Descriptor instead.
+func (*HealthCheckReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *HealthCheckReply) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+type OrderTradeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Page          int64                  `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int64                  `protobuf:"varint,3,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OrderTradeRequest) Reset() {
+	*x = OrderTradeRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrderTradeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrderTradeRequest) ProtoMessage() {}
+
+func (x *OrderTradeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrderTradeRequest.ProtoReflect.Descriptor instead.
+func (*OrderTradeRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *OrderTradeRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *OrderTradeRequest) GetPage() int64 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *OrderTradeRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+// The response message containing the greetings
+type OrderTradeReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        []*OrderDetails        `protobuf:"bytes,1,rep,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OrderTradeReply) Reset() {
+	*x = OrderTradeReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrderTradeReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrderTradeReply) ProtoMessage() {}
+
+func (x *OrderTradeReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrderTradeReply.ProtoReflect.Descriptor instead.
+func (*OrderTradeReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *OrderTradeReply) GetResult() []*OrderDetails {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+type OrderDetails struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OrderId        string                 `protobuf:"bytes,1,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	Symbol         string                 `protobuf:"bytes,2,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	OpenedPrice    string                 `protobuf:"bytes,3,opt,name=openedPrice,proto3" json:"openedPrice,omitempty"`
+	ClosePrice     string                 `protobuf:"bytes,4,opt,name=closePrice,proto3" json:"closePrice,omitempty"`
+	ProfitLoss     string                 `protobuf:"bytes,5,opt,name=profitLoss,proto3" json:"profitLoss,omitempty"`
+	Amount         string                 `protobuf:"bytes,6,opt,name=amount,proto3" json:"amount,omitempty"`
+	UsersAddr      string                 `protobuf:"bytes,7,opt,name=usersAddr,proto3" json:"usersAddr,omitempty"`
+	IsClosed       uint64                 `protobuf:"varint,8,opt,name=isClosed,proto3" json:"isClosed,omitempty"`
+	OrderStartTime uint64                 `protobuf:"varint,9,opt,name=orderStartTime,proto3" json:"orderStartTime,omitempty"`
+	OrderEndTime   uint64                 `protobuf:"varint,10,opt,name=orderEndTime,proto3" json:"orderEndTime,omitempty"`
+	OpenTxHash     string                 `protobuf:"bytes,11,opt,name=openTxHash,proto3" json:"openTxHash,omitempty"`
+	CloseTxHash    string                 `protobuf:"bytes,12,opt,name=closeTxHash,proto3" json:"closeTxHash,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *OrderDetails) Reset() {
+	*x = OrderDetails{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrderDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrderDetails) ProtoMessage() {}
+
+func (x *OrderDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrderDetails.ProtoReflect.Descriptor instead.
+func (*OrderDetails) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *OrderDetails) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *OrderDetails) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *OrderDetails) GetOpenedPrice() string {
+	if x != nil {
+		return x.OpenedPrice
+	}
+	return ""
+}
+
+func (x *OrderDetails) GetClosePrice() string {
+	if x != nil {
+		return x.ClosePrice
+	}
+	return ""
+}
+
+func (x *OrderDetails) GetProfitLoss() string {
+	if x != nil {
+		return x.ProfitLoss
+	}
+	return ""
+}
+
+func (x *OrderDetails) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *OrderDetails) GetUsersAddr() string {
+	if x != nil {
+		return x.UsersAddr
+	}
+	return ""
+}
+
+func (x *OrderDetails) GetIsClosed() uint64 {
+	if x != nil {
+		return x.IsClosed
+	}
+	return 0
+}
+
+func (x *OrderDetails) GetOrderStartTime() uint64 {
+	if x != nil {
+		return x.OrderStartTime
+	}
+	return 0
+}
+
+func (x *OrderDetails) GetOrderEndTime() uint64 {
+	if x != nil {
+		return x.OrderEndTime
+	}
+	return 0
+}
+
+func (x *OrderDetails) GetOpenTxHash() string {
+	if x != nil {
+		return x.OpenTxHash
+	}
+	return ""
+}
+
+func (x *OrderDetails) GetCloseTxHash() string {
+	if x != nil {
+		return x.CloseTxHash
+	}
+	return ""
+}
+
+type AirdropTradeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Addr          string                 `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AirdropTradeRequest) Reset() {
+	*x = AirdropTradeRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AirdropTradeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AirdropTradeRequest) ProtoMessage() {}
+
+func (x *AirdropTradeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AirdropTradeRequest.ProtoReflect.Descriptor instead.
+func (*AirdropTradeRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *AirdropTradeRequest) GetAddr() string {
+	if x != nil {
+		return x.Addr
+	}
+	return ""
+}
+
+// The response message containing the greetings
+type AirdropTradeReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        []*AirdropDetails      `protobuf:"bytes,1,rep,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AirdropTradeReply) Reset() {
+	*x = AirdropTradeReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AirdropTradeReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AirdropTradeReply) ProtoMessage() {}
+
+func (x *AirdropTradeReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AirdropTradeReply.ProtoReflect.Descriptor instead.
+func (*AirdropTradeReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *AirdropTradeReply) GetResult() []*AirdropDetails {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+type AirdropDetails struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UsersAddr     string                 `protobuf:"bytes,1,opt,name=usersAddr,proto3" json:"usersAddr,omitempty"`
+	Amount        string                 `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	Symbol        string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Times         string                 `protobuf:"bytes,4,opt,name=times,proto3" json:"times,omitempty"`
+	TxHash        string                 `protobuf:"bytes,5,opt,name=txHash,proto3" json:"txHash,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AirdropDetails) Reset() {
+	*x = AirdropDetails{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AirdropDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AirdropDetails) ProtoMessage() {}
+
+func (x *AirdropDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AirdropDetails.ProtoReflect.Descriptor instead.
+func (*AirdropDetails) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *AirdropDetails) GetUsersAddr() string {
+	if x != nil {
+		return x.UsersAddr
+	}
+	return ""
+}
+
+func (x *AirdropDetails) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *AirdropDetails) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *AirdropDetails) GetTimes() string {
+	if x != nil {
+		return x.Times
+	}
+	return ""
+}
+
+func (x *AirdropDetails) GetTxHash() string {
+	if x != nil {
+		return x.TxHash
+	}
+	return ""
+}
+
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_helloworld_v1_greeter_proto_rawDesc = "" +
@@ -1093,11 +1559,9 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\aaddress\x18\x01 \x01(\tR\aaddress\"F\n" +
 	"\x14GetLoginMessageReply\x12\x1a\n" +
 	"\bmetadata\x18\x01 \x01(\tR\bmetadata\x12\x12\n" +
-	"\x04hash\x18\x02 \x01(\tR\x04hash\"W\n" +
+	"\x04hash\x18\x02 \x01(\tR\x04hash\"-\n" +
 	"\x11BindWalletRequest\x12\x18\n" +
-	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\"S\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\"S\n" +
 	"\x0fBindWalletReply\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x1a\n" +
 	"\bmetadata\x18\x02 \x01(\tR\bmetadata\x12\x12\n" +
@@ -1146,7 +1610,47 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x0fGetAirdropReply\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x12\x16\n" +
-	"\x06txHash\x18\x03 \x01(\tR\x06txHash2\xf9\a\n" +
+	"\x06txHash\x18\x03 \x01(\tR\x06txHash\"\x14\n" +
+	"\x12HealthCheckRequest\"*\n" +
+	"\x10HealthCheckReply\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\"]\n" +
+	"\x11OrderTradeRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x12\n" +
+	"\x04page\x18\x02 \x01(\x03R\x04page\x12\x1a\n" +
+	"\bpageSize\x18\x03 \x01(\x03R\bpageSize\"F\n" +
+	"\x0fOrderTradeReply\x123\n" +
+	"\x06result\x18\x01 \x03(\v2\x1b.helloworld.v1.OrderDetailsR\x06result\"\x82\x03\n" +
+	"\fOrderDetails\x12\x18\n" +
+	"\aorderId\x18\x01 \x01(\tR\aorderId\x12\x16\n" +
+	"\x06symbol\x18\x02 \x01(\tR\x06symbol\x12 \n" +
+	"\vopenedPrice\x18\x03 \x01(\tR\vopenedPrice\x12\x1e\n" +
+	"\n" +
+	"closePrice\x18\x04 \x01(\tR\n" +
+	"closePrice\x12\x1e\n" +
+	"\n" +
+	"profitLoss\x18\x05 \x01(\tR\n" +
+	"profitLoss\x12\x16\n" +
+	"\x06amount\x18\x06 \x01(\tR\x06amount\x12\x1c\n" +
+	"\tusersAddr\x18\a \x01(\tR\tusersAddr\x12\x1a\n" +
+	"\bisClosed\x18\b \x01(\x04R\bisClosed\x12&\n" +
+	"\x0eorderStartTime\x18\t \x01(\x04R\x0eorderStartTime\x12\"\n" +
+	"\forderEndTime\x18\n" +
+	" \x01(\x04R\forderEndTime\x12\x1e\n" +
+	"\n" +
+	"openTxHash\x18\v \x01(\tR\n" +
+	"openTxHash\x12 \n" +
+	"\vcloseTxHash\x18\f \x01(\tR\vcloseTxHash\")\n" +
+	"\x13AirdropTradeRequest\x12\x12\n" +
+	"\x04addr\x18\x01 \x01(\tR\x04addr\"J\n" +
+	"\x11AirdropTradeReply\x125\n" +
+	"\x06result\x18\x01 \x03(\v2\x1d.helloworld.v1.AirdropDetailsR\x06result\"\x8c\x01\n" +
+	"\x0eAirdropDetails\x12\x1c\n" +
+	"\tusersAddr\x18\x01 \x01(\tR\tusersAddr\x12\x16\n" +
+	"\x06amount\x18\x02 \x01(\tR\x06amount\x12\x16\n" +
+	"\x06symbol\x18\x03 \x01(\tR\x06symbol\x12\x14\n" +
+	"\x05times\x18\x04 \x01(\tR\x05times\x12\x16\n" +
+	"\x06txHash\x18\x05 \x01(\tR\x06txHash2\xb6\n" +
+	"\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +
@@ -1159,7 +1663,11 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\n" +
 	"CloseOrder\x12 .helloworld.v1.CloseOrderRequest\x1a\x1e.helloworld.v1.CloseOrderReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/closeOrder\x12i\n" +
 	"\n" +
-	"GetAirdrop\x12 .helloworld.v1.GetAirdropRequest\x1a\x1e.helloworld.v1.GetAirdropReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/getAirdropBT\n" +
+	"GetAirdrop\x12 .helloworld.v1.GetAirdropRequest\x1a\x1e.helloworld.v1.GetAirdropReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/getAirdrop\x12]\n" +
+	"\x06Health\x12!.helloworld.v1.HealthCheckRequest\x1a\x1f.helloworld.v1.HealthCheckReply\"\x0f\x82\xd3\xe4\x93\x02\t\x12\a/health\x12i\n" +
+	"\n" +
+	"OrderTrade\x12 .helloworld.v1.OrderTradeRequest\x1a\x1e.helloworld.v1.OrderTradeReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/orderTrade\x12q\n" +
+	"\fAirdropTrade\x12\".helloworld.v1.AirdropTradeRequest\x1a .helloworld.v1.AirdropTradeReply\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/airdropTradeBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -1174,7 +1682,7 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*HelloRequest)(nil),           // 0: helloworld.v1.HelloRequest
 	(*HelloReply)(nil),             // 1: helloworld.v1.HelloReply
@@ -1196,33 +1704,49 @@ var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*CloseOrderReply)(nil),        // 17: helloworld.v1.CloseOrderReply
 	(*GetAirdropRequest)(nil),      // 18: helloworld.v1.GetAirdropRequest
 	(*GetAirdropReply)(nil),        // 19: helloworld.v1.GetAirdropReply
+	(*HealthCheckRequest)(nil),     // 20: helloworld.v1.HealthCheckRequest
+	(*HealthCheckReply)(nil),       // 21: helloworld.v1.HealthCheckReply
+	(*OrderTradeRequest)(nil),      // 22: helloworld.v1.OrderTradeRequest
+	(*OrderTradeReply)(nil),        // 23: helloworld.v1.OrderTradeReply
+	(*OrderDetails)(nil),           // 24: helloworld.v1.OrderDetails
+	(*AirdropTradeRequest)(nil),    // 25: helloworld.v1.AirdropTradeRequest
+	(*AirdropTradeReply)(nil),      // 26: helloworld.v1.AirdropTradeReply
+	(*AirdropDetails)(nil),         // 27: helloworld.v1.AirdropDetails
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	9,  // 0: helloworld.v1.WalletBalanceReply.tokens:type_name -> helloworld.v1.TokenBalance
 	12, // 1: helloworld.v1.MarketConditionReply.prices:type_name -> helloworld.v1.MarketPrice
-	0,  // 2: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
-	4,  // 3: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
-	2,  // 4: helloworld.v1.Greeter.GetLoginMessage:input_type -> helloworld.v1.GetLoginMessageRequest
-	6,  // 5: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
-	8,  // 6: helloworld.v1.Greeter.WalletBalance:input_type -> helloworld.v1.WalletBalanceRequest
-	11, // 7: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
-	14, // 8: helloworld.v1.Greeter.OpenOrder:input_type -> helloworld.v1.OpenOrderRequest
-	16, // 9: helloworld.v1.Greeter.CloseOrder:input_type -> helloworld.v1.CloseOrderRequest
-	18, // 10: helloworld.v1.Greeter.GetAirdrop:input_type -> helloworld.v1.GetAirdropRequest
-	1,  // 11: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	5,  // 12: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
-	3,  // 13: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
-	7,  // 14: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
-	10, // 15: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
-	13, // 16: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	15, // 17: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
-	17, // 18: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
-	19, // 19: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	24, // 2: helloworld.v1.OrderTradeReply.result:type_name -> helloworld.v1.OrderDetails
+	27, // 3: helloworld.v1.AirdropTradeReply.result:type_name -> helloworld.v1.AirdropDetails
+	0,  // 4: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
+	4,  // 5: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
+	2,  // 6: helloworld.v1.Greeter.GetLoginMessage:input_type -> helloworld.v1.GetLoginMessageRequest
+	6,  // 7: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
+	8,  // 8: helloworld.v1.Greeter.WalletBalance:input_type -> helloworld.v1.WalletBalanceRequest
+	11, // 9: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
+	14, // 10: helloworld.v1.Greeter.OpenOrder:input_type -> helloworld.v1.OpenOrderRequest
+	16, // 11: helloworld.v1.Greeter.CloseOrder:input_type -> helloworld.v1.CloseOrderRequest
+	18, // 12: helloworld.v1.Greeter.GetAirdrop:input_type -> helloworld.v1.GetAirdropRequest
+	20, // 13: helloworld.v1.Greeter.Health:input_type -> helloworld.v1.HealthCheckRequest
+	22, // 14: helloworld.v1.Greeter.OrderTrade:input_type -> helloworld.v1.OrderTradeRequest
+	25, // 15: helloworld.v1.Greeter.AirdropTrade:input_type -> helloworld.v1.AirdropTradeRequest
+	1,  // 16: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	5,  // 17: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	3,  // 18: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
+	7,  // 19: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	10, // 20: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
+	13, // 21: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	15, // 22: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
+	17, // 23: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
+	19, // 24: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
+	21, // 25: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
+	23, // 26: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
+	26, // 27: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
+	16, // [16:28] is the sub-list for method output_type
+	4,  // [4:16] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_helloworld_v1_greeter_proto_init() }
@@ -1236,7 +1760,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

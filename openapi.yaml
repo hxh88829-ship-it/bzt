@@ -7,6 +7,18 @@ info:
     description: The greeting service definition.
     version: 0.0.1
 paths:
+    /health:
+        get:
+            tags:
+                - Greeter
+            operationId: Greeter_Health
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.HealthCheckReply'
     /helloworld/{name}/{value}:
         get:
             tags:
@@ -31,6 +43,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1/airdropTrade:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_AirdropTrade
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.AirdropTradeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.AirdropTradeReply'
     /v1/bindWallet:
         post:
             tags:
@@ -157,6 +187,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.OpenOrderReply'
+    /v1/orderTrade:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_OrderTrade
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.OrderTradeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.OrderTradeReply'
     /v1/walletBalance:
         post:
             tags:
@@ -177,6 +225,32 @@ paths:
                                 $ref: '#/components/schemas/helloworld.v1.WalletBalanceReply'
 components:
     schemas:
+        helloworld.v1.AirdropDetails:
+            type: object
+            properties:
+                usersAddr:
+                    type: string
+                amount:
+                    type: string
+                symbol:
+                    type: string
+                times:
+                    type: string
+                txHash:
+                    type: string
+        helloworld.v1.AirdropTradeReply:
+            type: object
+            properties:
+                result:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.AirdropDetails'
+            description: The response message containing the greetings
+        helloworld.v1.AirdropTradeRequest:
+            type: object
+            properties:
+                addr:
+                    type: string
         helloworld.v1.BindWalletReply:
             type: object
             properties:
@@ -191,10 +265,6 @@ components:
             type: object
             properties:
                 address:
-                    type: string
-                email:
-                    type: string
-                name:
                     type: string
         helloworld.v1.CloseOrderReply:
             type: object
@@ -244,6 +314,11 @@ components:
             type: object
             properties:
                 address:
+                    type: string
+        helloworld.v1.HealthCheckReply:
+            type: object
+            properties:
+                status:
                     type: string
         helloworld.v1.HelloReply:
             type: object
@@ -303,6 +378,50 @@ components:
                 timestamp:
                     type: string
                 symbol:
+                    type: string
+        helloworld.v1.OrderDetails:
+            type: object
+            properties:
+                orderId:
+                    type: string
+                symbol:
+                    type: string
+                openedPrice:
+                    type: string
+                closePrice:
+                    type: string
+                profitLoss:
+                    type: string
+                amount:
+                    type: string
+                usersAddr:
+                    type: string
+                isClosed:
+                    type: string
+                orderStartTime:
+                    type: string
+                orderEndTime:
+                    type: string
+                openTxHash:
+                    type: string
+                closeTxHash:
+                    type: string
+        helloworld.v1.OrderTradeReply:
+            type: object
+            properties:
+                result:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.OrderDetails'
+            description: The response message containing the greetings
+        helloworld.v1.OrderTradeRequest:
+            type: object
+            properties:
+                address:
+                    type: string
+                page:
+                    type: string
+                pageSize:
                     type: string
         helloworld.v1.TokenBalance:
             type: object

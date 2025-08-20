@@ -85,11 +85,12 @@ func TestGetTransactionReceiptByHash(t *testing.T) {
 		return
 	}
 	defer Client.Close()
-	tx, err := GetTransactionReceiptByHash(common.HexToHash("0xc72a69de09276336cb9b17f1a0ced56354a06ff3528a0e810a20069c4728c48a"))
+	tx, err := GetTransactionReceiptByHash(common.HexToHash("0x4572e5112778b3c31bbebe88103d8e49ffd2704468042e61b241a9bcdd2e18f4"))
 	if err != nil {
 		t.Error("GetTransactionReceiptByHash fail")
 		return
 	}
+	t.Log(tx)
 	t.Log(tx.TxHash)
 	t.Log(tx.BlockNumber)
 	t.Log(tx.CumulativeGasUsed)
@@ -100,6 +101,7 @@ func TestGetTransactionReceiptByHash(t *testing.T) {
 		return
 	}
 	t.Log(tx.EffectiveGasPrice)
+	//0x570d15793062f6c6d957ea0ad84ec980304f42bac7346bada543683cd20d9552 部署合约hash
 
 }
 

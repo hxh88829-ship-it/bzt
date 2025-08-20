@@ -15,7 +15,6 @@ import (
 	"valueguard/internal/api"
 	"valueguard/internal/bzt"
 	"valueguard/internal/mongo"
-	"valueguard/internal/redisQuery"
 )
 
 var BztAddr = strings.ToLower("0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
@@ -40,26 +39,10 @@ func ScanBlocks(ctx context.Context) error {
 	return nil
 }
 func ScanOneBlock(ctx context.Context, blockNum uint64) error {
-	lockKey := fmt.Sprintf("lock:scan_block:%d", blockNum)
-	lockTTL := 30 * time.Second
-
-	lockHandle, err := redisQuery.WithRedisLockSeparate(context.Background(), lockKey, lockTTL, 3, 300*time.Millisecond)
-	if err != nil {
-		if err2 := AddLossBlock(blockNum, "获取区块失败: "+err.Error()); err2 != nil {
-			log.Errorf("写入失败区块失败: %v", err2)
-		}
-		return fmt.Errorf("获取区块锁失败: %w", err)
-	}
-
-	if !lockHandle.Locked {
-		return errors.New("锁被占用")
-	}
-	defer lockHandle.UnlockFunc()
-
 	const maxRetry = 3
 
 	var bl *types.Block
-	err = WithRetry(maxRetry, fmt.Sprintf("获取区块 %d", blockNum), func() error {
+	err := WithRetry(maxRetry, fmt.Sprintf("获取区块 %d", blockNum), func() error {
 		var e error
 		bl, e = api.GetBlockByNumber(blockNum)
 		return e
@@ -217,14 +200,6 @@ func ProcessTransactions(bl *types.Block, ctx context.Context) error {
 		}
 		if strings.ToLower(tx.To().String()) == BztAddr {
 			if strings.ToLower(from.String()) != Plat {
-				//开仓,同时核查from是否为平台用户，防止数据污染
-				ok, err := redisQuery.IsPlatformUser(ctx, strings.ToLower(from.String()))
-				if err != nil {
-					log.Errorf("redisQuery.IsPlatformUser err: %v", err)
-				}
-				if !ok {
-					continue
-				}
 				//拿到开仓数据
 				receipt, err := api.GetTransactionReceiptByHash(tx.Hash())
 				if err != nil {
@@ -384,6 +359,8 @@ func AirdropTrade(event *bzt.BztAirdrop, blTime uint64, status bool) error {
 	if !status {
 		return nil
 	}
+	t1 := time.Unix(int64(blTime), 0).In(time.Local)
+	ts1 := t1.Format("2006-01-02")
 	_, err := mongo.GetAirdrop(strings.ToLower(event.Raw.TxHash.String()))
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -392,7 +369,7 @@ func AirdropTrade(event *bzt.BztAirdrop, blTime uint64, status bool) error {
 			air.Symbol = "DUSDT"
 			air.ToAddr = strings.ToLower(event.Recipient.String())
 			air.Amount = event.Amount.String()
-			air.AirdropTime = blTime
+			air.AirdropTime = ts1
 			err = mongo.AddAirdrop(air)
 			if err != nil {
 				log.Errorf("AddAirdrop err: %v", err)

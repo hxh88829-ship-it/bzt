@@ -1,7 +1,6 @@
 package dailyAirdrop
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
@@ -11,90 +10,48 @@ import (
 	"time"
 	"valueguard/internal/api"
 	"valueguard/internal/mongo"
-	"valueguard/internal/redisQuery"
 )
 
-type RewardAmount struct {
-	TotalAmount string
-}
-
 // StartAirdropCron 初始化每日空投定时任务
-func StartAirdropCron(symbols []string, ctx context.Context) *cron.Cron {
-	c := cron.New(cron.WithSeconds()) // 支持秒级调度
-	lockTTL := 1 * time.Minute
 
-	// 带重试的锁执行器
-	executeWithLockAndRetry := func(lockKey string, task func() error, maxWait time.Duration, retryInterval time.Duration) {
-		deadline := time.Now().Add(maxWait)
+func StartAirdropCron(symbols []string) *cron.Cron {
+	c := cron.New(cron.WithSeconds())
 
-		for {
-			ctxWithTimeout, cancel := context.WithTimeout(context.Background(), lockTTL)
-			defer cancel()
-
-			lockHandle, err := redisQuery.WithRedisLockSeparate(ctxWithTimeout, lockKey, lockTTL, 3, 300*time.Millisecond)
-			if err == nil && lockHandle.Locked {
-				defer lockHandle.UnlockFunc()
-
-				if err := task(); err != nil {
-					log.Errorf("[%s] 任务执行失败: %v", lockKey, err)
-				}
-				return
-			}
-
-			// 拿不到锁 → 检查是否超时
-			if time.Now().After(deadline) {
-				log.Warnf("[%s] 等待锁超时，放弃执行", lockKey)
-				return
-			}
-
-			log.Infof("[%s] 锁被占用，%v 后重试...", lockKey, retryInterval)
-			time.Sleep(retryInterval)
-		}
-	}
-
-	// 零点发放空投
-	c.AddFunc("10 37 17 * * *", func() {
+	// 每天 00:00 执行空投发放
+	c.AddFunc("0 0 0 * * *", func() {
 		dateStr := time.Now().Format("2006-01-02")
-		lockKey := fmt.Sprintf("lock:dailyAirdrop:%s", dateStr)
-
-		executeWithLockAndRetry(lockKey, func() error {
-			for _, symbol := range symbols {
-				resStart, err := mongo.GetRewardAmount(symbol)
-				if err != nil {
-					log.Warnf("[%s] GetRewardAmount error: %v", symbol, err)
-					continue
-				}
-				if err := GetAirdropByDay([]string{symbol}, resStart); err != nil {
-					log.Warnf("[%s] GetAirdropByDay error: %v", symbol, err)
-				}
+		log.Infof("Start daily airdrop for date %s", dateStr)
+		for _, symbol := range symbols {
+			resStart, err := mongo.GetRewardAmount(symbol)
+			if err != nil {
+				log.Warnf("[%s] GetRewardAmount error: %v", symbol, err)
+				continue
 			}
-			return nil
-		}, 5*time.Minute, 5*time.Second) // 最多等5分钟，每5秒重试一次
+			if err := GetAirdropByDay([]string{symbol}, resStart); err != nil {
+				log.Warnf("[%s] GetAirdropByDay error: %v", symbol, err)
+			}
+		}
 	})
 
-	// 晚上 23:59:59 回收空投
-	c.AddFunc("0 51 17 * * *", func() {
+	// 每天 23:59:59 执行空投回收
+	c.AddFunc("59 59 23 * * *", func() {
 		dateStr := time.Now().Format("2006-01-02")
-		lockKey := fmt.Sprintf("lock:dailyAirdrop:%s", dateStr)
-
-		executeWithLockAndRetry(lockKey, func() error {
-			for _, symbol := range symbols {
-				resEnd, err := mongo.GetRewardAmount(symbol)
-				if err != nil {
-					log.Warnf("[%s] GetRewardAmount error: %v", symbol, err)
-					continue
-				}
-				resDaily, err := mongo.GetDailyAirdrop(dateStr, symbol)
-				if err != nil {
-					log.Warnf("[%s] GetDailyAirdrop error: %v", symbol, err)
-					continue
-				}
-				if err := AddRewardsToPool([]string{symbol}, resEnd, resDaily, dateStr); err != nil {
-					log.Errorf("[%s] AddRewardsToPool error: %v", symbol, err)
-				}
+		log.Infof("Start daily airdrop recovery for date %s", dateStr)
+		for _, symbol := range symbols {
+			resEnd, err := mongo.GetRewardAmount(symbol)
+			if err != nil {
+				log.Warnf("[%s] GetRewardAmount error: %v", symbol, err)
+				continue
 			}
-			return nil
-		}, 5*time.Minute, 5*time.Second)
+			resDaily, err := mongo.GetDailyAirdrop(dateStr, symbol)
+			if err != nil {
+				log.Warnf("[%s] GetDailyAirdrop error: %v", symbol, err)
+				continue
+			}
+			if err := AddRewardsToPool([]string{symbol}, resEnd, resDaily, dateStr); err != nil {
+				log.Errorf("[%s] AddRewardsToPool error: %v", symbol, err)
+			}
+		}
 	})
 
 	c.Start()
@@ -225,19 +182,19 @@ func UpdateLossAmount(addr, symbol string) (*big.Int, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	users, err := mongo.GetUserLossAmount(strings.ToLower(addr), symbol)
+	users, err := mongo.GetUserLossAmount(strings.ToLower(addr), symbol) //用户当前
 	if err != nil {
 		return nil, "", err
 	}
-	claims, err := CalculateAirdrop(users.LossAmount, totals.TotalAmount, totals.AirdropReward)
+	claims, err := CalculateAirdrop(users.LossAmount, totals.TotalAmount, totals.AirdropReward) // 今日可领
 	if err != nil {
 		return nil, "", err
 	}
-	Claimed, err := api.StringToBigIntSum(users.ClaimAirdrop, claims.String())
+	Claimed, err := api.StringToBigIntSum(users.ClaimAirdrop, claims.String()) // 目前已领
 	if err != nil {
 		return nil, "", err
 	}
-	compareRes, err := CompareBigInt(users.LossAmount, Claimed.String())
+	compareRes, err := CompareBigInt(users.LossAmount, Claimed.String()) //领取是否超出以损
 	if err != nil {
 		return nil, "", err
 	}

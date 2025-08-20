@@ -42,8 +42,8 @@ func GetMarketCondition(symbol string, ind uint64) error {
 			Proxy: http.ProxyURL(proxyURL),
 		},
 	}
-
-	// 发起请求
+	//client := http.DefaultClient //默认代理
+	//发起请求
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Errorf("🔧 [%s] HTTP request error: %v", symbol, err)

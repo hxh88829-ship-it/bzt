@@ -19,24 +19,30 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationGreeterAirdropTrade = "/helloworld.v1.Greeter/AirdropTrade"
 const OperationGreeterBindWallet = "/helloworld.v1.Greeter/BindWallet"
 const OperationGreeterCloseOrder = "/helloworld.v1.Greeter/CloseOrder"
 const OperationGreeterGetAirdrop = "/helloworld.v1.Greeter/GetAirdrop"
 const OperationGreeterGetLoginMessage = "/helloworld.v1.Greeter/GetLoginMessage"
+const OperationGreeterHealth = "/helloworld.v1.Greeter/Health"
 const OperationGreeterLoginWithWallet = "/helloworld.v1.Greeter/LoginWithWallet"
 const OperationGreeterMarketCondition = "/helloworld.v1.Greeter/MarketCondition"
 const OperationGreeterOpenOrder = "/helloworld.v1.Greeter/OpenOrder"
+const OperationGreeterOrderTrade = "/helloworld.v1.Greeter/OrderTrade"
 const OperationGreeterSayHello = "/helloworld.v1.Greeter/SayHello"
 const OperationGreeterWalletBalance = "/helloworld.v1.Greeter/WalletBalance"
 
 type GreeterHTTPServer interface {
+	AirdropTrade(context.Context, *AirdropTradeRequest) (*AirdropTradeReply, error)
 	BindWallet(context.Context, *BindWalletRequest) (*BindWalletReply, error)
 	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error)
 	GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error)
 	GetLoginMessage(context.Context, *GetLoginMessageRequest) (*GetLoginMessageReply, error)
+	Health(context.Context, *HealthCheckRequest) (*HealthCheckReply, error)
 	LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error)
 	MarketCondition(context.Context, *MarketConditionRequest) (*MarketConditionReply, error)
 	OpenOrder(context.Context, *OpenOrderRequest) (*OpenOrderReply, error)
+	OrderTrade(context.Context, *OrderTradeRequest) (*OrderTradeReply, error)
 	// SayHello Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
 	WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceReply, error)
@@ -53,6 +59,9 @@ func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r.POST("/v1/openOrder", _Greeter_OpenOrder0_HTTP_Handler(srv))
 	r.POST("/v1/closeOrder", _Greeter_CloseOrder0_HTTP_Handler(srv))
 	r.POST("/v1/getAirdrop", _Greeter_GetAirdrop0_HTTP_Handler(srv))
+	r.GET("/health", _Greeter_Health0_HTTP_Handler(srv))
+	r.POST("/v1/orderTrade", _Greeter_OrderTrade0_HTTP_Handler(srv))
+	r.POST("/v1/airdropTrade", _Greeter_AirdropTrade0_HTTP_Handler(srv))
 }
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -253,14 +262,80 @@ func _Greeter_GetAirdrop0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Greeter_Health0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in HealthCheckRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterHealth)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Health(ctx, req.(*HealthCheckRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*HealthCheckReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Greeter_OrderTrade0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in OrderTradeRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterOrderTrade)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.OrderTrade(ctx, req.(*OrderTradeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*OrderTradeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Greeter_AirdropTrade0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AirdropTradeRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterAirdropTrade)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AirdropTrade(ctx, req.(*AirdropTradeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AirdropTradeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GreeterHTTPClient interface {
+	AirdropTrade(ctx context.Context, req *AirdropTradeRequest, opts ...http.CallOption) (rsp *AirdropTradeReply, err error)
 	BindWallet(ctx context.Context, req *BindWalletRequest, opts ...http.CallOption) (rsp *BindWalletReply, err error)
 	CloseOrder(ctx context.Context, req *CloseOrderRequest, opts ...http.CallOption) (rsp *CloseOrderReply, err error)
 	GetAirdrop(ctx context.Context, req *GetAirdropRequest, opts ...http.CallOption) (rsp *GetAirdropReply, err error)
 	GetLoginMessage(ctx context.Context, req *GetLoginMessageRequest, opts ...http.CallOption) (rsp *GetLoginMessageReply, err error)
+	Health(ctx context.Context, req *HealthCheckRequest, opts ...http.CallOption) (rsp *HealthCheckReply, err error)
 	LoginWithWallet(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
 	MarketCondition(ctx context.Context, req *MarketConditionRequest, opts ...http.CallOption) (rsp *MarketConditionReply, err error)
 	OpenOrder(ctx context.Context, req *OpenOrderRequest, opts ...http.CallOption) (rsp *OpenOrderReply, err error)
+	OrderTrade(ctx context.Context, req *OrderTradeRequest, opts ...http.CallOption) (rsp *OrderTradeReply, err error)
 	SayHello(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (rsp *HelloReply, err error)
 	WalletBalance(ctx context.Context, req *WalletBalanceRequest, opts ...http.CallOption) (rsp *WalletBalanceReply, err error)
 }
@@ -271,6 +346,19 @@ type GreeterHTTPClientImpl struct {
 
 func NewGreeterHTTPClient(client *http.Client) GreeterHTTPClient {
 	return &GreeterHTTPClientImpl{client}
+}
+
+func (c *GreeterHTTPClientImpl) AirdropTrade(ctx context.Context, in *AirdropTradeRequest, opts ...http.CallOption) (*AirdropTradeReply, error) {
+	var out AirdropTradeReply
+	pattern := "/v1/airdropTrade"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterAirdropTrade))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *GreeterHTTPClientImpl) BindWallet(ctx context.Context, in *BindWalletRequest, opts ...http.CallOption) (*BindWalletReply, error) {
@@ -325,6 +413,19 @@ func (c *GreeterHTTPClientImpl) GetLoginMessage(ctx context.Context, in *GetLogi
 	return &out, nil
 }
 
+func (c *GreeterHTTPClientImpl) Health(ctx context.Context, in *HealthCheckRequest, opts ...http.CallOption) (*HealthCheckReply, error) {
+	var out HealthCheckReply
+	pattern := "/health"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationGreeterHealth))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *GreeterHTTPClientImpl) LoginWithWallet(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*LoginReply, error) {
 	var out LoginReply
 	pattern := "/v1/loginWithWallet"
@@ -356,6 +457,19 @@ func (c *GreeterHTTPClientImpl) OpenOrder(ctx context.Context, in *OpenOrderRequ
 	pattern := "/v1/openOrder"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationGreeterOpenOrder))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *GreeterHTTPClientImpl) OrderTrade(ctx context.Context, in *OrderTradeRequest, opts ...http.CallOption) (*OrderTradeReply, error) {
+	var out OrderTradeReply
+	pattern := "/v1/orderTrade"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterOrderTrade))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

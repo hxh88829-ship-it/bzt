@@ -98,7 +98,6 @@ func GetUser(addr string) (Users, error) {
 	filter := bson.M{
 		"$or": []bson.M{
 			{"address": addr},
-			{"uid": addr},
 		},
 	}
 	var ma Users
@@ -239,6 +238,47 @@ func GetOrder(OrderId string) (Order, error) {
 	}
 	return ma, nil
 }
+func GetOrderForAll(addr string, page, size int64) ([]Order, error) {
+	if MonCli == nil {
+		return nil, errors.New("error: mongo.Client is nil -> GetOrderForAll")
+	}
+
+	// 构建查询条件
+	filter := bson.M{}
+	if addr != "" {
+		filter["users_addr"] = strings.ToLower(addr)
+	}
+
+	// 分页参数处理
+	if page <= 0 {
+		page = 1
+	}
+	if size <= 0 {
+		size = 10
+	}
+
+	opts := options.Find().
+		SetSort(bson.D{{"create_time", -1}}). // 按创建时间倒序
+		SetSkip((page - 1) * size).           // 跳过前面 (page-1)*size 条
+		SetLimit(size)                        // 限制返回 size 条
+
+	// 查询
+	cursor, err := MonCli.Client.Database(DatabaseNameForChain).
+		Collection(order).Find(context.Background(), filter, opts)
+	if err != nil {
+		log.Error("Find err: ", err)
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var res []Order
+	if err := cursor.All(context.Background(), &res); err != nil {
+		log.Error("Cursor decode err: ", err)
+		return nil, err
+	}
+	return res, nil
+}
+
 func UpdateOrderClose(OrderId, ClosePri string, timestamp uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateOrder")
@@ -465,7 +505,41 @@ func GetAirdrop(tx string) (Airdrop, error) {
 		return Airdrop{}, ErrNoDocuments
 	}
 	return a, nil
+}
+func QueryAirdropByTimes(t1, addr string) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "QueryAirdropByTimes")
+	}
+	filter := bson.D{{"to_addr", addr}, {"airdrop_time", t1}}
+	var a Airdrop
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).FindOne(context.Background(), filter).Decode(&a)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return ErrNoDocuments
+	}
+	return nil
+}
+func GetAirdropForAll(addr string) ([]Airdrop, error) {
+	if MonCli == nil {
+		return nil, errors.New("error:mongo.Client is nil" + "GetAirdropForAll")
+	}
+	filter := bson.M{"to_addr": bson.M{"$eq": strings.ToLower(addr)}}
+	// 可选项：分页/排序
+	opts := options.Find().SetSort(bson.D{{"airdrop_time", 1}})
 
+	cursor, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).Find(context.Background(), filter, opts)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var res []Airdrop
+	if err := cursor.All(context.Background(), &res); err != nil {
+		log.Error("FindOne err: ", err)
+		return nil, err
+	}
+	return res, nil
 }
 
 // 每日发放空投流水
@@ -527,6 +601,19 @@ func GetTransaction(tx string) (Transaction, error) {
 		return Transaction{}, errors.New("mongo client is nil" + "GetTransaction")
 	}
 	filter := bson.D{{"tx_hash", tx}}
+	var txh Transaction
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction).FindOne(context.Background(), filter).Decode(&txh)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return Transaction{}, ErrNoDocuments
+	}
+	return txh, nil
+}
+func QueryTransaction(tx, types string) (Transaction, error) {
+	if MonCli == nil {
+		return Transaction{}, errors.New("mongo client is nil" + "QueryTransaction")
+	}
+	filter := bson.D{{"tx_hash", tx}, {"transaction_type", types}}
 	var txh Transaction
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction).FindOne(context.Background(), filter).Decode(&txh)
 	if err != nil {

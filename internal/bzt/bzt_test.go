@@ -150,7 +150,7 @@ func TestBztTransactor_Airdrop(t *testing.T) {
 	cli := api.Client
 	defer cli.Close()
 	i := new(big.Int)
-	if _, ok := i.SetString("", 10); !ok {
+	if _, ok := i.SetString("3", 10); !ok {
 		return
 	}
 	t.Log(i, "\n")

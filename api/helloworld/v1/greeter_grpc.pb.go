@@ -28,6 +28,9 @@ const (
 	Greeter_OpenOrder_FullMethodName       = "/helloworld.v1.Greeter/OpenOrder"
 	Greeter_CloseOrder_FullMethodName      = "/helloworld.v1.Greeter/CloseOrder"
 	Greeter_GetAirdrop_FullMethodName      = "/helloworld.v1.Greeter/GetAirdrop"
+	Greeter_Health_FullMethodName          = "/helloworld.v1.Greeter/Health"
+	Greeter_OrderTrade_FullMethodName      = "/helloworld.v1.Greeter/OrderTrade"
+	Greeter_AirdropTrade_FullMethodName    = "/helloworld.v1.Greeter/AirdropTrade"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -46,6 +49,9 @@ type GreeterClient interface {
 	OpenOrder(ctx context.Context, in *OpenOrderRequest, opts ...grpc.CallOption) (*OpenOrderReply, error)
 	CloseOrder(ctx context.Context, in *CloseOrderRequest, opts ...grpc.CallOption) (*CloseOrderReply, error)
 	GetAirdrop(ctx context.Context, in *GetAirdropRequest, opts ...grpc.CallOption) (*GetAirdropReply, error)
+	Health(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckReply, error)
+	OrderTrade(ctx context.Context, in *OrderTradeRequest, opts ...grpc.CallOption) (*OrderTradeReply, error)
+	AirdropTrade(ctx context.Context, in *AirdropTradeRequest, opts ...grpc.CallOption) (*AirdropTradeReply, error)
 }
 
 type greeterClient struct {
@@ -146,6 +152,36 @@ func (c *greeterClient) GetAirdrop(ctx context.Context, in *GetAirdropRequest, o
 	return out, nil
 }
 
+func (c *greeterClient) Health(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HealthCheckReply)
+	err := c.cc.Invoke(ctx, Greeter_Health_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) OrderTrade(ctx context.Context, in *OrderTradeRequest, opts ...grpc.CallOption) (*OrderTradeReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OrderTradeReply)
+	err := c.cc.Invoke(ctx, Greeter_OrderTrade_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) AirdropTrade(ctx context.Context, in *AirdropTradeRequest, opts ...grpc.CallOption) (*AirdropTradeReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AirdropTradeReply)
+	err := c.cc.Invoke(ctx, Greeter_AirdropTrade_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -162,6 +198,9 @@ type GreeterServer interface {
 	OpenOrder(context.Context, *OpenOrderRequest) (*OpenOrderReply, error)
 	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error)
 	GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error)
+	Health(context.Context, *HealthCheckRequest) (*HealthCheckReply, error)
+	OrderTrade(context.Context, *OrderTradeRequest) (*OrderTradeReply, error)
+	AirdropTrade(context.Context, *AirdropTradeRequest) (*AirdropTradeReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -198,6 +237,15 @@ func (UnimplementedGreeterServer) CloseOrder(context.Context, *CloseOrderRequest
 }
 func (UnimplementedGreeterServer) GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAirdrop not implemented")
+}
+func (UnimplementedGreeterServer) Health(context.Context, *HealthCheckRequest) (*HealthCheckReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Health not implemented")
+}
+func (UnimplementedGreeterServer) OrderTrade(context.Context, *OrderTradeRequest) (*OrderTradeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderTrade not implemented")
+}
+func (UnimplementedGreeterServer) AirdropTrade(context.Context, *AirdropTradeRequest) (*AirdropTradeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AirdropTrade not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -382,6 +430,60 @@ func _Greeter_GetAirdrop_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_Health_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HealthCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).Health(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_Health_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).Health(ctx, req.(*HealthCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_OrderTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderTradeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).OrderTrade(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_OrderTrade_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).OrderTrade(ctx, req.(*OrderTradeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_AirdropTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AirdropTradeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).AirdropTrade(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_AirdropTrade_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).AirdropTrade(ctx, req.(*AirdropTradeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -424,6 +526,18 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAirdrop",
 			Handler:    _Greeter_GetAirdrop_Handler,
+		},
+		{
+			MethodName: "Health",
+			Handler:    _Greeter_Health_Handler,
+		},
+		{
+			MethodName: "OrderTrade",
+			Handler:    _Greeter_OrderTrade_Handler,
+		},
+		{
+			MethodName: "AirdropTrade",
+			Handler:    _Greeter_AirdropTrade_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

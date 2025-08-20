@@ -152,6 +152,7 @@ func GetCloseOrder(orderId, openPrice, closePrice int64, tokenName string) (*typ
 	if err != nil {
 		return nil, err
 	}
+
 	tx, err := ca.CloseOrder(opt, big.NewInt(orderId), big.NewInt(openPrice), big.NewInt(closePrice), tokenName)
 	if err != nil {
 		return nil, err

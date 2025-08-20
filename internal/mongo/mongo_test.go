@@ -28,7 +28,6 @@ func TestAddUser(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-
 }
 func TestAddOrder(t *testing.T) {
 	cli, err := NewMongoClient(dbUrl)
@@ -122,4 +121,54 @@ func TestUpdateRewardPool(t *testing.T) {
 		t.Error(err)
 		return
 	}
+}
+
+func TestGetAirdrop(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	res, err := GetAirdrop("0xfffa1424b657a0e809e008d28673f14b2811230fb0eebb5a730ed5aa3629445f")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(res)
+}
+
+func TestGetAirdropForAll(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	res, err := GetAirdropForAll("0x34dc39ff05a10cb21724b477e6f1900fd4d8e72f")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(res)
+}
+
+func TestGetOrderForAll(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	res, err := GetOrderForAll("0x34dc39ff05a10cb21724b477e6f1900fd4d8e72f", 0, 0)
+
+	if err != nil {
+		t.Error(err)
+		return
+
+	}
+	t.Log(res)
 }

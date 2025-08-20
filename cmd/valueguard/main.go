@@ -5,18 +5,15 @@ import (
 	"errors"
 	"flag"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/redis/go-redis/v9"
 	"os"
 	"sync"
 	"time"
 	"valueguard/internal/api"
+	"valueguard/internal/conf"
 	"valueguard/internal/dailyAirdrop"
 	"valueguard/internal/marketCondition"
 	"valueguard/internal/mongo"
 	"valueguard/internal/monitorBlock"
-	"valueguard/internal/redisQuery"
-
-	"valueguard/internal/conf"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
@@ -86,7 +83,9 @@ func main() {
 		panic(err)
 	}
 
-	if err := LoadConfigInit(); err != nil {
+	log.Info(bc)
+	if err := LoadConfigInit(&bc); err != nil {
+		panic(err)
 	}
 
 	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
@@ -102,16 +101,23 @@ func main() {
 }
 
 // 加载配置 load
-func LoadConfigInit() error {
+func LoadConfigInit(bc *conf.Bootstrap) error {
 	//初始化mongo数据库
-	cli, err := mongo.NewMongoClient("mongodb://admin:admin@localhost:27017/?directConnection=true")
+	cli, err := mongo.NewMongoClient(bc.Chain.GetMongoUrl())
 	if err != nil {
 		return err
 	}
 	mongo.MonCli = cli
 
 	//初始化节点
-	api.Client, err = ethclient.Dial("http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	os.Setenv("RPC_Url", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	// 通过环境变量获取节点rpc url
+	rurl := os.Getenv("RPC_Url")
+	if rurl == "" {
+		return errors.New("rpc url is empty")
+	}
+	log.Info("rpc url is ", rurl)
+	api.Client, err = ethclient.Dial(rurl)
 	if err != nil {
 		return errors.New("BLockChain fail")
 	}
@@ -123,19 +129,16 @@ func LoadConfigInit() error {
 	}
 	api.ChainId = id.Uint64()
 
-	//初始化redis
-	redisCli := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379", // Redis 服务器地址
-		Password: "",               // 密码，如果没有则为空字符串
-		DB:       0,                // 使用默认数据库 (0)
-	})
-	redisQuery.RedisCli = redisCli
-
+	//初始化签名机器
+	//key := os.Getenv("Key_id")
+	//if key == "" {
+	//	return errors.New("key is empty")
+	//}
 	symbols := []string{"BTCUSDT", "ETHUSDT"}
 	go RunService(context.Background(), symbols)
 
 	// ✅ 启动空投定时任务
-	go dailyAirdrop.StartAirdropCron(symbols, context.Background())
+	go dailyAirdrop.StartAirdropCron(symbols)
 	return nil
 }
 
@@ -220,33 +223,6 @@ func RunService(ctx context.Context, symbols []string) {
 			}
 		}
 	}() //获取实时行情
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		defer func() {
-			if r := recover(); r != nil {
-				log.Errorf("panic in redis checker: %v", r)
-			}
-		}()
-		// ✅ 第一次立即执行
-		if err := redisQuery.SafeSyncPlatformUsersToRedis(context.Background()); err != nil {
-			log.Errorf("首次同步 Redis 失败: %v", err)
-		}
-		ticker := time.NewTicker(10 * time.Minute)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ctx.Done():
-				log.Info("redis Add stopping...")
-				return
-			case <-ticker.C:
-				if err := redisQuery.SafeSyncPlatformUsersToRedis(context.Background()); err != nil {
-					log.Errorf("mpngodb Scan failed: %v", err)
-				}
-			}
-		}
-	}() //同步平台用户
 
 	<-ctx.Done()
 	wg.Wait()

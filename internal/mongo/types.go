@@ -3,8 +3,6 @@ package mongo
 // Users 用户
 type Users struct {
 	Uid             string `bson:"uid" json:"uid"`
-	Name            string `bson:"name" json:"name"`
-	Email           string `bson:"email" json:"email"`
 	Address         string `bson:"address" json:"address"`
 	CreateTimeAt    int64  `bson:"create_time_at" json:"create_time_at"`
 	OriginalMessage string `bson:"original_message" json:"original_message"`
@@ -63,7 +61,7 @@ type Airdrop struct {
 	ToAddr      string `bson:"to_addr" json:"to_addr"`
 	Amount      string `bson:"amount" json:"amount"`
 	Symbol      string `bson:"symbol" json:"symbol"`             // 空投币种
-	AirdropTime uint64 `bson:"airdrop_time" json:"airdrop_time"` // 空投时间
+	AirdropTime string `bson:"airdrop_time" json:"airdrop_time"` // 空投时间
 	TxHash      string `bson:"tx_hash" json:"tx_hash"`           // 交易哈希
 }
 
