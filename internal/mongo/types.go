@@ -101,3 +101,19 @@ type LossBlock struct {
 	Time    int64  `bson:"time" json:"time"`
 	Reason  string `bson:"reason" json:"reason"`
 }
+
+type BztDapp struct {
+	AppId         int64  `bson:"app_id" json:"app_id"`
+	DappIcon      string `bson:"dapp_icon" json:"dapp_icon"`
+	DappIntroduce string `bson:"dapp_introduce" json:"dapp_introduce"`
+	DappName      string `bson:"dapp_name" json:"dapp_name"`
+	DappUrl       string `bson:"dapp_url" json:"dapp_url"`
+}
+
+type DeployTransaction struct {
+	TxHash   string `bson:"tx_hash" json:"tx_hash"`
+	Nonce    string `bson:"nonce" json:"nonce"`
+	Data     string `bson:"data" json:"data"`
+	Gas      uint64 `bson:"gas" json:"gas"`
+	GasPrice string `bson:"gas_price" json:"gas_price"`
+}

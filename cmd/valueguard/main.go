@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"os"
 	"sync"
 	"time"
 	"valueguard/internal/api"
+	"valueguard/internal/bzt"
 	"valueguard/internal/conf"
 	"valueguard/internal/dailyAirdrop"
 	"valueguard/internal/marketCondition"
@@ -39,7 +39,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&flagconf, "conf", "/Users/huangxin/work/smh/valueguard/configs", "config path, eg: -conf config.yaml")
+	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
 func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
@@ -102,6 +102,16 @@ func main() {
 
 // 加载配置 load
 func LoadConfigInit(bc *conf.Bootstrap) error {
+	/*
+		Apikey          string
+		BaseUrl         string
+		KeyId           string
+		OwnerAddress    string
+		RpcUrl          string
+		XApiKey         string
+		HmacKey         string
+		RpcUrl          string
+	*/
 	//初始化mongo数据库
 	cli, err := mongo.NewMongoClient(bc.Chain.GetMongoUrl())
 	if err != nil {
@@ -109,17 +119,73 @@ func LoadConfigInit(bc *conf.Bootstrap) error {
 	}
 	mongo.MonCli = cli
 
+	//配置变量
+	/*
+		os.Setenv("Apikey", "dtcd_xxxxxx")
+		os.Setenv("BaseUrl", "http://47.111.28.25:8016")
+		os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
+		os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
+		os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+		//os.Setenv("XApiKey", "")
+		os.Setenv("HmacKey", "hmac")
+		os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+
+		os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
+	*/
+
+	os.Setenv("ContractDusdtAddress", "0x36E6504c968f5C2A310B6AF7B97BC22cdd3402cc") //生产环境DUSDT
+
+	headerKey := os.Getenv("Apikey")
+	if headerKey == "" {
+		return errors.New("apikey is required")
+	}
+	conf.Apikey = headerKey
+
+	BaseUrl := os.Getenv("BaseUrl")
+	if BaseUrl == "" {
+		return errors.New("BaseUrl is required")
+	}
+	conf.BaseUrl = BaseUrl
+
+	KeyId := os.Getenv("KeyId")
+	if KeyId == "" {
+		return errors.New("KeyId is required")
+	}
+	conf.KeyId = KeyId
+
+	OwnerAddress := os.Getenv("OwnerAddress")
+	if OwnerAddress == "" {
+		return errors.New("OwnerAddress is required")
+	}
+	conf.OwnerAddress = OwnerAddress
+
+	HmacKey := os.Getenv("HmacKey")
+	if HmacKey == "" {
+		return errors.New("HmacKey is required")
+	}
+	conf.HmacKey = HmacKey
+
+	ContractBztAddr := os.Getenv("ContractBztAddr")
+	if ContractBztAddr == "" {
+		return errors.New("ContractBztAddr is required")
+	}
+	conf.ContractBztAddr = ContractBztAddr
+
+	ContractDusdtAddress := os.Getenv("ContractDusdtAddress")
+	if ContractDusdtAddress == "" {
+		return errors.New("ContractDusdtAddress is required")
+	}
+	conf.ContractDusdtAddress = ContractDusdtAddress
 	//初始化节点
-	os.Setenv("RPC_Url", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
-	// 通过环境变量获取节点rpc url
-	rurl := os.Getenv("RPC_Url")
-	if rurl == "" {
+	rpcUrl := os.Getenv("RpcUrl")
+	if rpcUrl == "" {
 		return errors.New("rpc url is empty")
 	}
-	log.Info("rpc url is ", rurl)
-	api.Client, err = ethclient.Dial(rurl)
+	conf.RpcUrl = rpcUrl
+	log.Info("rpc url is ", rpcUrl)
+	api.Client, err = bzt.InitEthClient(rpcUrl)
 	if err != nil {
-		return errors.New("BLockChain fail")
+		return errors.New("rpc url is invalid")
 	}
 
 	id, err := api.Client.ChainID(context.Background())
@@ -128,12 +194,8 @@ func LoadConfigInit(bc *conf.Bootstrap) error {
 		return err
 	}
 	api.ChainId = id.Uint64()
-
 	//初始化签名机器
-	//key := os.Getenv("Key_id")
-	//if key == "" {
-	//	return errors.New("key is empty")
-	//}
+
 	symbols := []string{"BTCUSDT", "ETHUSDT"}
 	go RunService(context.Background(), symbols)
 

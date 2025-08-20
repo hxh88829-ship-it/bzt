@@ -21,7 +21,9 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationGreeterAirdropTrade = "/helloworld.v1.Greeter/AirdropTrade"
 const OperationGreeterBindWallet = "/helloworld.v1.Greeter/BindWallet"
+const OperationGreeterBztDapp = "/helloworld.v1.Greeter/BztDapp"
 const OperationGreeterCloseOrder = "/helloworld.v1.Greeter/CloseOrder"
+const OperationGreeterDeployContract = "/helloworld.v1.Greeter/DeployContract"
 const OperationGreeterGetAirdrop = "/helloworld.v1.Greeter/GetAirdrop"
 const OperationGreeterGetLoginMessage = "/helloworld.v1.Greeter/GetLoginMessage"
 const OperationGreeterHealth = "/helloworld.v1.Greeter/Health"
@@ -35,7 +37,9 @@ const OperationGreeterWalletBalance = "/helloworld.v1.Greeter/WalletBalance"
 type GreeterHTTPServer interface {
 	AirdropTrade(context.Context, *AirdropTradeRequest) (*AirdropTradeReply, error)
 	BindWallet(context.Context, *BindWalletRequest) (*BindWalletReply, error)
+	BztDapp(context.Context, *BztDappRequest) (*BztDappReply, error)
 	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error)
+	DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error)
 	GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error)
 	GetLoginMessage(context.Context, *GetLoginMessageRequest) (*GetLoginMessageReply, error)
 	Health(context.Context, *HealthCheckRequest) (*HealthCheckReply, error)
@@ -62,6 +66,8 @@ func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r.GET("/health", _Greeter_Health0_HTTP_Handler(srv))
 	r.POST("/v1/orderTrade", _Greeter_OrderTrade0_HTTP_Handler(srv))
 	r.POST("/v1/airdropTrade", _Greeter_AirdropTrade0_HTTP_Handler(srv))
+	r.GET("/bzt/dapp", _Greeter_BztDapp0_HTTP_Handler(srv))
+	r.POST("/v1/deployContract", _Greeter_DeployContract0_HTTP_Handler(srv))
 }
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -325,10 +331,53 @@ func _Greeter_AirdropTrade0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Co
 	}
 }
 
+func _Greeter_BztDapp0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in BztDappRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterBztDapp)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.BztDapp(ctx, req.(*BztDappRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BztDappReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Greeter_DeployContract0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeployContractRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterDeployContract)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeployContract(ctx, req.(*DeployContractRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeployContractReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GreeterHTTPClient interface {
 	AirdropTrade(ctx context.Context, req *AirdropTradeRequest, opts ...http.CallOption) (rsp *AirdropTradeReply, err error)
 	BindWallet(ctx context.Context, req *BindWalletRequest, opts ...http.CallOption) (rsp *BindWalletReply, err error)
+	BztDapp(ctx context.Context, req *BztDappRequest, opts ...http.CallOption) (rsp *BztDappReply, err error)
 	CloseOrder(ctx context.Context, req *CloseOrderRequest, opts ...http.CallOption) (rsp *CloseOrderReply, err error)
+	DeployContract(ctx context.Context, req *DeployContractRequest, opts ...http.CallOption) (rsp *DeployContractReply, err error)
 	GetAirdrop(ctx context.Context, req *GetAirdropRequest, opts ...http.CallOption) (rsp *GetAirdropReply, err error)
 	GetLoginMessage(ctx context.Context, req *GetLoginMessageRequest, opts ...http.CallOption) (rsp *GetLoginMessageReply, err error)
 	Health(ctx context.Context, req *HealthCheckRequest, opts ...http.CallOption) (rsp *HealthCheckReply, err error)
@@ -374,11 +423,37 @@ func (c *GreeterHTTPClientImpl) BindWallet(ctx context.Context, in *BindWalletRe
 	return &out, nil
 }
 
+func (c *GreeterHTTPClientImpl) BztDapp(ctx context.Context, in *BztDappRequest, opts ...http.CallOption) (*BztDappReply, error) {
+	var out BztDappReply
+	pattern := "/bzt/dapp"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationGreeterBztDapp))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *GreeterHTTPClientImpl) CloseOrder(ctx context.Context, in *CloseOrderRequest, opts ...http.CallOption) (*CloseOrderReply, error) {
 	var out CloseOrderReply
 	pattern := "/v1/closeOrder"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationGreeterCloseOrder))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *GreeterHTTPClientImpl) DeployContract(ctx context.Context, in *DeployContractRequest, opts ...http.CallOption) (*DeployContractReply, error) {
+	var out DeployContractReply
+	pattern := "/v1/deployContract"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterDeployContract))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

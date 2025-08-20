@@ -7,6 +7,18 @@ info:
     description: The greeting service definition.
     version: 0.0.1
 paths:
+    /bzt/dapp:
+        get:
+            tags:
+                - Greeter
+            operationId: Greeter_BztDapp
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.BztDappReply'
     /health:
         get:
             tags:
@@ -97,6 +109,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.CloseOrderReply'
+    /v1/deployContract:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_DeployContract
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.DeployContractRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.DeployContractReply'
     /v1/getAirdrop:
         post:
             tags:
@@ -266,6 +296,17 @@ components:
             properties:
                 address:
                     type: string
+        helloworld.v1.BztDappReply:
+            type: object
+            properties:
+                code:
+                    type: string
+                message:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.DataDetails'
         helloworld.v1.CloseOrderReply:
             type: object
             properties:
@@ -283,6 +324,28 @@ components:
                     type: string
                 orderId:
                     type: string
+        helloworld.v1.DataDetails:
+            type: object
+            properties:
+                appId:
+                    type: string
+                dappIcon:
+                    type: string
+                dappIntroduce:
+                    type: string
+                dappName:
+                    type: string
+                dappUrl:
+                    type: string
+        helloworld.v1.DeployContractReply:
+            type: object
+            properties:
+                txHash:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.DeployContractRequest:
+            type: object
+            properties: {}
         helloworld.v1.GetAirdropReply:
             type: object
             properties:

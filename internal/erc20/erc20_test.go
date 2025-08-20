@@ -12,14 +12,8 @@ import (
 )
 
 const (
-	rpcUrl       = "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979"
-	addrContract = "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726" //dUSDToken
-	//addrContract = "0x31f3EB0f255178B0fA3FeCbFe7B5314f38949a4B" //nft交易合约地址
-	//addrContract = "0xa0fA4D216AAc046b6B3f8fae4869FFC7Da5B2BBa" //BVToken
-	userAddr  = "0xc020e62ce44297e86dA12CF15CfDc20B83eF3b72" //499994000000   9877683599988000000
-	userAddr2 = "0x331E865F47fd1b197d04Fe60E45DEf0C3A1EBA24" //6000000        85388176012000000
-	//f56336cb10bf15d0a7a4466c62b8f84c2b4d8a75c5580db0332d69f0d3efa0c3
-	//272fe71819fa8d8957737986b05535b72ae43ca17e71bbc22c97e04b3d9b78e4
+	rpcUrl       = ""
+	addrContract = "" //dUSDToken
 )
 
 func TestErc20Caller_Name(t *testing.T) {
@@ -30,7 +24,7 @@ func TestErc20Caller_Name(t *testing.T) {
 	}
 
 	defer cli.Close()
-	bal, err := cli.BalanceAt(context.Background(), common.HexToAddress(userAddr2), nil)
+	bal, err := cli.BalanceAt(context.Background(), common.HexToAddress(""), nil)
 	if err != nil {
 		t.Error(err)
 		return
@@ -73,7 +67,7 @@ func TestErc20Caller_BalanceOf(t *testing.T) {
 		Pending: true,
 		Context: context.Background(),
 	}
-	uAddr := common.HexToAddress(userAddr2)
+	uAddr := common.HexToAddress("")
 	ba, err := ca.BalanceOf(&opt, uAddr)
 	if err != nil {
 		t.Error(err)
@@ -174,7 +168,7 @@ func TestErc20Transactor_Transfer(t *testing.T) {
 	}
 
 	//构造签名结构体
-	pri, err := crypto.HexToECDSA("272fe71819fa8d8957737986b05535b72ae43ca17e71bbc22c97e04b3d9b78e4")
+	pri, err := crypto.HexToECDSA("")
 	if err != nil {
 		return
 	}
@@ -192,7 +186,7 @@ func TestErc20Transactor_Transfer(t *testing.T) {
 	}
 
 	//接受地址
-	to := common.HexToAddress(userAddr2)
+	to := common.HexToAddress("")
 
 	value := new(big.Int).Mul(new(big.Int).SetUint64(1), new(big.Int).SetUint64(1e+6))
 
@@ -221,7 +215,7 @@ func TestErc20Caller_Allowance(t *testing.T) {
 		Pending: true,
 		Context: context.Background(),
 	}
-	ba, err := ca.Allowance(&opt, common.HexToAddress(userAddr), common.HexToAddress(userAddr2))
+	ba, err := ca.Allowance(&opt, common.HexToAddress(""), common.HexToAddress(""))
 	if err != nil {
 		t.Error(err)
 		return
@@ -251,7 +245,7 @@ func TestNewErc20Transactor_Approve(t *testing.T) {
 	}
 
 	//构造签名结构体
-	pri, err := crypto.HexToECDSA("f56336cb10bf15d0a7a4466c62b8f84c2b4d8a75c5580db0332d69f0d3efa0c3")
+	pri, err := crypto.HexToECDSA("")
 	if err != nil {
 		return
 	}
@@ -290,7 +284,7 @@ func TestNewErc20Transactor_TransferFrom(t *testing.T) {
 	}
 
 	//构造签名结构体
-	pri, err := crypto.HexToECDSA("f56336cb10bf15d0a7a4466c62b8f84c2b4d8a75c5580db0332d69f0d3efa0c3")
+	pri, err := crypto.HexToECDSA("")
 	if err != nil {
 		return
 	}
@@ -298,7 +292,7 @@ func TestNewErc20Transactor_TransferFrom(t *testing.T) {
 	if err != nil {
 		return
 	}
-	tx, err := ca.TransferFrom(opts, common.HexToAddress(userAddr), common.HexToAddress(userAddr2), big.NewInt(1000000))
+	tx, err := ca.TransferFrom(opts, common.HexToAddress(""), common.HexToAddress(""), big.NewInt(1000000))
 	if err != nil {
 		t.Error(err)
 		return

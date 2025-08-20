@@ -10,10 +10,12 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/go-kratos/kratos/v2/log"
 	"math/big"
+	"strings"
+	"time"
 	"valueguard/internal/api"
+	"valueguard/internal/conf"
 )
 
-var bztAddr = "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a"
 var ErrNoOrderClosed = errors.New("OrderClosed event not found")
 var ErrNoOrderOpened = errors.New("OrderOpened event not found")
 
@@ -30,7 +32,7 @@ type OrderInfo struct {
 
 func GetOwner() (string, error) {
 	cli := api.Client
-	con := common.HexToAddress(bztAddr)
+	con := common.HexToAddress(conf.ContractBztAddr)
 	ca, err := NewBztCaller(con, cli)
 	if err != nil {
 		return "", err
@@ -48,7 +50,7 @@ func GetOwner() (string, error) {
 
 func GetTokenBalance() (*big.Int, error) {
 	cli := api.Client
-	con := common.HexToAddress(bztAddr)
+	con := common.HexToAddress(conf.ContractBztAddr)
 	ca, err := NewBztCaller(con, cli)
 	if err != nil {
 		return nil, err
@@ -66,7 +68,7 @@ func GetTokenBalance() (*big.Int, error) {
 
 func GetUsdToken() (string, error) {
 	cli := api.Client
-	con := common.HexToAddress(bztAddr)
+	con := common.HexToAddress(conf.ContractBztAddr)
 	ca, err := NewBztCaller(con, cli)
 	if err != nil {
 		return "", err
@@ -84,7 +86,7 @@ func GetUsdToken() (string, error) {
 
 func GetOrders(order int64) (*OrderInfo, error) {
 	cli := api.Client
-	con := common.HexToAddress(bztAddr)
+	con := common.HexToAddress(conf.ContractBztAddr)
 	ca, err := NewBztCaller(con, cli)
 	if err != nil {
 		return nil, err
@@ -111,58 +113,58 @@ func GetOrders(order int64) (*OrderInfo, error) {
 	}, nil
 }
 
-func GetAirdrop(toAddr string, amount int64) (*types.Transaction, error) {
-	cli := api.Client
-	con := common.HexToAddress(bztAddr)
-	ca, err := NewBztTransactor(con, cli)
+func GetAirdrop(toAddr string, amount int64) (string, error) {
+	time.Sleep(1 * time.Second)
+	con := common.HexToAddress(conf.ContractBztAddr)
+	ca, err := NewBztTransactor(con, api.Client)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	pri, err := crypto.HexToECDSA("272fe71819fa8d8957737986b05535b72ae43ca17e71bbc22c97e04b3d9b78e4")
+	pri, err := crypto.HexToECDSA("")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	opt, err := bind.NewKeyedTransactorWithChainID(pri, big.NewInt(10086))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	tx, err := ca.Airdrop(opt, common.HexToAddress(toAddr), big.NewInt(amount))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return tx, nil
+	return strings.ToLower(tx.Hash().Hex()), nil
 }
 
 func GetOpenOrder() (*types.Transaction, error) {
 	return nil, nil
 }
 
-func GetCloseOrder(orderId, openPrice, closePrice int64, tokenName string) (*types.Transaction, error) {
+func GetCloseOrder(orderId, openPrice, closePrice int64, tokenName string) (string, error) {
 	cli := api.Client
-	con := common.HexToAddress(bztAddr)
+	con := common.HexToAddress(conf.ContractBztAddr)
 	ca, err := NewBztTransactor(con, cli)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	pri, err := crypto.HexToECDSA("272fe71819fa8d8957737986b05535b72ae43ca17e71bbc22c97e04b3d9b78e4")
+	pri, err := crypto.HexToECDSA("")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	opt, err := bind.NewKeyedTransactorWithChainID(pri, big.NewInt(10086))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	tx, err := ca.CloseOrder(opt, big.NewInt(orderId), big.NewInt(openPrice), big.NewInt(closePrice), tokenName)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return tx, nil
+	return strings.ToLower(tx.Hash().Hex()), nil
 }
 
 func GetParseAirdrop(receipt *types.Receipt) (*BztAirdrop, error) {
 	cli := api.Client
-	con := common.HexToAddress(bztAddr)
+	con := common.HexToAddress(conf.ContractBztAddr)
 	ca, err := NewBztFilterer(con, cli)
 	if err != nil {
 		return nil, err
@@ -187,7 +189,7 @@ func GetParseAirdrop(receipt *types.Receipt) (*BztAirdrop, error) {
 
 func GetParseOrderClosed(receipt *types.Receipt) (*BztOrderClosed, error) {
 	cli := api.Client
-	con := common.HexToAddress(bztAddr)
+	con := common.HexToAddress(conf.ContractBztAddr)
 	ca, err := NewBztFilterer(con, cli)
 	if err != nil {
 		log.Error("NewBztFilterer error", "err", err)
@@ -230,7 +232,7 @@ func GetParseOrderClosed(receipt *types.Receipt) (*BztOrderClosed, error) {
 
 func GetParseOrderOpened(receipt *types.Receipt) (*BztOrderOpened, error) {
 	cli := api.Client
-	con := common.HexToAddress(bztAddr)
+	con := common.HexToAddress(conf.ContractBztAddr)
 	ca, err := NewBztFilterer(con, cli)
 	if err != nil {
 		log.Error("NewBztFilterer error", "err", err)

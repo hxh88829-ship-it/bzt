@@ -6,29 +6,39 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/go-kratos/kratos/v2/log"
 	"math/big"
+	"os"
 	"testing"
 	"valueguard/internal/api"
+	"valueguard/internal/conf"
 )
 
 const (
-	rpcUrl       = "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979"
-	addrContract = "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726" //dUSDToken
-	//addrContract = "0x31f3EB0f255178B0fA3FeCbFe7B5314f38949a4B" //nft交易合约地址
-	//addrContract = "0xa0fA4D216AAc046b6B3f8fae4869FFC7Da5B2BBa" //BVToken
-	userAddr  = "0xc020e62ce44297e86dA12CF15CfDc20B83eF3b72" //499994000000   9877683599988000000
-	userAddr2 = "0x331E865F47fd1b197d04Fe60E45DEf0C3A1EBA24" //6000000        85388176012000000
+	rpcUrl = ""
 )
 
 func TestBztCaller_Owner(t *testing.T) {
-	var err error
-	api.Client, err = ethclient.Dial(rpcUrl)
-	if err != nil {
-		t.Fatal(err)
+	os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	os.Setenv("ContractAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+
+	ContractBztAddr := os.Getenv("ContractBztAddr")
+	if ContractBztAddr == "" {
 		return
 	}
-	cli := api.Client
-	defer cli.Close()
+	conf.ContractBztAddr = ContractBztAddr
+	//初始化节点
+	conf.RpcUrl = os.Getenv("RpcUrl")
+	if conf.RpcUrl == "" {
+		return
+	}
+	log.Info("rpc url is ", conf.RpcUrl)
+	var err error
+	api.Client, err = InitEthClient(conf.RpcUrl)
+	if err != nil {
+		return
+	}
+	defer api.Client.Close()
 	res, err := GetOwner()
 	if err != nil {
 		t.Fatal(err)
@@ -55,32 +65,62 @@ func TestBztCaller_GetContractBalance(t *testing.T) {
 }
 
 func TestBztCaller_UsdtToken(t *testing.T) {
-	var err error
-	api.Client, err = ethclient.Dial(rpcUrl)
-	if err != nil {
-		t.Fatal(err)
+	os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+
+	ContractBztAddr := os.Getenv("ContractBztAddr")
+	if ContractBztAddr == "" {
+		log.Fatal("ContractBztAddr is empty")
 		return
 	}
-	cli := api.Client
-	defer cli.Close()
+	conf.ContractBztAddr = ContractBztAddr
+	//初始化节点
+	conf.RpcUrl = os.Getenv("RpcUrl")
+	if conf.RpcUrl == "" {
+		return
+	}
+	log.Info("rpc url is ", conf.RpcUrl)
+	var err error
+	api.Client, err = InitEthClient(conf.RpcUrl)
+	if err != nil {
+		return
+	}
+	defer api.Client.Close()
 	res, err := GetUsdToken()
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
+	rel, err := api.GetTransactionReceiptByHash(common.HexToHash("0x2539f11029a1815e1f4b7753a166ef4ab235608ba861ae918a4afe85492603dd"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(rel.Status)
 	t.Log(res)
 }
 
 func TestBztCaller_Orders(t *testing.T) {
-	var err error
-	api.Client, err = ethclient.Dial(rpcUrl)
-	if err != nil {
-		t.Fatal(err)
+	//配置变量
+	os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	os.Setenv("ContractAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+
+	ContractBztAddr := os.Getenv("ContractBztAddr")
+	if ContractBztAddr == "" {
 		return
 	}
-	cli := api.Client
-	defer cli.Close()
-	res, err := GetOrders(1955168424120287232)
+	conf.ContractBztAddr = ContractBztAddr
+	//初始化节点
+	conf.RpcUrl = os.Getenv("RpcUrl")
+	if conf.RpcUrl == "" {
+		return
+	}
+	log.Info("rpc url is ", conf.RpcUrl)
+	var err error
+	api.Client, err = InitEthClient(conf.RpcUrl)
+	if err != nil {
+		return
+	}
+	res, err := GetOrders(6)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -89,7 +129,7 @@ func TestBztCaller_Orders(t *testing.T) {
 }
 
 func TestBztTransactor_OpenOrder(t *testing.T) {
-	Client, err := ethclient.Dial(rpcUrl)
+	Client, err := ethclient.Dial("http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -110,13 +150,13 @@ func TestBztTransactor_OpenOrder(t *testing.T) {
 		return
 	}
 
-	tx, err := ca.OpenOrder(opt, big.NewInt(1957371420652601344), "BTCUSDT", big.NewInt(1e+6))
+	tx, err := ca.OpenOrder(opt, big.NewInt(1958181354344546304), "BTCUSDT", big.NewInt(1e+6))
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	t.Log(tx.Hash())
-	//0xeb86e3f5dfb00e17a6765e4be3a04bfa38a3cb4d4e4c698fc6553c43579d8f9e
+	//0x872fb9fb2ff99cbd9a7a4bcb05a3e553d93087a2d64c7e96c2a2461b1ecf9a39
 	//0x9c0d3ee1d8c5f29980638ea8eed41391fa99f71c6f1fc495ef9e4dc877b46bfe fail
 
 }
@@ -135,7 +175,7 @@ func TestBztTransactor_CloseOrder(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
-	t.Log(tx.Hash())
+	t.Log(tx)
 	//0.00000838684138
 	//0xc72a69de09276336cb9b17f1a0ced56354a06ff3528a0e810a20069c4728c48a
 }
@@ -154,12 +194,12 @@ func TestBztTransactor_Airdrop(t *testing.T) {
 		return
 	}
 	t.Log(i, "\n")
-	tx, err := GetAirdrop(userAddr2, i.Int64())
+	tx, err := GetAirdrop("", i.Int64())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	t.Log(tx.Hash())
+	t.Log(tx)
 	//0x057eb086df137f5e846451aba3cca59c0ed7c7681526412fbee79afa05c984de
 }
 

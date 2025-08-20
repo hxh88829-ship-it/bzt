@@ -31,6 +31,8 @@ const (
 	Greeter_Health_FullMethodName          = "/helloworld.v1.Greeter/Health"
 	Greeter_OrderTrade_FullMethodName      = "/helloworld.v1.Greeter/OrderTrade"
 	Greeter_AirdropTrade_FullMethodName    = "/helloworld.v1.Greeter/AirdropTrade"
+	Greeter_BztDapp_FullMethodName         = "/helloworld.v1.Greeter/BztDapp"
+	Greeter_DeployContract_FullMethodName  = "/helloworld.v1.Greeter/DeployContract"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -52,6 +54,8 @@ type GreeterClient interface {
 	Health(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckReply, error)
 	OrderTrade(ctx context.Context, in *OrderTradeRequest, opts ...grpc.CallOption) (*OrderTradeReply, error)
 	AirdropTrade(ctx context.Context, in *AirdropTradeRequest, opts ...grpc.CallOption) (*AirdropTradeReply, error)
+	BztDapp(ctx context.Context, in *BztDappRequest, opts ...grpc.CallOption) (*BztDappReply, error)
+	DeployContract(ctx context.Context, in *DeployContractRequest, opts ...grpc.CallOption) (*DeployContractReply, error)
 }
 
 type greeterClient struct {
@@ -182,6 +186,26 @@ func (c *greeterClient) AirdropTrade(ctx context.Context, in *AirdropTradeReques
 	return out, nil
 }
 
+func (c *greeterClient) BztDapp(ctx context.Context, in *BztDappRequest, opts ...grpc.CallOption) (*BztDappReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BztDappReply)
+	err := c.cc.Invoke(ctx, Greeter_BztDapp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) DeployContract(ctx context.Context, in *DeployContractRequest, opts ...grpc.CallOption) (*DeployContractReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeployContractReply)
+	err := c.cc.Invoke(ctx, Greeter_DeployContract_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -201,6 +225,8 @@ type GreeterServer interface {
 	Health(context.Context, *HealthCheckRequest) (*HealthCheckReply, error)
 	OrderTrade(context.Context, *OrderTradeRequest) (*OrderTradeReply, error)
 	AirdropTrade(context.Context, *AirdropTradeRequest) (*AirdropTradeReply, error)
+	BztDapp(context.Context, *BztDappRequest) (*BztDappReply, error)
+	DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -246,6 +272,12 @@ func (UnimplementedGreeterServer) OrderTrade(context.Context, *OrderTradeRequest
 }
 func (UnimplementedGreeterServer) AirdropTrade(context.Context, *AirdropTradeRequest) (*AirdropTradeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AirdropTrade not implemented")
+}
+func (UnimplementedGreeterServer) BztDapp(context.Context, *BztDappRequest) (*BztDappReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BztDapp not implemented")
+}
+func (UnimplementedGreeterServer) DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeployContract not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -484,6 +516,42 @@ func _Greeter_AirdropTrade_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_BztDapp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BztDappRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).BztDapp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_BztDapp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).BztDapp(ctx, req.(*BztDappRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_DeployContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeployContractRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).DeployContract(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_DeployContract_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).DeployContract(ctx, req.(*DeployContractRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -538,6 +606,14 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AirdropTrade",
 			Handler:    _Greeter_AirdropTrade_Handler,
+		},
+		{
+			MethodName: "BztDapp",
+			Handler:    _Greeter_BztDapp_Handler,
+		},
+		{
+			MethodName: "DeployContract",
+			Handler:    _Greeter_DeployContract_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

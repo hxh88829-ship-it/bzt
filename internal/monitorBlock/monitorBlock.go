@@ -14,10 +14,10 @@ import (
 	"time"
 	"valueguard/internal/api"
 	"valueguard/internal/bzt"
+	"valueguard/internal/conf"
 	"valueguard/internal/mongo"
 )
 
-var BztAddr = strings.ToLower("0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
 var Plat = strings.ToLower("0xc020e62ce44297e86dA12CF15CfDc20B83eF3b72")
 
 func ScanBlocks(ctx context.Context) error {
@@ -198,8 +198,8 @@ func ProcessTransactions(bl *types.Block, ctx context.Context) error {
 		if tx.To() == nil { //部署合约跳过
 			continue
 		}
-		if strings.ToLower(tx.To().String()) == BztAddr {
-			if strings.ToLower(from.String()) != Plat {
+		if strings.ToLower(tx.To().String()) == strings.ToLower(conf.ContractBztAddr) {
+			if strings.ToLower(from.String()) != strings.ToLower(conf.OwnerAddress) {
 				//拿到开仓数据
 				receipt, err := api.GetTransactionReceiptByHash(tx.Hash())
 				if err != nil {

@@ -85,6 +85,19 @@ service Greeter {
       body: "*"
     };
   }
+  rpc BztDapp (BztDappRequest) returns (BztDappReply) {
+    option (google.api.http) = {
+      get: "/bzt/dapp"
+    };
+  }
+
+
+  rpc DeployContract (DeployContractRequest) returns (DeployContractReply) {
+    option (google.api.http) = {
+      post: "/v1/deployContract"
+      body: "*"
+    };
+  }
 
 }
 
@@ -242,4 +255,27 @@ message AirdropDetails {
   string symbol = 3;
   string times = 4;
   string txHash = 5;
+}
+
+message BztDappRequest {}
+
+message BztDappReply {
+  int64 code = 1;
+  string message = 2;
+  repeated DataDetails data = 3;
+}
+
+message DataDetails {
+  int64 appId = 1;
+  string dappIcon = 2;
+  string dappIntroduce = 3;
+  string dappName = 4;
+  string dappUrl = 5;
+}
+
+message DeployContractRequest {}
+
+// The response message containing the greetings
+message DeployContractReply {
+  string txHash = 1;
 }

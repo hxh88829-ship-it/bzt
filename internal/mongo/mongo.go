@@ -95,11 +95,7 @@ func GetUser(addr string) (Users, error) {
 	if MonCli == nil {
 		return Users{}, errors.New("mongo client is nil " + "GetUser")
 	}
-	filter := bson.M{
-		"$or": []bson.M{
-			{"address": addr},
-		},
-	}
+	filter := bson.D{{"address", addr}}
 	var ma Users
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).FindOne(context.Background(), filter).Decode(&ma)
 	if err != nil {
@@ -743,4 +739,54 @@ func DeleteLossBlock(i uint64) error {
 		return err
 	}
 	return nil
+}
+
+func AddBztDapp(a BztDapp) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil" + "AffBztDapp")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).InsertOne(context.Background(), a)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return err
+	}
+	return nil
+}
+func GetBztDapp(name string) (BztDapp, error) {
+	if MonCli == nil {
+		return BztDapp{}, nil
+	}
+	filter := bson.D{{"dapp_name", name}}
+	var b BztDapp
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).FindOne(context.Background(), filter).Decode(&b)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return b, ErrNoDocuments
+	}
+	return b, nil
+}
+
+func AddDeployTransaction(tx DeployTransaction) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil" + "AddDeployTransaction")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(deployContract).InsertOne(context.Background(), tx)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return err
+	}
+	return nil
+}
+func GetDeployTransaction(tx string) (DeployTransaction, error) {
+	if MonCli == nil {
+		return DeployTransaction{}, errors.New("error:mongo.Client is nil" + "GetDeployTransaction")
+	}
+	filter := bson.D{{"tx_hash", tx}}
+	var txh DeployTransaction
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(deployContract).FindOne(context.Background(), filter).Decode(&txh)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return DeployTransaction{}, ErrNoDocuments
+	}
+	return txh, nil
 }

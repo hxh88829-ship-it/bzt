@@ -5,7 +5,8 @@ var (
 )
 
 const (
-	DatabaseNameForChain = "bzt"
+	//DatabaseNameForChain = "bzt"
+	DatabaseNameForChain = "bzt_hx"
 	user                 = "user"
 	scanBlock            = "scanBlock"
 	newPrice             = "newPrice"
@@ -17,4 +18,6 @@ const (
 	lossBlock            = "lossBlock"
 	transaction          = "transaction"
 	dailyAirdrops        = "dailyAirdrops"
+	bztDapp              = "bztDapp"
+	deployContract       = "deployContract"
 )

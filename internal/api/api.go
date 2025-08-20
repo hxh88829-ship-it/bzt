@@ -18,13 +18,12 @@ import (
 	"math/big"
 	"strings"
 	"time"
+	"valueguard/internal/conf"
 	"valueguard/internal/erc20"
 )
 
 var Client *ethclient.Client
 var ChainId uint64
-
-const addrContract = "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726"
 
 // 普通交易
 func GetBlockByNumber(num uint64) (*types.Block, error) {
@@ -142,7 +141,7 @@ func SendTransaction(
 
 // 合约交易
 func Erc20Caller_Name() (string, error) {
-	con := common.HexToAddress(addrContract)
+	con := common.HexToAddress(conf.ContractDusdtAddress)
 
 	//只读合约接口创建
 	ca, err := erc20.NewErc20Caller(con, Client)
@@ -166,7 +165,7 @@ func Erc20Caller_Name() (string, error) {
 
 func Erc20Transactor_BalanceOf(addr string) (string, error) {
 
-	con := common.HexToAddress(addrContract)
+	con := common.HexToAddress(conf.ContractDusdtAddress)
 	ca, err := erc20.NewErc20Caller(con, Client)
 	if err != nil {
 		log.Error("Erc20Transactor_BalanceOf  只读接口创建失败")
@@ -188,7 +187,7 @@ func Erc20Transactor_BalanceOf(addr string) (string, error) {
 
 func Erc20Transactor_Decimals() (uint8, error) {
 
-	con := common.HexToAddress(addrContract)
+	con := common.HexToAddress(conf.ContractDusdtAddress)
 	ca, err := erc20.NewErc20Caller(con, Client)
 	if err != nil {
 		log.Error("Erc20Transactor_Decimals 接口创建失败")
@@ -208,7 +207,7 @@ func Erc20Transactor_Decimals() (uint8, error) {
 
 func Erc20Transactor_Symbol() (string, error) {
 
-	con := common.HexToAddress(addrContract)
+	con := common.HexToAddress(conf.ContractDusdtAddress)
 	ca, err := erc20.NewErc20Caller(con, Client)
 	if err != nil {
 		log.Error("Erc20Transactor_Symbol 接口创建失败")
@@ -228,7 +227,7 @@ func Erc20Transactor_Symbol() (string, error) {
 
 func Erc20Transactor_TotalSupply() (uint64, error) {
 
-	con := common.HexToAddress(addrContract)
+	con := common.HexToAddress(conf.ContractDusdtAddress)
 	ca, err := erc20.NewErc20Caller(con, Client)
 	if err != nil {
 		log.Error("Erc20Transactor_TotalSupply 接口创建失败")
@@ -262,7 +261,7 @@ func Erc20Transactor_Transfer(key, add string, value *big.Int) (string, error) {
 	}
 
 	//构造合约client
-	con := common.HexToAddress(addrContract)
+	con := common.HexToAddress(conf.ContractDusdtAddress)
 	ca, err := erc20.NewErc20Transactor(con, Client)
 	if err != nil {
 		log.Error("Erc20Transactor_Transfer 合约构造失败")
@@ -298,7 +297,7 @@ func GetLogsEvent(tx string) ([]TransferEvent, error) {
 		return nil, err
 	}
 
-	contractAddress := common.HexToAddress(strings.ToLower(addrContract))
+	contractAddress := common.HexToAddress(strings.ToLower(conf.ContractDusdtAddress))
 	eventSig := common.HexToHash("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef") //固定transfer解析
 
 	eventAbi := `[{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},

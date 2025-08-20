@@ -15,11 +15,5 @@ data:
     write_timeout: 0.2s
 chain:
   mongo_url: mongodb://admin:admin@localhost:27017/?directConnection=true
-  key_address: "0a1382ae-7e21-49e8-928e-0614103b2045"
-  header_api_key: "dtcd_xxxxxx"
-  url_header_key: "http://47.97.254.231:8016"
-  x_api_key: "4sip97qapC4vTxS73YdTB6X5hm8Rr8Uk13BdwP2d123"
-  hmac_key: "hmac"
-  chain_id: "9798"
-  http_rpc_url: "http://172.31.21.88:8575"
+
 

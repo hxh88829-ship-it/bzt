@@ -11,15 +11,14 @@ import (
 )
 
 const (
-	rpcUrl = "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979"
-	//addrContract = "0xa0fA4D216AAc046b6B3f8fae4869FFC7Da5B2BBa" //BVToken
-	userAddr  = "0xc020e62ce44297e86dA12CF15CfDc20B83eF3b72"
-	userAddr2 = "0x331E865F47fd1b197d04Fe60E45DEf0C3A1EBA24"
-	//key       = "272fe71819fa8d8957737986b05535b72ae43ca17e71bbc22c97e04b3d9b78e4"
-	key    = "f56336cb10bf15d0a7a4466c62b8f84c2b4d8a75c5580db0332d69f0d3efa0c3"
-	txHash = "0x668da65eff65b2dd4b801e55390dab2aba1e84e66f499de903ab82e49ae1b572" //contract
-	//txHash = "0x1a532096b867f38d165551aaa0a099644b2e48f9eb25a42f5e51098acabf8788" //public
-	txhashnft = "0xe264acae247fb5977a58884aa5b3c85879e7862d7a69142b949d08eead710b26"
+	rpcUrl = ""
+	//addrContract = "" //BVToken
+	userAddr  = ""
+	userAddr2 = ""
+	//key       = ""
+	key    = ""
+	txHash = "" //contract
+	//txHash = "" //public
 )
 
 func TestGetBlockByNumber(t *testing.T) {
@@ -53,7 +52,7 @@ func TestGetTransactionByHash(t *testing.T) {
 		return
 	}
 	defer Client.Close()
-	tx, ok, err := GetTransactionByHash(common.HexToHash("0xc72a69de09276336cb9b17f1a0ced56354a06ff3528a0e810a20069c4728c48a"))
+	tx, ok, err := GetTransactionByHash(common.HexToHash("0xd5f9ea3192bd1c6031718cfbd88bbf3a0cbe03bf45a9c83d036674ee5373d3c7"))
 	if err != nil {
 		t.Error("GetTransactionByHash fail")
 		return
@@ -79,13 +78,13 @@ func TestGetTransactionByHash(t *testing.T) {
 
 func TestGetTransactionReceiptByHash(t *testing.T) {
 	var err error
-	Client, err = ethclient.Dial(rpcUrl)
+	Client, err = ethclient.Dial("")
 	if err != nil {
 		t.Error("BLockChain fail")
 		return
 	}
 	defer Client.Close()
-	tx, err := GetTransactionReceiptByHash(common.HexToHash("0x4572e5112778b3c31bbebe88103d8e49ffd2704468042e61b241a9bcdd2e18f4"))
+	tx, err := GetTransactionReceiptByHash(common.HexToHash("0xd96b8cc56ceccec490c79b1bb62287a36025017ac57c3aedb36c817091968de6"))
 	if err != nil {
 		t.Error("GetTransactionReceiptByHash fail")
 		return
@@ -343,7 +342,7 @@ func TestDirectLogValue(t *testing.T) {
 	}
 	defer Client.Close()
 
-	tr, err := DirectLogValue("0x057eb086df137f5e846451aba3cca59c0ed7c7681526412fbee79afa05c984de")
+	tr, err := DirectLogValue("0xd5f9ea3192bd1c6031718cfbd88bbf3a0cbe03bf45a9c83d036674ee5373d3c7")
 	if err != nil {
 		t.Error("DirectLogValue fail:", err)
 		return
