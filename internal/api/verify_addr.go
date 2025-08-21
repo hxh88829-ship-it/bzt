@@ -3,14 +3,10 @@ package api
 import (
 	"errors"
 	"fmt"
-	"net/url"
-	"regexp"
-	"strings"
-	"unicode/utf8"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
+	"strings"
 )
 
 func VerifyForAddress(OriginalMessage, signature string) (string, error) {
@@ -63,81 +59,4 @@ func ComputeMessageHash(message string) []byte {
 	formatted := fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(message), message)
 	hash := crypto.Keccak256([]byte(formatted))
 	return hash // 0x...格式
-}
-
-func ValidateAvatarURL(avatar string) error {
-	if avatar == "" {
-		return nil // 不上传头像允许为空
-	}
-
-	u, err := url.Parse(avatar)
-	if err != nil || u.Scheme == "" || u.Host == "" {
-		return errors.New("头像链接格式错误")
-	}
-
-	// 限定只接受 http / https
-	if u.Scheme != "http" && u.Scheme != "https" {
-		return errors.New("头像链接必须以 http/https 开头")
-	}
-
-	// 可选：限制来源为你自己的 CDN
-	if !strings.HasSuffix(u.Host, "upmpc-test.s3.ap-southeast-1.amazonaws.com") {
-		return errors.New("头像必须来自平台图片服务器")
-	}
-
-	// 可选：限制图片后缀
-	if !strings.HasSuffix(u.Path, ".png") && !strings.HasSuffix(u.Path, ".jpg") && !strings.HasSuffix(u.Path, ".jpeg") {
-		return errors.New("仅支持 PNG、JPG 格式头像")
-	}
-
-	return nil
-}
-
-func NormalizeTwitter(twitter string) (string, error) {
-	twitter = strings.TrimSpace(twitter)
-	twitter = strings.TrimPrefix(twitter, "@")
-
-	if twitter == "" {
-		return "", nil
-	}
-	// 最简单的合法字符检查（只允许英文字母数字下划线）
-	if !regexp.MustCompile(`^[a-zA-Z0-9_]{1,15}$`).MatchString(twitter) {
-		return "", errors.New("输入不合法")
-	}
-
-	return "https://x.com/" + twitter, nil
-}
-
-func ValidateWebsite(website string) error {
-	website = strings.TrimSpace(website)
-
-	if website == "" {
-		return nil // 允许用户不填
-	}
-
-	// 限制最大长度（例如 200 个字符）
-	if utf8.RuneCountInString(website) > 200 {
-		return errors.New("网站链接过长")
-	}
-
-	// 解析 URL
-	u, err := url.Parse(website)
-	if err != nil || u.Scheme == "" || u.Host == "" {
-		return errors.New("请输入合法的网址，例如 https://example.com")
-	}
-
-	// 只允许 http / https
-	if u.Scheme != "http" && u.Scheme != "https" {
-		return errors.New("仅支持 http 和 https 协议")
-	}
-
-	// 可选：禁止某些危险域名
-	blocked := []string{"example.local", "localhost", "127.0.0.1"}
-	for _, b := range blocked {
-		if strings.Contains(u.Host, b) {
-			return errors.New("网址不允许指向本地地址")
-		}
-	}
-
-	return nil
 }

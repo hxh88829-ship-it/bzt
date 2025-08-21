@@ -131,10 +131,6 @@ func LoadConfigInit() error {
 			os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
 		    os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
 	*/
-
-	conf.ContractBztAddr = ""
-	conf.ContractDusdtAddress = ""
-
 	headerKey := os.Getenv("Apikey")
 	if headerKey == "" {
 		return errors.New("apikey is required")
@@ -164,6 +160,14 @@ func LoadConfigInit() error {
 		return errors.New("HmacKey is required")
 	}
 	conf.HmacKey = HmacKey
+
+	conf.ContractBztAddr = ""
+
+	ContractDusdtAddress := os.Getenv("ContractDusdtAddress")
+	if ContractDusdtAddress == "" {
+		return errors.New("ContractDusdtAddress is required")
+	}
+	conf.ContractDusdtAddress = ContractDusdtAddress
 
 	X_Api_Key := os.Getenv("X_Api_Key")
 	if X_Api_Key == "" {

@@ -3,11 +3,9 @@ package monitorBlock
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/redis/go-redis/v9"
 	"testing"
 	"valueguard/internal/api"
 	"valueguard/internal/mongo"
-	"valueguard/internal/redisQuery"
 )
 
 // 漏扫块手动复扫
@@ -28,12 +26,7 @@ func TestScanOneBlock(t *testing.T) {
 	}
 	defer cli.Close()
 	mongo.MonCli = cli
-	redisCli := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379", // Redis 服务器地址
-		Password: "",               // 密码，如果没有则为空字符串
-		DB:       0,                // 使用默认数据库 (0)
-	})
-	redisQuery.RedisCli = redisCli
+
 	lossBl, err := mongo.GetLossBlocksByNetwork(10086)
 	if err != nil {
 		t.Error(err)

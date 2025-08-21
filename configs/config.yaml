@@ -14,6 +14,6 @@ data:
     read_timeout: 0.2s
     write_timeout: 0.2s
 chain:
-  mongo_url: mongodb://admin:admin@13.212.58.194:9097
+  mongo_url:
 
 

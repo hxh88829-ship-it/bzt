@@ -14,6 +14,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"google.golang.org/grpc/metadata"
 	"math"
 	"math/big"
 	"strings"
@@ -467,7 +468,7 @@ func GetJwtKey(uid, addr string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":  uid,
 		"addr": addr,
-		"exp":  time.Now().Add(time.Hour * 1).Unix(),
+		"exp":  time.Now().Add(30 * time.Hour * 24).Unix(),
 		"iat":  time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -488,4 +489,47 @@ func GetTokenBalance(ctx context.Context, addr string, symbol string) (string, e
 	default:
 		return "", fmt.Errorf("unsupported token symbol: %s", symbol)
 	}
+}
+
+func ParseJwtAddr(tokenStr string) (string, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		// 确认签名方法是 HMAC
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte("123456"), nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	// token.Valid 为 true 时才能安全使用
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		addr, ok := claims["addr"].(string)
+		if !ok {
+			return "", fmt.Errorf("addr not found in claims")
+		}
+		return addr, nil
+	}
+
+	return "", fmt.Errorf("invalid token")
+}
+
+func ExtractTokenFromContext(ctx context.Context) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", errors.New("missing metadata in context")
+	}
+
+	var token string
+	if authHeaders, exists := md["authorization"]; exists && len(authHeaders) > 0 {
+		token = strings.TrimPrefix(authHeaders[0], "Bearer ")
+	}
+
+	if token == "" {
+		return "", errors.New("authorization header not found")
+	}
+	return token, nil
 }

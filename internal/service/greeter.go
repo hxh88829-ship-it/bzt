@@ -8,6 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-kratos/kratos/v2/log"
+	kratosjwt "github.com/go-kratos/kratos/v2/middleware/auth/jwt"
+	jwtv5 "github.com/golang-jwt/jwt/v5"
 	"regexp"
 	"strconv"
 	"strings"
@@ -210,6 +212,21 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 			OrderId: "非平台用户地址",
 		}, errors.New("wallet not exists")
 	}
+	// 提取 addr
+	claims, ok := kratosjwt.FromContext(ctx)
+	if !ok {
+		return &v1.OpenOrderReply{}, errors.New("err: jwt.FromContext(ctx)")
+	}
+
+	addr, _ := claims.(jwtv5.MapClaims)["addr"].(string)
+	if addr == "" {
+		return &v1.OpenOrderReply{}, errors.New("addr 提取失败")
+	}
+	log.Info(addr)
+	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
+		log.Warnf("[OpenOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
+		return &v1.OpenOrderReply{}, err
+	}
 	// 不同实例不同节点（0～1023）
 	orderId := api.GetSnowflakeID(0)
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
@@ -264,6 +281,22 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	}
 	if !ok {
 		return &v1.CloseOrderReply{}, nil
+	}
+
+	// 提取 addr
+	claims, ok := kratosjwt.FromContext(ctx)
+	if !ok {
+		return &v1.CloseOrderReply{}, errors.New("err: jwt.FromContext(ctx)")
+	}
+
+	addr, _ := claims.(jwtv5.MapClaims)["addr"].(string)
+	if addr == "" {
+		return &v1.CloseOrderReply{}, errors.New("addr 提取失败")
+	}
+	log.Info(addr)
+	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
+		log.Warnf("[CloseOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
+		return &v1.CloseOrderReply{}, err
 	}
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
 	if err != nil {
@@ -321,6 +354,21 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 		return &v1.GetAirdropReply{
 			Status: "address not exists",
 		}, nil
+	}
+	// 提取 addr
+	claims, ok := kratosjwt.FromContext(ctx)
+	if !ok {
+		return &v1.GetAirdropReply{}, errors.New("err: jwt.FromContext(ctx)")
+	}
+
+	address, _ := claims.(jwtv5.MapClaims)["addr"].(string)
+	if addr == "" {
+		return &v1.GetAirdropReply{}, errors.New("addr 提取失败")
+	}
+	log.Info(address)
+	if strings.ToLower(address) != strings.ToLower(in.GetAddress()) {
+		log.Warnf("[GetAirdrop][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
+		return &v1.GetAirdropReply{}, err
 	}
 	// 判断是否领取
 	if in.GetIsClaims() == 0 {

@@ -18,8 +18,6 @@ import (
 	"valueguard/internal/mongo"
 )
 
-var Plat = strings.ToLower("0xc020e62ce44297e86dA12CF15CfDc20B83eF3b72")
-
 func ScanBlocks(ctx context.Context) error {
 	mongoBln, safeBlock, err := GetMongodbBlockAndLinkBlock()
 	if err != nil {
