@@ -18,5 +18,6 @@ KeyId      (新建一个保值通项目的kms keyid)
 OwnerAddress  (keyid对应的钱包地址)
 HmacKey    (hash消息认证码)
 RpcUrl     (DTC 节点 RPC)
+X_Api_Key
 ```
 

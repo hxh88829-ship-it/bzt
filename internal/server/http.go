@@ -32,8 +32,8 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/LoginWithWallet") && // 这里是设置不用密钥访问的接口
 					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/GetLoginMessage") &&
 					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/Health") &&
-					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/BztDapp")
-				//	!strings.HasSuffix(operation, "/helloworld.v1.Greeter/DeployContract")
+					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/BztDapp") &&
+					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/DeployContract")
 				//!strings.HasSuffix(operation, "/helloworld.v1.Greeter/AirdropTrade") &&
 				//!strings.HasSuffix(operation, "/helloworld.v1.Greeter/OpenOrder") &&
 				//!strings.HasSuffix(operation, "/helloworld.v1.Greeter/CloseOrder")

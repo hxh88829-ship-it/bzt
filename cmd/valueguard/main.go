@@ -84,7 +84,7 @@ func main() {
 	}
 
 	log.Info(bc)
-	if err := LoadConfigInit(&bc); err != nil {
+	if err := LoadConfigInit(); err != nil {
 		panic(err)
 	}
 
@@ -101,7 +101,7 @@ func main() {
 }
 
 // 加载配置 load
-func LoadConfigInit(bc *conf.Bootstrap) error {
+func LoadConfigInit() error {
 	/*
 		Apikey          string
 		BaseUrl         string
@@ -113,7 +113,7 @@ func LoadConfigInit(bc *conf.Bootstrap) error {
 		RpcUrl          string
 	*/
 	//初始化mongo数据库
-	cli, err := mongo.NewMongoClient(bc.Chain.GetMongoUrl())
+	cli, err := mongo.NewMongoClient("mongodb://admin:admin@13.212.58.194:9097")
 	if err != nil {
 		return err
 	}
@@ -121,19 +121,16 @@ func LoadConfigInit(bc *conf.Bootstrap) error {
 
 	//配置变量
 	/*
-		os.Setenv("Apikey", "dtcd_xxxxxx")
-		os.Setenv("BaseUrl", "http://47.111.28.25:8016")
-		os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
-		os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
-		os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
-		//os.Setenv("XApiKey", "")
-		os.Setenv("HmacKey", "hmac")
-		os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
-
-		os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
+			os.Setenv("Apikey", "dtcd_xxxxxx")
+			os.Setenv("BaseUrl", "http://47.111.28.25:8016")
+			os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
+			os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
+			os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+			os.Setenv("HmacKey", "hmac")
+			os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+		    os.Setenv("XApiKey", "")
+			os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
 	*/
-
-	os.Setenv("ContractDusdtAddress", "0x36E6504c968f5C2A310B6AF7B97BC22cdd3402cc") //生产环境DUSDT
 
 	headerKey := os.Getenv("Apikey")
 	if headerKey == "" {
@@ -176,6 +173,7 @@ func LoadConfigInit(bc *conf.Bootstrap) error {
 		return errors.New("ContractDusdtAddress is required")
 	}
 	conf.ContractDusdtAddress = ContractDusdtAddress
+
 	X_Api_Key := os.Getenv("X_Api_Key")
 	if X_Api_Key == "" {
 		return errors.New("X_Api_Key is required")
