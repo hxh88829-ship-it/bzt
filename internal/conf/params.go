@@ -19,6 +19,7 @@ var (
 	RpcUrl               string
 	ContractBztAddr      string
 	ContractDusdtAddress string
+	X_Api_Key            string
 )
 
 // XApiKey      string

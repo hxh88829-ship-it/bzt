@@ -372,14 +372,11 @@ func UrlOwnerContractTransfer(data []byte, cli *ethclient.Client) (string, strin
 	return "", "", fmt.Errorf("解析失败: %v", resp)
 }
 func InitEthClient(rpcURL string) (*ethclient.Client, error) {
-	// 固定 API Key
-	x_api_key := "4sip97qapC4vTxS73YdTB6X5hm8Rr8Uk13BdwP2d123"
-
 	// 自定义 HTTP 客户端，注入 x-api-key Header
 	httpClient := &http.Client{
 		Transport: &transportWithHeader{
 			headers: map[string]string{
-				"x-api-key": x_api_key,
+				"x-api-key": conf.X_Api_Key,
 			},
 			base: http.DefaultTransport,
 		},

@@ -19,8 +19,8 @@ const (
 )
 
 func TestBztCaller_Owner(t *testing.T) {
-	os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
-	os.Setenv("ContractAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+	os.Setenv("RpcUrl", "")
+	os.Setenv("ContractAddr", "")
 
 	ContractBztAddr := os.Getenv("ContractBztAddr")
 	if ContractBztAddr == "" {
@@ -65,8 +65,8 @@ func TestBztCaller_GetContractBalance(t *testing.T) {
 }
 
 func TestBztCaller_UsdtToken(t *testing.T) {
-	os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
-	os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+	os.Setenv("RpcUrl", "")
+	os.Setenv("ContractBztAddr", "")
 
 	ContractBztAddr := os.Getenv("ContractBztAddr")
 	if ContractBztAddr == "" {
@@ -101,8 +101,8 @@ func TestBztCaller_UsdtToken(t *testing.T) {
 
 func TestBztCaller_Orders(t *testing.T) {
 	//配置变量
-	os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
-	os.Setenv("ContractAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+	os.Setenv("RpcUrl", "")
+	os.Setenv("ContractBztAddr", "")
 
 	ContractBztAddr := os.Getenv("ContractBztAddr")
 	if ContractBztAddr == "" {
@@ -129,19 +129,19 @@ func TestBztCaller_Orders(t *testing.T) {
 }
 
 func TestBztTransactor_OpenOrder(t *testing.T) {
-	Client, err := ethclient.Dial("http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	Client, err := ethclient.Dial("")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 	defer Client.Close()
-	con := common.HexToAddress("0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+	con := common.HexToAddress("")
 	ca, err := NewBztTransactor(con, Client)
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	pri, err := crypto.HexToECDSA("f56336cb10bf15d0a7a4466c62b8f84c2b4d8a75c5580db0332d69f0d3efa0c3")
+	pri, err := crypto.HexToECDSA("")
 	if err != nil {
 		return
 	}

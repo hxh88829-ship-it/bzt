@@ -48,9 +48,7 @@ func TestGetAirdropInput(t *testing.T) {
 }
 
 func TestUrlGetKeyAddress(t *testing.T) {
-	os.Setenv("Apikey", "dtcd_xxxxxx")
-	os.Setenv("BaseUrl", "http://47.111.28.25:8016")
-	os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
+
 	headerKey := os.Getenv("Apikey")
 	if headerKey == "" {
 		return
@@ -77,14 +75,6 @@ func TestUrlGetKeyAddress(t *testing.T) {
 
 func TestUrlContractSignOwner(t *testing.T) {
 	//配置变量
-	os.Setenv("Apikey", "dtcd_xxxxxx")
-	os.Setenv("BaseUrl", "http://47.111.28.25:8016")
-	os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
-	os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
-	os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
-	//os.Setenv("XApiKey", "")
-	os.Setenv("HmacKey", "hmac")
-	os.Setenv("ContractAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
 
 	headerKey := os.Getenv("Apikey")
 	if headerKey == "" {
@@ -145,15 +135,6 @@ func TestUrlContractSignOwner(t *testing.T) {
 
 func TestUrlOwnerContractTransfer(t *testing.T) {
 	//配置变量
-	os.Setenv("Apikey", "dtcd_xxxxxx")
-	os.Setenv("BaseUrl", "http://47.111.28.25:8016")
-	os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
-	os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
-	os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
-	//os.Setenv("XApiKey", "")
-	os.Setenv("HmacKey", "hmac")
-	os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
-
 	headerKey := os.Getenv("Apikey")
 	if headerKey == "" {
 		return

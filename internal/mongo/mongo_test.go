@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	dbUrl = "mongodb://admin:admin@localhost:27017/?directConnection=true"
+	dbUrl = ""
 )
 
 // 添加用户·
@@ -161,4 +161,24 @@ func TestGetOrderForAll(t *testing.T) {
 
 	}
 	t.Log(res)
+}
+
+func TestAddBztDapp(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	var a BztDapp
+	a.AppId = 1
+	a.DappIntroduce = "bzt"
+	a.DappIcon = "https://upmpc-test.s3.ap-southeast-1.amazonaws.com/dtc/nft/hx/baozhitong/png/1755742252379_rx38jirb4kj.png"
+	a.DappName = "bzt"
+	a.DappUrl = "http://13.228.99.71:9015/"
+	err = AddBztDapp(a)
+	if err != nil {
+		return
+	}
 }

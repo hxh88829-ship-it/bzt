@@ -176,6 +176,12 @@ func LoadConfigInit(bc *conf.Bootstrap) error {
 		return errors.New("ContractDusdtAddress is required")
 	}
 	conf.ContractDusdtAddress = ContractDusdtAddress
+	X_Api_Key := os.Getenv("X_Api_Key")
+	if X_Api_Key == "" {
+		return errors.New("X_Api_Key is required")
+	}
+	conf.X_Api_Key = X_Api_Key
+
 	//初始化节点
 	rpcUrl := os.Getenv("RpcUrl")
 	if rpcUrl == "" {
