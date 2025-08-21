@@ -187,12 +187,12 @@ func LoadConfigInit() error {
 		return errors.New("rpc url is invalid")
 	}
 
-	id, err := api.Client.ChainID(context.Background())
-	if err != nil {
-		log.Error("Client.ChainID", "err", err)
-		return err
-	}
-	api.ChainId = id.Uint64()
+	//id, err := api.Client.ChainID(context.Background())
+	//if err != nil {
+	//	log.Error("Client.ChainID", "err", err)
+	//	return err
+	//}
+	api.ChainId = 9798
 	//初始化签名机器
 
 	symbols := []string{"BTCUSDT", "ETHUSDT"}
