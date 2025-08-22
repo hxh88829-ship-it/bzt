@@ -150,7 +150,7 @@ func GetMongodbBlockAndLinkBlock() (mongo.ScanBlock, uint64, error) {
 	return mongoBln, SafeBlock, nil
 }
 func AddLossBlock(safeBlock uint64, reason string) error {
-	_, err := mongo.GetLossBlock(safeBlock)
+	_, err := mongo.GetLossBlock(safeBlock, api.ChainId)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			var LossBlock mongo.LossBlock

@@ -678,11 +678,11 @@ func AddLossBlock(a LossBlock) error {
 	}
 	return nil
 }
-func GetLossBlock(i uint64) (LossBlock, error) {
+func GetLossBlock(blockNr, chain uint64) (LossBlock, error) {
 	if MonCli == nil {
 		return LossBlock{}, errors.New("mongo client is nil " + "GetLossBlock")
 	}
-	filter := bson.D{{"blockNr", i}}
+	filter := bson.D{{"blockNr", blockNr}, {"netWork", chain}}
 	var bl LossBlock
 	err := MonCli.Client.Database(DatabaseNameForChain).
 		Collection(lossBlock).FindOne(context.Background(), filter).Decode(&bl)

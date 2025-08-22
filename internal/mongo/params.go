@@ -14,7 +14,6 @@ const (
 	rewardPool           = "rewardPool"
 	lossAmount           = "lossAmount"
 	order                = "order"
-	wallet               = "wallet"
 	lossBlock            = "lossBlock"
 	transaction          = "transaction"
 	dailyAirdrops        = "dailyAirdrops"

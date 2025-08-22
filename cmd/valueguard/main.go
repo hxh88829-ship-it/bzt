@@ -127,7 +127,7 @@ func LoadConfigInit() error {
 			os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
 			os.Setenv("RpcUrl", "https://f82o1hrgdl.execute-api.ap-southeast-1.amazonaws.com/prod")
 			os.Setenv("HmacKey", "hmac")
-		    os.Setenv("X_Api_Key", "4sip97qapC4vTxS73YdTB6X5hm8Rr8Uk13BdwP2d123")
+		    os.Setenv("X_Api_Key", "4sip97qapC4vTxS73YdTB6X5hm8Rr8Uk13BdwP2d")
 			os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
 		    os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
 	*/
@@ -187,12 +187,12 @@ func LoadConfigInit() error {
 		return errors.New("rpc url is invalid")
 	}
 
-	//id, err := api.Client.ChainID(context.Background())
-	//if err != nil {
-	//	log.Error("Client.ChainID", "err", err)
-	//	return err
-	//}
-	api.ChainId = 9798
+	id, err := api.Client.ChainID(context.Background())
+	if err != nil {
+		log.Error("Client.ChainID", "err", err)
+		return err
+	}
+	api.ChainId = id.Uint64()
 	//初始化签名机器
 
 	symbols := []string{"BTCUSDT", "ETHUSDT"}

@@ -1,6 +1,7 @@
 package bzt
 
 import (
+	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/go-kratos/kratos/v2/log"
@@ -49,21 +50,10 @@ func TestGetAirdropInput(t *testing.T) {
 
 func TestUrlGetKeyAddress(t *testing.T) {
 
-	headerKey := os.Getenv("Apikey")
-	if headerKey == "" {
-		return
-	}
-	conf.Apikey = headerKey
-	BaseUrl := os.Getenv("BaseUrl")
-	if BaseUrl == "" {
-		return
-	}
-	conf.BaseUrl = BaseUrl
-	KeyId := os.Getenv("KeyId")
-	if KeyId == "" {
-		return
-	}
-	conf.KeyId = KeyId
+	conf.Apikey = ""
+	conf.Apikey = ""
+	conf.BaseUrl = ""
+	conf.KeyId = ""
 
 	res, err := UrlGetKeyAddress()
 	if err != nil {
@@ -76,41 +66,17 @@ func TestUrlGetKeyAddress(t *testing.T) {
 func TestUrlContractSignOwner(t *testing.T) {
 	//配置变量
 
-	headerKey := os.Getenv("Apikey")
-	if headerKey == "" {
-		return
-	}
-	conf.Apikey = headerKey
-	BaseUrl := os.Getenv("BaseUrl")
-	if BaseUrl == "" {
-		return
-	}
-	conf.BaseUrl = BaseUrl
-	KeyId := os.Getenv("KeyId")
-	if KeyId == "" {
-		return
-	}
-	conf.KeyId = KeyId
-	OwnerAddress := os.Getenv("OwnerAddress")
-	if OwnerAddress == "" {
-		return
-	}
-	conf.OwnerAddress = OwnerAddress
-	HmacKey := os.Getenv("HmacKey")
-	if HmacKey == "" {
-		return
-	}
-	conf.HmacKey = HmacKey
-	ContractAddr := os.Getenv("ContractAddr")
-	if ContractAddr == "" {
-		return
-	}
-	conf.ContractBztAddr = ContractAddr
+	conf.Apikey = ""
+	conf.BaseUrl = ""
+	conf.KeyId = ""
+	conf.OwnerAddress = ""
+
+	conf.HmacKey = ""
+
+	conf.ContractBztAddr = ""
 	//初始化节点
-	conf.RpcUrl = os.Getenv("RpcUrl")
-	if conf.RpcUrl == "" {
-		return
-	}
+	conf.RpcUrl = ""
+
 	log.Info("rpc url is ", conf.RpcUrl)
 	var err error
 	Client, err := InitEthClient(conf.RpcUrl)
@@ -195,4 +161,20 @@ func TestUrlOwnerContractTransfer(t *testing.T) {
 	}
 	t.Log(a.Hash().Hex())
 	t.Log(b)
+}
+
+func TestInitEthClient(t *testing.T) {
+	conf.X_Api_Key = ""
+	conf.RpcUrl = ""
+	cli, err := InitEthClient(conf.RpcUrl)
+	if err != nil {
+		t.Fatalf("InitEthClient err: %s", err)
+		return
+	}
+	blockNr, err := cli.BlockNumber(context.Background())
+	if err != nil {
+		t.Fatalf("InitEthClient err: %s", err)
+		return
+	}
+	t.Logf("block nr: %d", blockNr)
 }
