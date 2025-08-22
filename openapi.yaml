@@ -145,6 +145,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.GetAirdropReply'
+    /v1/getBztOwnerAddress:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_GetBztOwnerAddress
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.GetBztOwnerAddressRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.GetBztOwnerAddressReply'
     /v1/getLoginMessage:
         post:
             tags:
@@ -365,6 +383,15 @@ components:
                     type: string
                 symbol:
                     type: string
+        helloworld.v1.GetBztOwnerAddressReply:
+            type: object
+            properties:
+                bztAddr:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.GetBztOwnerAddressRequest:
+            type: object
+            properties: {}
         helloworld.v1.GetLoginMessageReply:
             type: object
             properties:

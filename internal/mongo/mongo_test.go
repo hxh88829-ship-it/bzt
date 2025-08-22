@@ -3,6 +3,7 @@ package mongo
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 const (
@@ -178,6 +179,43 @@ func TestAddBztDapp(t *testing.T) {
 	a.DappName = "bzt"
 	a.DappUrl = "http://13.228.99.71:9015/"
 	err = AddBztDapp(a)
+	if err != nil {
+		return
+	}
+}
+
+func TestAddScanBlock(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	var a ScanBlock
+	a.LatestBlock = 11487130
+	a.NetWork = 9798
+	a.Time = time.Now().Unix()
+	err = AddScanBlock(a)
+	if err != nil {
+		return
+	}
+
+}
+
+func TestUpdateScanBlock(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	var a ScanBlock
+	a.LatestBlock = 9805718
+	a.NetWork = 10086
+	a.Time = time.Now().Unix()
+	err = UpdateScanBlock(a)
 	if err != nil {
 		return
 	}

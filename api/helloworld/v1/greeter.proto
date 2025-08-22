@@ -99,6 +99,13 @@ service Greeter {
     };
   }
 
+  rpc GetBztOwnerAddress (GetBztOwnerAddressRequest) returns (GetBztOwnerAddressReply) {
+    option (google.api.http) = {
+      post: "/v1/getBztOwnerAddress"
+      body: "*"
+    };
+  }
+
 }
 
 // The request message containing the user's name.
@@ -278,4 +285,12 @@ message DeployContractRequest {}
 // The response message containing the greetings
 message DeployContractReply {
   string txHash = 1;
+}
+
+
+message GetBztOwnerAddressRequest {}
+
+// The response message containing the greetings
+message GetBztOwnerAddressReply {
+  string bztAddr = 1;
 }

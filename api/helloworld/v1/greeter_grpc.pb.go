@@ -19,20 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Greeter_SayHello_FullMethodName        = "/helloworld.v1.Greeter/SayHello"
-	Greeter_BindWallet_FullMethodName      = "/helloworld.v1.Greeter/BindWallet"
-	Greeter_GetLoginMessage_FullMethodName = "/helloworld.v1.Greeter/GetLoginMessage"
-	Greeter_LoginWithWallet_FullMethodName = "/helloworld.v1.Greeter/LoginWithWallet"
-	Greeter_WalletBalance_FullMethodName   = "/helloworld.v1.Greeter/WalletBalance"
-	Greeter_MarketCondition_FullMethodName = "/helloworld.v1.Greeter/MarketCondition"
-	Greeter_OpenOrder_FullMethodName       = "/helloworld.v1.Greeter/OpenOrder"
-	Greeter_CloseOrder_FullMethodName      = "/helloworld.v1.Greeter/CloseOrder"
-	Greeter_GetAirdrop_FullMethodName      = "/helloworld.v1.Greeter/GetAirdrop"
-	Greeter_Health_FullMethodName          = "/helloworld.v1.Greeter/Health"
-	Greeter_OrderTrade_FullMethodName      = "/helloworld.v1.Greeter/OrderTrade"
-	Greeter_AirdropTrade_FullMethodName    = "/helloworld.v1.Greeter/AirdropTrade"
-	Greeter_BztDapp_FullMethodName         = "/helloworld.v1.Greeter/BztDapp"
-	Greeter_DeployContract_FullMethodName  = "/helloworld.v1.Greeter/DeployContract"
+	Greeter_SayHello_FullMethodName           = "/helloworld.v1.Greeter/SayHello"
+	Greeter_BindWallet_FullMethodName         = "/helloworld.v1.Greeter/BindWallet"
+	Greeter_GetLoginMessage_FullMethodName    = "/helloworld.v1.Greeter/GetLoginMessage"
+	Greeter_LoginWithWallet_FullMethodName    = "/helloworld.v1.Greeter/LoginWithWallet"
+	Greeter_WalletBalance_FullMethodName      = "/helloworld.v1.Greeter/WalletBalance"
+	Greeter_MarketCondition_FullMethodName    = "/helloworld.v1.Greeter/MarketCondition"
+	Greeter_OpenOrder_FullMethodName          = "/helloworld.v1.Greeter/OpenOrder"
+	Greeter_CloseOrder_FullMethodName         = "/helloworld.v1.Greeter/CloseOrder"
+	Greeter_GetAirdrop_FullMethodName         = "/helloworld.v1.Greeter/GetAirdrop"
+	Greeter_Health_FullMethodName             = "/helloworld.v1.Greeter/Health"
+	Greeter_OrderTrade_FullMethodName         = "/helloworld.v1.Greeter/OrderTrade"
+	Greeter_AirdropTrade_FullMethodName       = "/helloworld.v1.Greeter/AirdropTrade"
+	Greeter_BztDapp_FullMethodName            = "/helloworld.v1.Greeter/BztDapp"
+	Greeter_DeployContract_FullMethodName     = "/helloworld.v1.Greeter/DeployContract"
+	Greeter_GetBztOwnerAddress_FullMethodName = "/helloworld.v1.Greeter/GetBztOwnerAddress"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -56,6 +57,7 @@ type GreeterClient interface {
 	AirdropTrade(ctx context.Context, in *AirdropTradeRequest, opts ...grpc.CallOption) (*AirdropTradeReply, error)
 	BztDapp(ctx context.Context, in *BztDappRequest, opts ...grpc.CallOption) (*BztDappReply, error)
 	DeployContract(ctx context.Context, in *DeployContractRequest, opts ...grpc.CallOption) (*DeployContractReply, error)
+	GetBztOwnerAddress(ctx context.Context, in *GetBztOwnerAddressRequest, opts ...grpc.CallOption) (*GetBztOwnerAddressReply, error)
 }
 
 type greeterClient struct {
@@ -206,6 +208,16 @@ func (c *greeterClient) DeployContract(ctx context.Context, in *DeployContractRe
 	return out, nil
 }
 
+func (c *greeterClient) GetBztOwnerAddress(ctx context.Context, in *GetBztOwnerAddressRequest, opts ...grpc.CallOption) (*GetBztOwnerAddressReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBztOwnerAddressReply)
+	err := c.cc.Invoke(ctx, Greeter_GetBztOwnerAddress_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -227,6 +239,7 @@ type GreeterServer interface {
 	AirdropTrade(context.Context, *AirdropTradeRequest) (*AirdropTradeReply, error)
 	BztDapp(context.Context, *BztDappRequest) (*BztDappReply, error)
 	DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error)
+	GetBztOwnerAddress(context.Context, *GetBztOwnerAddressRequest) (*GetBztOwnerAddressReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -278,6 +291,9 @@ func (UnimplementedGreeterServer) BztDapp(context.Context, *BztDappRequest) (*Bz
 }
 func (UnimplementedGreeterServer) DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeployContract not implemented")
+}
+func (UnimplementedGreeterServer) GetBztOwnerAddress(context.Context, *GetBztOwnerAddressRequest) (*GetBztOwnerAddressReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBztOwnerAddress not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -552,6 +568,24 @@ func _Greeter_DeployContract_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_GetBztOwnerAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBztOwnerAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).GetBztOwnerAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_GetBztOwnerAddress_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).GetBztOwnerAddress(ctx, req.(*GetBztOwnerAddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -614,6 +648,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeployContract",
 			Handler:    _Greeter_DeployContract_Handler,
+		},
+		{
+			MethodName: "GetBztOwnerAddress",
+			Handler:    _Greeter_GetBztOwnerAddress_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

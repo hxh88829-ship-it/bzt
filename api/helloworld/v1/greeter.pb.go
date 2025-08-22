@@ -1797,6 +1797,87 @@ func (x *DeployContractReply) GetTxHash() string {
 	return ""
 }
 
+type GetBztOwnerAddressRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBztOwnerAddressRequest) Reset() {
+	*x = GetBztOwnerAddressRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBztOwnerAddressRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBztOwnerAddressRequest) ProtoMessage() {}
+
+func (x *GetBztOwnerAddressRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBztOwnerAddressRequest.ProtoReflect.Descriptor instead.
+func (*GetBztOwnerAddressRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{33}
+}
+
+// The response message containing the greetings
+type GetBztOwnerAddressReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BztAddr       string                 `protobuf:"bytes,1,opt,name=bztAddr,proto3" json:"bztAddr,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBztOwnerAddressReply) Reset() {
+	*x = GetBztOwnerAddressReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBztOwnerAddressReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBztOwnerAddressReply) ProtoMessage() {}
+
+func (x *GetBztOwnerAddressReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBztOwnerAddressReply.ProtoReflect.Descriptor instead.
+func (*GetBztOwnerAddressReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *GetBztOwnerAddressReply) GetBztAddr() string {
+	if x != nil {
+		return x.BztAddr
+	}
+	return ""
+}
+
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_helloworld_v1_greeter_proto_rawDesc = "" +
@@ -1916,7 +1997,10 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\adappUrl\x18\x05 \x01(\tR\adappUrl\"\x17\n" +
 	"\x15DeployContractRequest\"-\n" +
 	"\x13DeployContractReply\x12\x16\n" +
-	"\x06txHash\x18\x01 \x01(\tR\x06txHash2\x8b\f\n" +
+	"\x06txHash\x18\x01 \x01(\tR\x06txHash\"\x1b\n" +
+	"\x19GetBztOwnerAddressRequest\"3\n" +
+	"\x17GetBztOwnerAddressReply\x12\x18\n" +
+	"\abztAddr\x18\x01 \x01(\tR\abztAddr2\x97\r\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +
@@ -1935,7 +2019,8 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"OrderTrade\x12 .helloworld.v1.OrderTradeRequest\x1a\x1e.helloworld.v1.OrderTradeReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/orderTrade\x12q\n" +
 	"\fAirdropTrade\x12\".helloworld.v1.AirdropTradeRequest\x1a .helloworld.v1.AirdropTradeReply\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/airdropTrade\x12X\n" +
 	"\aBztDapp\x12\x1d.helloworld.v1.BztDappRequest\x1a\x1b.helloworld.v1.BztDappReply\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/bzt/dapp\x12y\n" +
-	"\x0eDeployContract\x12$.helloworld.v1.DeployContractRequest\x1a\".helloworld.v1.DeployContractReply\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/deployContractBT\n" +
+	"\x0eDeployContract\x12$.helloworld.v1.DeployContractRequest\x1a\".helloworld.v1.DeployContractReply\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/deployContract\x12\x89\x01\n" +
+	"\x12GetBztOwnerAddress\x12(.helloworld.v1.GetBztOwnerAddressRequest\x1a&.helloworld.v1.GetBztOwnerAddressReply\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/getBztOwnerAddressBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -1950,41 +2035,43 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
-	(*HelloRequest)(nil),           // 0: helloworld.v1.HelloRequest
-	(*HelloReply)(nil),             // 1: helloworld.v1.HelloReply
-	(*GetLoginMessageRequest)(nil), // 2: helloworld.v1.GetLoginMessageRequest
-	(*GetLoginMessageReply)(nil),   // 3: helloworld.v1.GetLoginMessageReply
-	(*BindWalletRequest)(nil),      // 4: helloworld.v1.BindWalletRequest
-	(*BindWalletReply)(nil),        // 5: helloworld.v1.BindWalletReply
-	(*LoginRequest)(nil),           // 6: helloworld.v1.LoginRequest
-	(*LoginReply)(nil),             // 7: helloworld.v1.LoginReply
-	(*WalletBalanceRequest)(nil),   // 8: helloworld.v1.WalletBalanceRequest
-	(*TokenBalance)(nil),           // 9: helloworld.v1.TokenBalance
-	(*WalletBalanceReply)(nil),     // 10: helloworld.v1.WalletBalanceReply
-	(*MarketConditionRequest)(nil), // 11: helloworld.v1.MarketConditionRequest
-	(*MarketPrice)(nil),            // 12: helloworld.v1.MarketPrice
-	(*MarketConditionReply)(nil),   // 13: helloworld.v1.MarketConditionReply
-	(*OpenOrderRequest)(nil),       // 14: helloworld.v1.OpenOrderRequest
-	(*OpenOrderReply)(nil),         // 15: helloworld.v1.OpenOrderReply
-	(*CloseOrderRequest)(nil),      // 16: helloworld.v1.CloseOrderRequest
-	(*CloseOrderReply)(nil),        // 17: helloworld.v1.CloseOrderReply
-	(*GetAirdropRequest)(nil),      // 18: helloworld.v1.GetAirdropRequest
-	(*GetAirdropReply)(nil),        // 19: helloworld.v1.GetAirdropReply
-	(*HealthCheckRequest)(nil),     // 20: helloworld.v1.HealthCheckRequest
-	(*HealthCheckReply)(nil),       // 21: helloworld.v1.HealthCheckReply
-	(*OrderTradeRequest)(nil),      // 22: helloworld.v1.OrderTradeRequest
-	(*OrderTradeReply)(nil),        // 23: helloworld.v1.OrderTradeReply
-	(*OrderDetails)(nil),           // 24: helloworld.v1.OrderDetails
-	(*AirdropTradeRequest)(nil),    // 25: helloworld.v1.AirdropTradeRequest
-	(*AirdropTradeReply)(nil),      // 26: helloworld.v1.AirdropTradeReply
-	(*AirdropDetails)(nil),         // 27: helloworld.v1.AirdropDetails
-	(*BztDappRequest)(nil),         // 28: helloworld.v1.BztDappRequest
-	(*BztDappReply)(nil),           // 29: helloworld.v1.BztDappReply
-	(*DataDetails)(nil),            // 30: helloworld.v1.DataDetails
-	(*DeployContractRequest)(nil),  // 31: helloworld.v1.DeployContractRequest
-	(*DeployContractReply)(nil),    // 32: helloworld.v1.DeployContractReply
+	(*HelloRequest)(nil),              // 0: helloworld.v1.HelloRequest
+	(*HelloReply)(nil),                // 1: helloworld.v1.HelloReply
+	(*GetLoginMessageRequest)(nil),    // 2: helloworld.v1.GetLoginMessageRequest
+	(*GetLoginMessageReply)(nil),      // 3: helloworld.v1.GetLoginMessageReply
+	(*BindWalletRequest)(nil),         // 4: helloworld.v1.BindWalletRequest
+	(*BindWalletReply)(nil),           // 5: helloworld.v1.BindWalletReply
+	(*LoginRequest)(nil),              // 6: helloworld.v1.LoginRequest
+	(*LoginReply)(nil),                // 7: helloworld.v1.LoginReply
+	(*WalletBalanceRequest)(nil),      // 8: helloworld.v1.WalletBalanceRequest
+	(*TokenBalance)(nil),              // 9: helloworld.v1.TokenBalance
+	(*WalletBalanceReply)(nil),        // 10: helloworld.v1.WalletBalanceReply
+	(*MarketConditionRequest)(nil),    // 11: helloworld.v1.MarketConditionRequest
+	(*MarketPrice)(nil),               // 12: helloworld.v1.MarketPrice
+	(*MarketConditionReply)(nil),      // 13: helloworld.v1.MarketConditionReply
+	(*OpenOrderRequest)(nil),          // 14: helloworld.v1.OpenOrderRequest
+	(*OpenOrderReply)(nil),            // 15: helloworld.v1.OpenOrderReply
+	(*CloseOrderRequest)(nil),         // 16: helloworld.v1.CloseOrderRequest
+	(*CloseOrderReply)(nil),           // 17: helloworld.v1.CloseOrderReply
+	(*GetAirdropRequest)(nil),         // 18: helloworld.v1.GetAirdropRequest
+	(*GetAirdropReply)(nil),           // 19: helloworld.v1.GetAirdropReply
+	(*HealthCheckRequest)(nil),        // 20: helloworld.v1.HealthCheckRequest
+	(*HealthCheckReply)(nil),          // 21: helloworld.v1.HealthCheckReply
+	(*OrderTradeRequest)(nil),         // 22: helloworld.v1.OrderTradeRequest
+	(*OrderTradeReply)(nil),           // 23: helloworld.v1.OrderTradeReply
+	(*OrderDetails)(nil),              // 24: helloworld.v1.OrderDetails
+	(*AirdropTradeRequest)(nil),       // 25: helloworld.v1.AirdropTradeRequest
+	(*AirdropTradeReply)(nil),         // 26: helloworld.v1.AirdropTradeReply
+	(*AirdropDetails)(nil),            // 27: helloworld.v1.AirdropDetails
+	(*BztDappRequest)(nil),            // 28: helloworld.v1.BztDappRequest
+	(*BztDappReply)(nil),              // 29: helloworld.v1.BztDappReply
+	(*DataDetails)(nil),               // 30: helloworld.v1.DataDetails
+	(*DeployContractRequest)(nil),     // 31: helloworld.v1.DeployContractRequest
+	(*DeployContractReply)(nil),       // 32: helloworld.v1.DeployContractReply
+	(*GetBztOwnerAddressRequest)(nil), // 33: helloworld.v1.GetBztOwnerAddressRequest
+	(*GetBztOwnerAddressReply)(nil),   // 34: helloworld.v1.GetBztOwnerAddressReply
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	9,  // 0: helloworld.v1.WalletBalanceReply.tokens:type_name -> helloworld.v1.TokenBalance
@@ -2006,22 +2093,24 @@ var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	25, // 16: helloworld.v1.Greeter.AirdropTrade:input_type -> helloworld.v1.AirdropTradeRequest
 	28, // 17: helloworld.v1.Greeter.BztDapp:input_type -> helloworld.v1.BztDappRequest
 	31, // 18: helloworld.v1.Greeter.DeployContract:input_type -> helloworld.v1.DeployContractRequest
-	1,  // 19: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	5,  // 20: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
-	3,  // 21: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
-	7,  // 22: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
-	10, // 23: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
-	13, // 24: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	15, // 25: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
-	17, // 26: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
-	19, // 27: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
-	21, // 28: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
-	23, // 29: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
-	26, // 30: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
-	29, // 31: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
-	32, // 32: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
-	19, // [19:33] is the sub-list for method output_type
-	5,  // [5:19] is the sub-list for method input_type
+	33, // 19: helloworld.v1.Greeter.GetBztOwnerAddress:input_type -> helloworld.v1.GetBztOwnerAddressRequest
+	1,  // 20: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	5,  // 21: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	3,  // 22: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
+	7,  // 23: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	10, // 24: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
+	13, // 25: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	15, // 26: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
+	17, // 27: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
+	19, // 28: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
+	21, // 29: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
+	23, // 30: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
+	26, // 31: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
+	29, // 32: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
+	32, // 33: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
+	34, // 34: helloworld.v1.Greeter.GetBztOwnerAddress:output_type -> helloworld.v1.GetBztOwnerAddressReply
+	20, // [20:35] is the sub-list for method output_type
+	5,  // [5:20] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -2038,7 +2127,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   33,
+			NumMessages:   35,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -193,7 +193,20 @@ func LoadConfigInit() error {
 		return err
 	}
 	api.ChainId = id.Uint64()
-	//初始化签名机器
+	log.Info("chain id is", id)
+
+	//部署合约，拿到Owner
+	err = bzt.DeployBztContract()
+	if err != nil {
+		log.Error("DeployBztContract", "err", err)
+		return err
+	}
+	owner, err := bzt.UrlGetKeyAddress()
+	if err != nil {
+		log.Error("UrlGetKeyAddress", "err", err)
+		return err
+	}
+	log.Info("UrlGetKeyAddress:", owner)
 
 	symbols := []string{"BTCUSDT", "ETHUSDT"}
 	go RunService(context.Background(), symbols)
