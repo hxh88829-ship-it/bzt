@@ -194,6 +194,7 @@ message OpenOrderRequest {
 // The response message containing the greetings
 message OpenOrderReply {
   string orderId = 1;
+  uint64 status = 2;
 }
 
 message CloseOrderRequest {

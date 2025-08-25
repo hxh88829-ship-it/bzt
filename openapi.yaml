@@ -479,6 +479,8 @@ components:
             properties:
                 orderId:
                     type: string
+                status:
+                    type: string
             description: The response message containing the greetings
         helloworld.v1.OpenOrderRequest:
             type: object

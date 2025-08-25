@@ -787,6 +787,7 @@ func (x *OpenOrderRequest) GetSymbol() string {
 type OpenOrderReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       string                 `protobuf:"bytes,1,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	Status        uint64                 `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -826,6 +827,13 @@ func (x *OpenOrderReply) GetOrderId() string {
 		return x.OrderId
 	}
 	return ""
+}
+
+func (x *OpenOrderReply) GetStatus() uint64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
 }
 
 type CloseOrderRequest struct {
@@ -2016,9 +2024,10 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x10OpenOrderRequest\x12\x18\n" +
 	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1c\n" +
 	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x16\n" +
-	"\x06symbol\x18\x03 \x01(\tR\x06symbol\"*\n" +
+	"\x06symbol\x18\x03 \x01(\tR\x06symbol\"B\n" +
 	"\x0eOpenOrderReply\x12\x18\n" +
-	"\aorderId\x18\x01 \x01(\tR\aorderId\"}\n" +
+	"\aorderId\x18\x01 \x01(\tR\aorderId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\x04R\x06status\"}\n" +
 	"\x11CloseOrderRequest\x12\x18\n" +
 	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1c\n" +
 	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x16\n" +

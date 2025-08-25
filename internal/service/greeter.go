@@ -270,6 +270,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 
 	return &v1.OpenOrderReply{
 		OrderId: orderId,
+		Status:  sta.Status,
 	}, nil
 }
 

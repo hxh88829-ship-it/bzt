@@ -187,14 +187,6 @@ func LoadConfigInit() error {
 	api.ChainId = id.Uint64()
 	log.Info("chain id is:  ", id)
 
-	//部署合约，拿到Owner
-	owner, err := bzt.UrlGetKeyAddress()
-	if err != nil {
-		log.Error("UrlGetKeyAddress", "err", err)
-		return err
-	}
-	log.Info("UrlGetKeyAddress:", owner)
-
 	if id.Uint64() == 9798 {
 		symbols := []string{"BTCUSDT", "ETHUSDT"}
 		go RunService(context.Background(), symbols)
