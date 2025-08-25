@@ -39,6 +39,12 @@ func ScanBlocks(ctx context.Context) error {
 func ScanOneBlock(ctx context.Context, blockNum uint64) error {
 	const maxRetry = 3
 
+	//TODO 如果当前块拿不到，就停止，睡眠一段时间10S
+	/*
+		如果当前块拿不到，就停止，睡眠一段时间10S
+		解析块上面的交易，和你相关的，to==bzt合约地址的，拿不到交易结果，这个块就阻塞重新扫
+		做一个去重，重复的交易不要重复插入
+	*/
 	var bl *types.Block
 	err := WithRetry(maxRetry, fmt.Sprintf("获取区块 %d", blockNum), func() error {
 		var e error

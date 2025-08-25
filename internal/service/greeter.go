@@ -238,11 +238,15 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		return nil, errors.New("failed to check open order count")
 	}
 
-	const maxOpenOrders = 10
+	const maxOpenOrders = 50
 	if count >= maxOpenOrders {
 		return nil, fmt.Errorf("too many open orders (max %d)", maxOpenOrders)
 	}
 
+	sta, err := mongo.GetOrderSwitch(api.ChainId)
+	if err != nil {
+		return nil, err
+	}
 	order := mongo.Order{
 		OrderId:        orderId,
 		Symbol:         in.GetSymbol(),
@@ -256,8 +260,8 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		OrderEndTime:   0,
 		OpenTxHash:     "",
 		CloseTxHash:    "",
+		Status:         sta.Status,
 	}
-
 	err = mongo.AddOrder(order)
 	if err != nil {
 		log.Errorf("CreateOrder failed: %v", err)
@@ -297,6 +301,15 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
 		log.Warnf("[CloseOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
 		return &v1.CloseOrderReply{}, err
+	}
+	sta, err := mongo.GetOrderSwitch(api.ChainId)
+	if err != nil {
+		log.Warnf("[CloseOrder][%s] <UNK>: %v", in.GetSymbol(), err)
+		return nil, err
+	}
+	if sta.Status != uint64(0) {
+		log.Error("CloseOrder: Abnormal user status ")
+		return &v1.CloseOrderReply{}, errors.New("Abnormal user status ")
 	}
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
 	if err != nil {
@@ -358,6 +371,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	// 提取 addr
 	claims, ok := kratosjwt.FromContext(ctx)
 	if !ok {
+		log.Error("err: jwt.FromContext")
 		return &v1.GetAirdropReply{}, errors.New("err: jwt.FromContext(ctx)")
 	}
 
@@ -365,10 +379,19 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	if addr == "" {
 		return &v1.GetAirdropReply{}, errors.New("addr 提取失败")
 	}
-	log.Info(address)
+	log.Info("userAddr:", address)
 	if strings.ToLower(address) != strings.ToLower(in.GetAddress()) {
 		log.Warnf("[GetAirdrop][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
 		return &v1.GetAirdropReply{}, err
+	}
+	sta, err := mongo.GetOrderSwitch(api.ChainId)
+	if err != nil {
+		log.Error("GetAirdrop: ", err)
+		return nil, err
+	}
+	if sta.Status != 0 {
+		log.Error("GetOrderSwitch:", sta)
+		return &v1.GetAirdropReply{}, errors.New("Abnormal user status ")
 	}
 	// 判断是否领取
 	if in.GetIsClaims() == 0 {
@@ -533,8 +556,8 @@ func (s *GreeterService) DeployContract(ctx context.Context, in *v1.DeployContra
 		log.Fatalf("DeployContractTransfer err: %s", err)
 		return nil, errors.New("DeployContractTransfer err")
 	}
-	log.Info(nonce)
-	log.Info(txh)
+	log.Info("DeployContract:", nonce)
+	log.Info("DeployContract: ", txh)
 
 	var tx mongo.DeployTransaction
 	tx.TxHash = strings.ToLower(strings.ToLower(txh.Hash().String()))

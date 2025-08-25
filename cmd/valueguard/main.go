@@ -154,14 +154,14 @@ func LoadConfigInit() error {
 		return errors.New("OwnerAddress is required")
 	}
 	conf.OwnerAddress = OwnerAddress
-
+	log.Info("OwnerAddress:", conf.OwnerAddress)
 	HmacKey := os.Getenv("HmacKey")
 	if HmacKey == "" {
 		return errors.New("HmacKey is required")
 	}
 	conf.HmacKey = HmacKey
 
-	conf.ContractBztAddr = ""
+	conf.ContractBztAddr = "0x747294d3e04c1ad8b4897bc6fdab72bfa9b5c3f4"
 
 	ContractDusdtAddress := os.Getenv("ContractDusdtAddress")
 	if ContractDusdtAddress == "" {
@@ -193,14 +193,15 @@ func LoadConfigInit() error {
 		return err
 	}
 	api.ChainId = id.Uint64()
-	log.Info("chain id is", id)
+	log.Info("chain id is:  ", id)
 
 	//部署合约，拿到Owner
-	err = bzt.DeployBztContract()
-	if err != nil {
-		log.Error("DeployBztContract", "err", err)
-		return err
-	}
+	//err = bzt.DeployBztContract()
+	//if err != nil {
+	//	log.Error("DeployBztContract: ", "err", err)
+	//	return err
+	//}
+
 	owner, err := bzt.UrlGetKeyAddress()
 	if err != nil {
 		log.Error("UrlGetKeyAddress", "err", err)
@@ -208,11 +209,13 @@ func LoadConfigInit() error {
 	}
 	log.Info("UrlGetKeyAddress:", owner)
 
-	symbols := []string{"BTCUSDT", "ETHUSDT"}
-	go RunService(context.Background(), symbols)
+	if id.Uint64() == 9798 {
+		symbols := []string{"BTCUSDT", "ETHUSDT"}
+		go RunService(context.Background(), symbols)
 
-	// ✅ 启动空投定时任务
-	go dailyAirdrop.StartAirdropCron(symbols)
+		// ✅ 启动空投定时任务
+		go dailyAirdrop.StartAirdropCron(symbols)
+	}
 	return nil
 }
 

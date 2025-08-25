@@ -39,6 +39,7 @@ type Order struct {
 	OrderEndTime   uint64 `bson:"order_end_time" json:"order_end_time"`
 	OpenTxHash     string `bson:"open_tx_hash" json:"open_tx_hash"`
 	CloseTxHash    string `bson:"close_tx_hash" json:"close_tx_hash"`
+	Status         uint64 `bson:"status" json:"status"` // 0 代表正常， 1代表异常
 }
 
 type RewardAmount struct {
@@ -116,4 +117,9 @@ type DeployTransaction struct {
 	Data     string `bson:"data" json:"data"`
 	Gas      uint64 `bson:"gas" json:"gas"`
 	GasPrice string `bson:"gas_price" json:"gas_price"`
+}
+
+type OrderSwitch struct {
+	Status  uint64 `bson:"status" json:"status"`
+	ChainId uint64 `bson:"chain_id" json:"chain_id"`
 }

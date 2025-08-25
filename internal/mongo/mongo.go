@@ -790,3 +790,28 @@ func GetDeployTransaction(tx string) (DeployTransaction, error) {
 	}
 	return txh, nil
 }
+
+func AddOrderSwitch(i OrderSwitch) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil" + "AddOrderSwitch")
+	}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).InsertOne(context.Background(), i)
+	if err != nil {
+		log.Error("InsertOne err: ", err)
+		return err
+	}
+	return nil
+}
+func GetOrderSwitch(i uint64) (OrderSwitch, error) {
+	if MonCli == nil {
+		return OrderSwitch{}, errors.New("error:mongo.Client is nil" + "GetOrderSwitch")
+	}
+	filter := bson.D{{"chain_id", i}}
+	var o OrderSwitch
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).FindOne(context.Background(), filter).Decode(&o)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return o, ErrNoDocuments
+	}
+	return o, nil
+}

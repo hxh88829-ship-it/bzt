@@ -220,3 +220,35 @@ func TestUpdateScanBlock(t *testing.T) {
 		return
 	}
 }
+
+func TestAddOrderSwitch(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	var a OrderSwitch
+	a.Status = 0
+	a.ChainId = 9798
+	err = AddOrderSwitch(a)
+	if err != nil {
+		return
+	}
+}
+func TestGetOrderSwitch(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	var i uint64 = 9798
+	res, err := GetOrderSwitch(i)
+	if err != nil {
+		return
+	}
+	t.Log(res)
+}

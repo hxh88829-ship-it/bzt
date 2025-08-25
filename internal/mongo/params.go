@@ -19,4 +19,5 @@ const (
 	dailyAirdrops        = "dailyAirdrops"
 	bztDapp              = "bztDapp"
 	deployContract       = "deployContract"
+	orderSwitch          = "orderSwitch"
 )
