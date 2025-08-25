@@ -34,6 +34,7 @@ const (
 	Greeter_BztDapp_FullMethodName            = "/helloworld.v1.Greeter/BztDapp"
 	Greeter_DeployContract_FullMethodName     = "/helloworld.v1.Greeter/DeployContract"
 	Greeter_GetBztOwnerAddress_FullMethodName = "/helloworld.v1.Greeter/GetBztOwnerAddress"
+	Greeter_GetBztVersion_FullMethodName      = "/helloworld.v1.Greeter/GetBztVersion"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -58,6 +59,7 @@ type GreeterClient interface {
 	BztDapp(ctx context.Context, in *BztDappRequest, opts ...grpc.CallOption) (*BztDappReply, error)
 	DeployContract(ctx context.Context, in *DeployContractRequest, opts ...grpc.CallOption) (*DeployContractReply, error)
 	GetBztOwnerAddress(ctx context.Context, in *GetBztOwnerAddressRequest, opts ...grpc.CallOption) (*GetBztOwnerAddressReply, error)
+	GetBztVersion(ctx context.Context, in *GetBztVersionRequest, opts ...grpc.CallOption) (*GetBztVersionReply, error)
 }
 
 type greeterClient struct {
@@ -218,6 +220,16 @@ func (c *greeterClient) GetBztOwnerAddress(ctx context.Context, in *GetBztOwnerA
 	return out, nil
 }
 
+func (c *greeterClient) GetBztVersion(ctx context.Context, in *GetBztVersionRequest, opts ...grpc.CallOption) (*GetBztVersionReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBztVersionReply)
+	err := c.cc.Invoke(ctx, Greeter_GetBztVersion_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -240,6 +252,7 @@ type GreeterServer interface {
 	BztDapp(context.Context, *BztDappRequest) (*BztDappReply, error)
 	DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error)
 	GetBztOwnerAddress(context.Context, *GetBztOwnerAddressRequest) (*GetBztOwnerAddressReply, error)
+	GetBztVersion(context.Context, *GetBztVersionRequest) (*GetBztVersionReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -294,6 +307,9 @@ func (UnimplementedGreeterServer) DeployContract(context.Context, *DeployContrac
 }
 func (UnimplementedGreeterServer) GetBztOwnerAddress(context.Context, *GetBztOwnerAddressRequest) (*GetBztOwnerAddressReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBztOwnerAddress not implemented")
+}
+func (UnimplementedGreeterServer) GetBztVersion(context.Context, *GetBztVersionRequest) (*GetBztVersionReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBztVersion not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -586,6 +602,24 @@ func _Greeter_GetBztOwnerAddress_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_GetBztVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBztVersionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).GetBztVersion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_GetBztVersion_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).GetBztVersion(ctx, req.(*GetBztVersionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -652,6 +686,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetBztOwnerAddress",
 			Handler:    _Greeter_GetBztOwnerAddress_Handler,
+		},
+		{
+			MethodName: "GetBztVersion",
+			Handler:    _Greeter_GetBztVersion_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

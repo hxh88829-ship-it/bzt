@@ -106,6 +106,12 @@ service Greeter {
     };
   }
 
+  rpc GetBztVersion (GetBztVersionRequest) returns (GetBztVersionReply) {
+    option (google.api.http) = {
+      get: "/bzt/version"
+    };
+  }
+
 }
 
 // The request message containing the user's name.
@@ -293,4 +299,12 @@ message GetBztOwnerAddressRequest {}
 // The response message containing the greetings
 message GetBztOwnerAddressReply {
   string bztAddr = 1;
+}
+
+message GetBztVersionRequest {}
+
+// The response message containing the greetings
+message GetBztVersionReply {
+  string version = 1;
+  string build_time = 2;
 }

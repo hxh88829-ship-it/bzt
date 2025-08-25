@@ -33,8 +33,8 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/GetLoginMessage") &&
 					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/Health") &&
 					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/BztDapp") &&
-					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/DeployContract")
-				//!strings.HasSuffix(operation, "/helloworld.v1.Greeter/AirdropTrade") &&
+					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/DeployContract") &&
+					!strings.HasSuffix(operation, "/helloworld.v1.Greeter/GetBztVersion")
 				//!strings.HasSuffix(operation, "/helloworld.v1.Greeter/OpenOrder") &&
 				//!strings.HasSuffix(operation, "/helloworld.v1.Greeter/CloseOrder")
 

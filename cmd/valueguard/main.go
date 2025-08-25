@@ -120,17 +120,18 @@ func LoadConfigInit() error {
 	mongo.MonCli = cli
 
 	//配置变量
-	/*
-			os.Setenv("Apikey", "dtcd_xxxxxx")
-			os.Setenv("BaseUrl", "http://47.111.28.25:8016")
-			os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
-			os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
-			os.Setenv("RpcUrl", "https://f82o1hrgdl.execute-api.ap-southeast-1.amazonaws.com/prod")
-			os.Setenv("HmacKey", "hmac")
-		    os.Setenv("X_Api_Key", "4sip97qapC4vTxS73YdTB6X5hm8Rr8Uk13BdwP2d")
-			os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
-		    os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
-	*/
+
+	os.Setenv("Apikey", "dtcd_xxxxxx")
+	os.Setenv("BaseUrl", "http://47.111.28.25:8016")
+	os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
+	os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
+	os.Setenv("RpcUrl", "https://f82o1hrgdl.execute-api.ap-southeast-1.amazonaws.com/prod")
+	//os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	os.Setenv("HmacKey", "hmac")
+	os.Setenv("X_Api_Key", "4sip97qapC4vTxS73YdTB6X5hm8Rr8Uk13BdwP2d")
+	os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
+	os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+
 	headerKey := os.Getenv("Apikey")
 	if headerKey == "" {
 		return errors.New("apikey is required")

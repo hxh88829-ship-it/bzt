@@ -19,6 +19,18 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.BztDappReply'
+    /bzt/version:
+        get:
+            tags:
+                - Greeter
+            operationId: Greeter_GetBztVersion
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.GetBztVersionReply'
     /health:
         get:
             tags:
@@ -392,6 +404,14 @@ components:
         helloworld.v1.GetBztOwnerAddressRequest:
             type: object
             properties: {}
+        helloworld.v1.GetBztVersionReply:
+            type: object
+            properties:
+                version:
+                    type: string
+                buildTime:
+                    type: string
+            description: The response message containing the greetings
         helloworld.v1.GetLoginMessageReply:
             type: object
             properties:
