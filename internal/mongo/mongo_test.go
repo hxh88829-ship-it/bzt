@@ -203,6 +203,20 @@ func TestAddScanBlock(t *testing.T) {
 
 }
 
+func TestUpdateBztDapp(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	err = UpdateBztDapp("https://upmpc-test.s3.ap-southeast-1.amazonaws.com/dtc/nft/hx/baozhitong/png/1756194866469_fj47uc5ukam.png", "bzt")
+	if err != nil {
+		return
+	}
+}
+
 func TestUpdateScanBlock(t *testing.T) {
 	cli, err := NewMongoClient(dbUrl)
 	if err != nil {

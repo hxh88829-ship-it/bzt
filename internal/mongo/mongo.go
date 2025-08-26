@@ -765,6 +765,19 @@ func GetBztDapp(name string) (BztDapp, error) {
 	}
 	return b, nil
 }
+func UpdateBztDapp(url, name string) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil" + "UpdateBztDapp")
+	}
+	filter := bson.D{{"dapp_name", name}}
+	update := bson.D{{"$set", bson.D{{"dapp_icon", url}}}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateOne err: ", err)
+		return err
+	}
+	return nil
+}
 
 func AddDeployTransaction(tx DeployTransaction) error {
 	if MonCli == nil {

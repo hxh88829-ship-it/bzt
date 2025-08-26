@@ -298,7 +298,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if addr == "" {
 		return &v1.CloseOrderReply{}, errors.New("addr 提取失败")
 	}
-	log.Info(addr)
+	log.Info("CloseOrder:", addr)
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
 		log.Warnf("[CloseOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
 		return &v1.CloseOrderReply{}, err

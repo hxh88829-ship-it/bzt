@@ -25,6 +25,8 @@ func ScanBlocks(ctx context.Context) error {
 	}
 	if mongoBln.LatestBlock >= safeBlock {
 		log.Infof("无可处理新块，高度为 %d（当前区块 %d）", mongoBln.LatestBlock, safeBlock+10)
+		//TODO 睡眠3秒
+		time.Sleep(3 * time.Second)
 		return nil
 	}
 

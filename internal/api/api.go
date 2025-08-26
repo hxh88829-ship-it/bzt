@@ -28,8 +28,8 @@ var ChainId uint64
 
 // 普通交易
 func GetBlockByNumber(num uint64) (*types.Block, error) {
-	//TODO 睡眠0.05秒
-	time.Sleep(time.Second / 500)
+	//TODO 睡眠0.02秒
+	time.Sleep(time.Second / 50)
 	return Client.BlockByNumber(context.Background(), big.NewInt(int64(num)))
 }
 
