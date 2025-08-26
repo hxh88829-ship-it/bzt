@@ -1975,6 +1975,103 @@ func (x *GetBztVersionReply) GetBuildTime() string {
 	return ""
 }
 
+type GetConfigsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetConfigsRequest) Reset() {
+	*x = GetConfigsRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetConfigsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetConfigsRequest) ProtoMessage() {}
+
+func (x *GetConfigsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetConfigsRequest.ProtoReflect.Descriptor instead.
+func (*GetConfigsRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{37}
+}
+
+// The response message containing the greetings
+type GetConfigsReply struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	ChainId              uint64                 `protobuf:"varint,1,opt,name=chainId,proto3" json:"chainId,omitempty"`
+	BztContractAddress   string                 `protobuf:"bytes,2,opt,name=bztContractAddress,proto3" json:"bztContractAddress,omitempty"`
+	DusdtContractAddress string                 `protobuf:"bytes,3,opt,name=dusdtContractAddress,proto3" json:"dusdtContractAddress,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *GetConfigsReply) Reset() {
+	*x = GetConfigsReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetConfigsReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetConfigsReply) ProtoMessage() {}
+
+func (x *GetConfigsReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetConfigsReply.ProtoReflect.Descriptor instead.
+func (*GetConfigsReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *GetConfigsReply) GetChainId() uint64 {
+	if x != nil {
+		return x.ChainId
+	}
+	return 0
+}
+
+func (x *GetConfigsReply) GetBztContractAddress() string {
+	if x != nil {
+		return x.BztContractAddress
+	}
+	return ""
+}
+
+func (x *GetConfigsReply) GetDusdtContractAddress() string {
+	if x != nil {
+		return x.DusdtContractAddress
+	}
+	return ""
+}
+
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_helloworld_v1_greeter_proto_rawDesc = "" +
@@ -2103,7 +2200,12 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x12GetBztVersionReply\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12\x1d\n" +
 	"\n" +
-	"build_time\x18\x02 \x01(\tR\tbuildTime2\x86\x0e\n" +
+	"build_time\x18\x02 \x01(\tR\tbuildTime\"\x13\n" +
+	"\x11GetConfigsRequest\"\x8f\x01\n" +
+	"\x0fGetConfigsReply\x12\x18\n" +
+	"\achainId\x18\x01 \x01(\x04R\achainId\x12.\n" +
+	"\x12bztContractAddress\x18\x02 \x01(\tR\x12bztContractAddress\x122\n" +
+	"\x14dusdtContractAddress\x18\x03 \x01(\tR\x14dusdtContractAddress2\xf1\x0e\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +
@@ -2124,7 +2226,9 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\aBztDapp\x12\x1d.helloworld.v1.BztDappRequest\x1a\x1b.helloworld.v1.BztDappReply\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/bzt/dapp\x12y\n" +
 	"\x0eDeployContract\x12$.helloworld.v1.DeployContractRequest\x1a\".helloworld.v1.DeployContractReply\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/deployContract\x12\x89\x01\n" +
 	"\x12GetBztOwnerAddress\x12(.helloworld.v1.GetBztOwnerAddressRequest\x1a&.helloworld.v1.GetBztOwnerAddressReply\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/getBztOwnerAddress\x12m\n" +
-	"\rGetBztVersion\x12#.helloworld.v1.GetBztVersionRequest\x1a!.helloworld.v1.GetBztVersionReply\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/bzt/versionBT\n" +
+	"\rGetBztVersion\x12#.helloworld.v1.GetBztVersionRequest\x1a!.helloworld.v1.GetBztVersionReply\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/bzt/version\x12i\n" +
+	"\n" +
+	"GetConfigs\x12 .helloworld.v1.GetConfigsRequest\x1a\x1e.helloworld.v1.GetConfigsReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/getConfigsBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -2139,7 +2243,7 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*HelloRequest)(nil),              // 0: helloworld.v1.HelloRequest
 	(*HelloReply)(nil),                // 1: helloworld.v1.HelloReply
@@ -2178,6 +2282,8 @@ var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*GetBztOwnerAddressReply)(nil),   // 34: helloworld.v1.GetBztOwnerAddressReply
 	(*GetBztVersionRequest)(nil),      // 35: helloworld.v1.GetBztVersionRequest
 	(*GetBztVersionReply)(nil),        // 36: helloworld.v1.GetBztVersionReply
+	(*GetConfigsRequest)(nil),         // 37: helloworld.v1.GetConfigsRequest
+	(*GetConfigsReply)(nil),           // 38: helloworld.v1.GetConfigsReply
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	9,  // 0: helloworld.v1.WalletBalanceReply.tokens:type_name -> helloworld.v1.TokenBalance
@@ -2201,24 +2307,26 @@ var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	31, // 18: helloworld.v1.Greeter.DeployContract:input_type -> helloworld.v1.DeployContractRequest
 	33, // 19: helloworld.v1.Greeter.GetBztOwnerAddress:input_type -> helloworld.v1.GetBztOwnerAddressRequest
 	35, // 20: helloworld.v1.Greeter.GetBztVersion:input_type -> helloworld.v1.GetBztVersionRequest
-	1,  // 21: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	5,  // 22: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
-	3,  // 23: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
-	7,  // 24: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
-	10, // 25: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
-	13, // 26: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	15, // 27: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
-	17, // 28: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
-	19, // 29: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
-	21, // 30: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
-	23, // 31: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
-	26, // 32: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
-	29, // 33: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
-	32, // 34: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
-	34, // 35: helloworld.v1.Greeter.GetBztOwnerAddress:output_type -> helloworld.v1.GetBztOwnerAddressReply
-	36, // 36: helloworld.v1.Greeter.GetBztVersion:output_type -> helloworld.v1.GetBztVersionReply
-	21, // [21:37] is the sub-list for method output_type
-	5,  // [5:21] is the sub-list for method input_type
+	37, // 21: helloworld.v1.Greeter.GetConfigs:input_type -> helloworld.v1.GetConfigsRequest
+	1,  // 22: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	5,  // 23: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	3,  // 24: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
+	7,  // 25: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	10, // 26: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
+	13, // 27: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	15, // 28: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
+	17, // 29: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
+	19, // 30: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
+	21, // 31: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
+	23, // 32: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
+	26, // 33: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
+	29, // 34: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
+	32, // 35: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
+	34, // 36: helloworld.v1.Greeter.GetBztOwnerAddress:output_type -> helloworld.v1.GetBztOwnerAddressReply
+	36, // 37: helloworld.v1.Greeter.GetBztVersion:output_type -> helloworld.v1.GetBztVersionReply
+	38, // 38: helloworld.v1.Greeter.GetConfigs:output_type -> helloworld.v1.GetConfigsReply
+	22, // [22:39] is the sub-list for method output_type
+	5,  // [5:22] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -2235,7 +2343,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   37,
+			NumMessages:   39,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

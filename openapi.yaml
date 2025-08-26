@@ -175,6 +175,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.GetBztOwnerAddressReply'
+    /v1/getConfigs:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_GetConfigs
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.GetConfigsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.GetConfigsReply'
     /v1/getLoginMessage:
         post:
             tags:
@@ -412,6 +430,19 @@ components:
                 buildTime:
                     type: string
             description: The response message containing the greetings
+        helloworld.v1.GetConfigsReply:
+            type: object
+            properties:
+                chainId:
+                    type: string
+                bztContractAddress:
+                    type: string
+                dusdtContractAddress:
+                    type: string
+            description: The response message containing the greetings
+        helloworld.v1.GetConfigsRequest:
+            type: object
+            properties: {}
         helloworld.v1.GetLoginMessageReply:
             type: object
             properties:

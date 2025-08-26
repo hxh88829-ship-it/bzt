@@ -27,6 +27,7 @@ const OperationGreeterDeployContract = "/helloworld.v1.Greeter/DeployContract"
 const OperationGreeterGetAirdrop = "/helloworld.v1.Greeter/GetAirdrop"
 const OperationGreeterGetBztOwnerAddress = "/helloworld.v1.Greeter/GetBztOwnerAddress"
 const OperationGreeterGetBztVersion = "/helloworld.v1.Greeter/GetBztVersion"
+const OperationGreeterGetConfigs = "/helloworld.v1.Greeter/GetConfigs"
 const OperationGreeterGetLoginMessage = "/helloworld.v1.Greeter/GetLoginMessage"
 const OperationGreeterHealth = "/helloworld.v1.Greeter/Health"
 const OperationGreeterLoginWithWallet = "/helloworld.v1.Greeter/LoginWithWallet"
@@ -45,6 +46,7 @@ type GreeterHTTPServer interface {
 	GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error)
 	GetBztOwnerAddress(context.Context, *GetBztOwnerAddressRequest) (*GetBztOwnerAddressReply, error)
 	GetBztVersion(context.Context, *GetBztVersionRequest) (*GetBztVersionReply, error)
+	GetConfigs(context.Context, *GetConfigsRequest) (*GetConfigsReply, error)
 	GetLoginMessage(context.Context, *GetLoginMessageRequest) (*GetLoginMessageReply, error)
 	Health(context.Context, *HealthCheckRequest) (*HealthCheckReply, error)
 	LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error)
@@ -74,6 +76,7 @@ func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r.POST("/v1/deployContract", _Greeter_DeployContract0_HTTP_Handler(srv))
 	r.POST("/v1/getBztOwnerAddress", _Greeter_GetBztOwnerAddress0_HTTP_Handler(srv))
 	r.GET("/bzt/version", _Greeter_GetBztVersion0_HTTP_Handler(srv))
+	r.POST("/v1/getConfigs", _Greeter_GetConfigs0_HTTP_Handler(srv))
 }
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -419,6 +422,28 @@ func _Greeter_GetBztVersion0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.C
 	}
 }
 
+func _Greeter_GetConfigs0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetConfigsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterGetConfigs)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetConfigs(ctx, req.(*GetConfigsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetConfigsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GreeterHTTPClient interface {
 	AirdropTrade(ctx context.Context, req *AirdropTradeRequest, opts ...http.CallOption) (rsp *AirdropTradeReply, err error)
 	BindWallet(ctx context.Context, req *BindWalletRequest, opts ...http.CallOption) (rsp *BindWalletReply, err error)
@@ -428,6 +453,7 @@ type GreeterHTTPClient interface {
 	GetAirdrop(ctx context.Context, req *GetAirdropRequest, opts ...http.CallOption) (rsp *GetAirdropReply, err error)
 	GetBztOwnerAddress(ctx context.Context, req *GetBztOwnerAddressRequest, opts ...http.CallOption) (rsp *GetBztOwnerAddressReply, err error)
 	GetBztVersion(ctx context.Context, req *GetBztVersionRequest, opts ...http.CallOption) (rsp *GetBztVersionReply, err error)
+	GetConfigs(ctx context.Context, req *GetConfigsRequest, opts ...http.CallOption) (rsp *GetConfigsReply, err error)
 	GetLoginMessage(ctx context.Context, req *GetLoginMessageRequest, opts ...http.CallOption) (rsp *GetLoginMessageReply, err error)
 	Health(ctx context.Context, req *HealthCheckRequest, opts ...http.CallOption) (rsp *HealthCheckReply, err error)
 	LoginWithWallet(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -544,6 +570,19 @@ func (c *GreeterHTTPClientImpl) GetBztVersion(ctx context.Context, in *GetBztVer
 	opts = append(opts, http.Operation(OperationGreeterGetBztVersion))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *GreeterHTTPClientImpl) GetConfigs(ctx context.Context, in *GetConfigsRequest, opts ...http.CallOption) (*GetConfigsReply, error) {
+	var out GetConfigsReply
+	pattern := "/v1/getConfigs"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterGetConfigs))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

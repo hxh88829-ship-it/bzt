@@ -18,6 +18,7 @@ import (
 	"valueguard/internal/api"
 	"valueguard/internal/biz"
 	"valueguard/internal/bzt"
+	"valueguard/internal/conf"
 	"valueguard/internal/dailyAirdrop"
 	"valueguard/internal/mongo"
 )
@@ -586,8 +587,17 @@ func (s *GreeterService) GetBztOwnerAddress(ctx context.Context, in *v1.GetBztOw
 
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
-		Version:   "v0.0.9",
-		BuildTime: "2025-08-25T11:15:00Z",
+		Version:   "v0.0.12",
+		BuildTime: "2025-08-26T16:51:00Z",
+	}, nil
+}
+
+func (s *GreeterService) GetConfigs(ctx context.Context, in *v1.GetConfigsRequest) (*v1.GetConfigsReply, error) {
+
+	return &v1.GetConfigsReply{
+		ChainId:              api.ChainId,
+		BztContractAddress:   conf.ContractBztAddr,
+		DusdtContractAddress: conf.ContractDusdtAddress,
 	}, nil
 }
 
@@ -600,5 +610,6 @@ func IsWalletBound(addr string) (bool, error) {
 	if errors.Is(err, mongo.ErrNoDocuments) {
 		return false, nil
 	}
+	log.Errorf("mongo.GetUser err: %s", err)
 	return false, err
 }

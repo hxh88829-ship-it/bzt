@@ -160,23 +160,25 @@ func WithRetry(maxRetry int, label string, fn func() error) error {
 func ProcessTransactions(bl *types.Block, ctx context.Context) error {
 	blockTime := bl.Time()
 	for _, tx := range bl.Transactions() {
-		from, err := api.GetFromByTransaction(tx)
-		if err != nil {
-			log.Errorf("MonitorBlock  ProcessTransactions GetFromByTransaction: %v", tx.Hash().String())
-			continue
-		}
 		if tx.To() == nil { //部署合约跳过
 			continue
 		}
 		if strings.ToLower(tx.To().String()) == strings.ToLower(conf.ContractBztAddr) {
+			from, err := api.GetFromByTransaction(tx)
+			if err != nil {
+				log.Errorf("MonitorBlock  ProcessTransactions GetFromByTransaction: %v", tx.Hash().String())
+				continue
+			}
 			if strings.ToLower(from.String()) != strings.ToLower(conf.OwnerAddress) {
 				//拿到开仓数据
 				receipt, err := api.GetTransactionReceiptByHash(tx.Hash())
 				if err != nil {
+					log.Errorf("MonitorBlock  ProcessTransactions GetTransactionReceiptByHash: %v", tx.Hash().String())
 					return err
 				}
 				err = OrderOpenedTrade(tx, receipt, blockTime, from, "OrderOpened")
 				if err != nil {
+					log.Errorf("MonitorBlock  ProcessTransactions GetTransactionReceiptByHash: %v", tx.Hash().String())
 					return err
 				}
 			} else {
@@ -189,6 +191,7 @@ func ProcessTransactions(bl *types.Block, ctx context.Context) error {
 				if receipt.Status == 0 {
 					_, err = AddTransactionTrade(tx, receipt, from, blockTime, "unknow")
 					if err != nil {
+						log.Errorf("MonitorBlock  ProcessTransactions AddTransactionTrade: %v", tx.Hash().String())
 						return err
 					}
 					continue
@@ -215,6 +218,7 @@ func ParseEvents(tx *types.Transaction, receipt *types.Receipt, blTime uint64, f
 			// 解析 关仓 事件
 			order, err := bzt.GetParseOrderClosed(receipt)
 			if err != nil {
+				log.Errorf("GetParseOrderClosed err: %v", err)
 				return "", fmt.Errorf("解析 OrderClosed 失败: %w", err)
 			}
 			if order != nil {
@@ -222,10 +226,12 @@ func ParseEvents(tx *types.Transaction, receipt *types.Receipt, blTime uint64, f
 				log.Infof("🔒 识别为关仓事件: TxHash=%s", receipt.TxHash.Hex())
 				isNewRecord, err := AddTransactionTrade(tx, receipt, from, blTime, "OrderClosed")
 				if err != nil {
+					log.Errorf("AddTransactionTrade err: %v", err)
 					return "", fmt.Errorf("OrderClosed : %w", err)
 				}
 				err = OrderClosedTrade(order, isNewRecord, blTime)
 				if err != nil {
+					log.Errorf("OrderClosedTrade err: %v", err)
 					return "", fmt.Errorf(" OrderClosed : %w", err)
 				}
 				return "order_closed", nil
@@ -234,6 +240,7 @@ func ParseEvents(tx *types.Transaction, receipt *types.Receipt, blTime uint64, f
 			// 解析 空投 事件
 			airdrop, err := bzt.GetParseAirdrop(receipt)
 			if err != nil {
+				log.Errorf("GetParseAirdrop err: %v", err)
 				return "", fmt.Errorf("解析 Airdrop 失败: %w", err)
 			}
 			if airdrop != nil {
@@ -241,6 +248,7 @@ func ParseEvents(tx *types.Transaction, receipt *types.Receipt, blTime uint64, f
 				log.Infof("🎁 识别为空投事件: TxHash=%s", receipt.TxHash.Hex())
 				isNewRecord, err := AddTransactionTrade(tx, receipt, from, blTime, "Airdrop")
 				if err != nil {
+					log.Errorf("AddTransactionTrade err: %v", err)
 					return "", fmt.Errorf("<UNK> Airdrop <UNK>: %w", err)
 				}
 				err = AirdropTrade(airdrop, blTime, isNewRecord)
@@ -260,6 +268,7 @@ func OrderOpenedTrade(tx *types.Transaction, receipt *types.Receipt, blTime uint
 	if receipt.Status == 0 {
 		_, err := AddTransactionTrade(tx, receipt, from, blTime, types)
 		if err != nil {
+			log.Errorf("AddTransactionTrade err: %v", err)
 			return err
 		}
 		return nil
@@ -267,15 +276,18 @@ func OrderOpenedTrade(tx *types.Transaction, receipt *types.Receipt, blTime uint
 
 	isNewRecord, err := AddTransactionTrade(tx, receipt, from, blTime, types)
 	if err != nil {
+		log.Errorf("AddTransactionTrade err: %v", err)
 		return err
 	}
 	if isNewRecord {
 		event, err := bzt.GetParseOrderOpened(receipt)
 		if err != nil {
+			log.Errorf("GetParseOrderOpened err: %v", err)
 			return err
 		}
 		err = mongo.UpdateOrderOpenStatus(event.OrderId.String(), strings.ToLower(tx.Hash().String()), event.Amount.String(), uint64(1))
 		if err != nil {
+			log.Errorf("UpdateOrderOpenStatus err: %v", err)
 			return err
 		}
 	}
@@ -288,10 +300,12 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 	}
 	err := mongo.UpdateOrderClosedStatus(event.OrderId.String(), strings.ToLower(event.Raw.TxHash.String()), event.ProfitLoss.String(), uint64(2))
 	if err != nil {
+		log.Errorf("UpdateOrderClosedStatus err: %v", err)
 		return err
 	}
 	Order, err := bzt.GetOrders(event.OrderId.Int64())
 	if err != nil {
+		log.Errorf("GetOrders err: %v", err)
 		return err
 	}
 	if event.ProfitLoss.Sign() >= 0 {
@@ -396,18 +410,22 @@ func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 			amount.AirdropReward = "0"
 			err = mongo.AddRewardAmount(amount)
 			if err != nil {
+				log.Errorf("AddRewardAmount err: %v", err)
 				return err
 			}
 		} else {
+			log.Errorf("GetRewardAmounterr: %v", err)
 			return err
 		}
 	}
 	newValue, err := api.StringToBigIntSum(Res.TotalAmount, value.String())
 	if err != nil {
+		log.Errorf("GetRewardAmounterr: %v", err)
 		return err
 	}
 	err = mongo.UpdateRewardAmount(Order.TokenName, newValue.String())
 	if err != nil {
+		log.Errorf("UpdateRewardAmounterr: %v", err)
 		return err
 	}
 	return nil
@@ -424,18 +442,22 @@ func UserLossAmount(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 			amount.ClaimAirdrop = "0"
 			err = mongo.AddUserLossAmount(amount)
 			if err != nil {
+				log.Errorf("AddUserLossAmount err: %v", err)
 				return err
 			}
 		} else {
+			log.Errorf("GetUserLossAmounterr: %v", err)
 			return err
 		}
 	}
 	newValue, err := api.StringToBigIntSum(res.LossAmount, value.String())
 	if err != nil {
+		log.Errorf("GetUserLossAmounterr: %v", err)
 		return err
 	}
 	err = mongo.UpdateUserLossAmount(Order.TokenName, strings.ToLower(Order.User.String()), newValue.String())
 	if err != nil {
+		log.Errorf("UpdateUserLossAmount err: %v", err)
 		return err
 	}
 	return nil

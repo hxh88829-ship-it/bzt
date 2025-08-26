@@ -112,6 +112,13 @@ service Greeter {
     };
   }
 
+  rpc GetConfigs (GetConfigsRequest) returns (GetConfigsReply) {
+    option (google.api.http) = {
+      post: "/v1/getConfigs"
+      body: "*"
+    };
+  }
+
 }
 
 // The request message containing the user's name.
@@ -308,4 +315,13 @@ message GetBztVersionRequest {}
 message GetBztVersionReply {
   string version = 1;
   string build_time = 2;
+}
+
+message GetConfigsRequest {}
+
+// The response message containing the greetings
+message GetConfigsReply {
+  uint64 chainId = 1;
+  string bztContractAddress = 2;
+  string dusdtContractAddress = 3;
 }
