@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetAirdropByDay(t *testing.T) {
-	cli, err := mongo.NewMongoClient("mongodb://admin:admin@localhost:27017/?directConnection=true")
+	cli, err := mongo.NewMongoClient("")
 	if err != nil {
 		t.Error(err)
 		return
@@ -23,7 +23,7 @@ func TestGetAirdropByDay(t *testing.T) {
 }
 
 func TestAddRewardsToPool(t *testing.T) {
-	cli, err := mongo.NewMongoClient("mongodb://admin:admin@localhost:27017/?directConnection=true")
+	cli, err := mongo.NewMongoClient("")
 	if err != nil {
 		t.Error(err)
 		return

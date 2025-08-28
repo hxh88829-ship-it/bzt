@@ -9,6 +9,7 @@ import (
 	"io"
 	"math/big"
 	"net/http"
+	"net/url"
 	"time"
 	"valueguard/internal/mongo"
 )
@@ -29,19 +30,19 @@ func GetMarketCondition(symbol string, ind uint64) error {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; GoFetcher/1.0)")
 
 	// 设置本地代理
-	//proxyStr := "http://127.0.0.1:7890"
-	//proxyURL, err := url.Parse(proxyStr)
-	//if err != nil {
-	//	log.Errorf("🔧 [%s] Proxy parse error: %v", symbol, err)
-	//	return err
-	//}
-	//
-	//client := &http.Client{
-	//	Transport: &http.Transport{
-	//		Proxy: http.ProxyURL(proxyURL),
-	//	},
-	//}
-	client := http.DefaultClient //默认代理
+	proxyStr := "http://127.0.0.1:7890"
+	proxyURL, err := url.Parse(proxyStr)
+	if err != nil {
+		log.Errorf("🔧 [%s] Proxy parse error: %v", symbol, err)
+		return err
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
+	}
+	//client := http.DefaultClient //默认代理
 	//发起请求
 	resp, err := client.Do(req)
 	if err != nil {

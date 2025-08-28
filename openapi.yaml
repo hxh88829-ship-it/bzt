@@ -403,15 +403,13 @@ components:
                     type: string
                 txHash:
                     type: string
+                orderId:
+                    type: string
             description: The response message containing the greetings
         helloworld.v1.GetAirdropRequest:
             type: object
             properties:
-                address:
-                    type: string
-                isClaims:
-                    type: string
-                symbol:
+                timestamp:
                     type: string
         helloworld.v1.GetBztOwnerAddressReply:
             type: object

@@ -8,7 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/go-kratos/kratos/v2/log"
-	"math"
 	"math/big"
 	"strings"
 	"time"
@@ -18,78 +17,41 @@ import (
 	"valueguard/internal/mongo"
 )
 
-func ScanBlocks(ctx context.Context) error {
-	mongoBln, safeBlock, err := GetMongodbBlockAndLinkBlock()
+func ScanBlocks(ctx context.Context) (uint64, error) {
+	mongoBln, newBlockNumber, err := GetMongodbBlockAndLinkBlock()
 	if err != nil {
-		return err
-	}
-	if mongoBln.LatestBlock >= safeBlock {
-		log.Infof("无可处理新块，高度为 %d（当前区块 %d）", mongoBln.LatestBlock, safeBlock+10)
-		//TODO 睡眠3秒
-		time.Sleep(3 * time.Second)
-		return nil
+		return 0, fmt.Errorf("GetMongodbBlockAndLinkBlock failed: %w", err)
 	}
 
-	for blockNum := mongoBln.LatestBlock + 1; blockNum <= safeBlock; blockNum++ {
-		retryCount := 0
-		sleepTime := 10 * time.Second // 初始等待时间
-		totalWait := time.Duration(0)
-
-		for {
-			err := ScanOneBlock(ctx, blockNum)
-			if err == nil {
-				break
-			}
-
-			retryCount++
-			totalWait += sleepTime
-
-			if retryCount%5 == 0 {
-				log.Warnf("扫描区块 %d 失败已重试 %d 次，累计等待 %s，当前等待 %s，最近错误：%v",
-					blockNum, retryCount, totalWait.String(), sleepTime.String(), err)
-			} else {
-				log.Debugf("扫描区块 %d 失败，重试中（第 %d 次），累计等待 %s，当前等待 %s：%v",
-					blockNum, retryCount, totalWait.String(), sleepTime.String(), err)
-			}
-
-			time.Sleep(sleepTime)
-
-			// 指数退避，最大 5 分钟
-			sleepTime *= 2
-			if sleepTime > 5*time.Minute {
-				sleepTime = 5 * time.Minute
-			}
-		}
+	if mongoBln.LatestBlock > newBlockNumber {
+		log.Warnf("数据库块 %d 高于链上最新块 %d，可能回滚", mongoBln.LatestBlock, newBlockNumber)
+		return 0, fmt.Errorf("database block ahead of chain")
 	}
 
-	return nil
+	if mongoBln.LatestBlock == newBlockNumber {
+		//	log.Info("数据库块高", mongoBln.LatestBlock, "\n", "link:", newBlockNumber)
+		return 0, errors.New("block is latest")
+	}
+
+	//只处理一个块
+	blockNum := mongoBln.LatestBlock + 1
+	err = ScanOneBlock(ctx, blockNum)
+	if err != nil {
+		// ❗ 出错，立即返回，下一轮从这个块重新开始
+		log.Errorf("ScanOneBlock failed at block %d: %v", blockNum, err)
+		return 0, err
+	}
+	return blockNum, nil
 }
-
 func ScanOneBlock(ctx context.Context, blockNum uint64) error {
-	const maxRetry = 3
-
-	var bl *types.Block
-	err := WithRetry(maxRetry, fmt.Sprintf("获取区块 %d", blockNum), func() error {
-		var e error
-		bl, e = api.GetBlockByNumber(blockNum)
-		return e
-	})
+	bl, err := api.GetBlockByNumber(blockNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("GetBlockByNumber failed: %w", err)
 	}
 
-	err = WithRetry(maxRetry, fmt.Sprintf("处理区块 %d 交易", blockNum), func() error {
-		return ProcessTransactions(bl, ctx)
-	})
+	err = ProcessTransactions(bl, ctx)
 	if err != nil {
-		return err
-	}
-
-	err = WithRetry(maxRetry, fmt.Sprintf("更新区块 %d 扫描位置", blockNum), func() error {
-		return UpdateScanBlockPlace(blockNum)
-	})
-	if err != nil {
-		return err
+		return fmt.Errorf("ProcessTransactions failed: %w", err)
 	}
 
 	return nil
@@ -134,27 +96,13 @@ func GetMongodbBlockAndLinkBlock() (mongo.ScanBlock, uint64, error) {
 		return mongo.ScanBlock{}, 0, err
 	}
 	//安全块
-	var SafeBlock uint64
-	if NewBlockNumber > 10 {
-		SafeBlock = NewBlockNumber - 10
-	} else {
-		SafeBlock = 0
-	}
-	return mongoBln, SafeBlock, nil
-}
-func WithRetry(maxRetry int, label string, fn func() error) error {
-	var err error
-	for i := 1; i <= maxRetry; i++ {
-		err = fn()
-		if err == nil {
-			return nil
-		}
-		sleepDuration := time.Second * time.Duration(math.Pow(2, float64(i-1)))
-		log.Warnf("%s 第 %d 次失败: %v，等待 %v 后重试", label, i, err, sleepDuration)
-		time.Sleep(sleepDuration)
-	}
-	log.Errorf("%s 最终失败: %v", label, err)
-	return err
+	//var SafeBlock uint64
+	//if NewBlockNumber > 10 {
+	//	SafeBlock = NewBlockNumber - 10
+	//} else {
+	//	SafeBlock = 0
+	//}
+	return mongoBln, NewBlockNumber, nil
 }
 
 func ProcessTransactions(bl *types.Block, ctx context.Context) error {
@@ -298,7 +246,7 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 	if !status {
 		return nil
 	}
-	err := mongo.UpdateOrderClosedStatus(event.OrderId.String(), strings.ToLower(event.Raw.TxHash.String()), event.ProfitLoss.String(), uint64(2))
+	err := mongo.UpdateOrderClosedStatus(event.OrderId.String(), event.ProfitLoss.String(), uint64(2))
 	if err != nil {
 		log.Errorf("UpdateOrderClosedStatus err: %v", err)
 		return err
@@ -343,27 +291,12 @@ func AirdropTrade(event *bzt.BztAirdrop, blTime uint64, status bool) error {
 	if !status {
 		return nil
 	}
-	t1 := time.Unix(int64(blTime), 0).In(time.Local)
-	ts1 := t1.Format("2006-01-02")
-	_, err := mongo.GetAirdrop(strings.ToLower(event.Raw.TxHash.String()))
+	err := mongo.UpdateAirdropStatus(strings.ToLower(event.Raw.TxHash.String()), uint64(1))
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			var air mongo.Airdrop
-			air.TxHash = strings.ToLower(event.Raw.TxHash.String())
-			air.Symbol = "DUSDT"
-			air.ToAddr = strings.ToLower(event.Recipient.String())
-			air.Amount = event.Amount.String()
-			air.AirdropTime = ts1
-			err = mongo.AddAirdrop(air)
-			if err != nil {
-				log.Errorf("AddAirdrop err: %v", err)
-				return err
-			}
-		} else {
-			log.Errorf("GetAirdroperr: %v", err)
-			return err
-		}
+		log.Errorf("UpdateAirdropStatus err: %v", err)
+		return err
 	}
+
 	return nil
 }
 
@@ -400,14 +333,13 @@ func AddTransactionTrade(txh *types.Transaction, receipt *types.Receipt,
 }
 
 func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
-	Res, err := mongo.GetRewardAmount(Order.TokenName)
+	Res, err := mongo.GetRewardAmount("DUSDT")
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			var amount mongo.RewardAmount
-			amount.Symbol = Order.TokenName
+			amount.Symbol = "DUSDT"
 			amount.UpdateAt = blTime
 			amount.TotalAmount = value.String()
-			amount.AirdropReward = "0"
 			err = mongo.AddRewardAmount(amount)
 			if err != nil {
 				log.Errorf("AddRewardAmount err: %v", err)
@@ -423,7 +355,7 @@ func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 		log.Errorf("GetRewardAmounterr: %v", err)
 		return err
 	}
-	err = mongo.UpdateRewardAmount(Order.TokenName, newValue.String())
+	err = mongo.UpdateRewardAmount("DUSDT", newValue.String())
 	if err != nil {
 		log.Errorf("UpdateRewardAmounterr: %v", err)
 		return err
@@ -431,11 +363,11 @@ func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 	return nil
 }
 func UserLossAmount(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
-	res, err := mongo.GetUserLossAmount(strings.ToLower(Order.User.String()), Order.TokenName)
+	res, err := mongo.GetUserLossAmount(strings.ToLower(Order.User.String()), "DUSDT")
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			var amount mongo.UserLossAmount
-			amount.Symbol = Order.TokenName
+			amount.Symbol = "DUSDT"
 			amount.LossAmount = value.String()
 			amount.UpdateAt = blTime
 			amount.UserAddr = strings.ToLower(Order.User.String())
@@ -455,7 +387,7 @@ func UserLossAmount(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 		log.Errorf("GetUserLossAmounterr: %v", err)
 		return err
 	}
-	err = mongo.UpdateUserLossAmount(Order.TokenName, strings.ToLower(Order.User.String()), newValue.String())
+	err = mongo.UpdateUserLossAmount("DUSDT", strings.ToLower(Order.User.String()), newValue.String())
 	if err != nil {
 		log.Errorf("UpdateUserLossAmount err: %v", err)
 		return err

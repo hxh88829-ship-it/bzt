@@ -129,13 +129,13 @@ func TestBztCaller_Orders(t *testing.T) {
 }
 
 func TestBztTransactor_OpenOrder(t *testing.T) {
-	Client, err := ethclient.Dial("")
+	Client, err := ethclient.Dial("http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 	defer Client.Close()
-	con := common.HexToAddress("")
+	con := common.HexToAddress("0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
 	ca, err := NewBztTransactor(con, Client)
 	if err != nil {
 		t.Fatal(err)
@@ -149,13 +149,13 @@ func TestBztTransactor_OpenOrder(t *testing.T) {
 	if err != nil {
 		return
 	}
-
-	tx, err := ca.OpenOrder(opt, big.NewInt(1958181354344546304), "BTCUSDT", big.NewInt(1e+6))
+	//opt.GasLimit = uint64(600000)
+	tx, err := ca.OpenOrder(opt, big.NewInt(1960513946276331520), "BTCUSDT", big.NewInt(1e+6))
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Log(tx.Hash())
+	t.Log(tx.Hash().Hex())
 	//0x872fb9fb2ff99cbd9a7a4bcb05a3e553d93087a2d64c7e96c2a2461b1ecf9a39
 	//0x9c0d3ee1d8c5f29980638ea8eed41391fa99f71c6f1fc495ef9e4dc877b46bfe fail
 
@@ -229,14 +229,14 @@ func TestBztFilterer_ParseOrderClosed(t *testing.T) {
 
 func TestBztFilterer_ParseOrderOpened(t *testing.T) {
 	var err error
-	api.Client, err = ethclient.Dial(rpcUrl)
+	api.Client, err = ethclient.Dial("")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 	defer api.Client.Close()
 	cli := api.Client
-	receipt, err := cli.TransactionReceipt(context.Background(), common.HexToHash("0x13e45d61e4302e896d4e030b6d3f6adf26aa11b16302b44fa6c0657d8afcd5c1"))
+	receipt, err := cli.TransactionReceipt(context.Background(), common.HexToHash("0xbd8443fcdf7bf33b55d0e8d7ec1bee2992becdd9555dcbd894fb38cf243ac8c3"))
 	if err != nil {
 		return
 	}

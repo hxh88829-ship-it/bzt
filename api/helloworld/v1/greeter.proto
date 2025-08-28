@@ -217,9 +217,7 @@ message CloseOrderReply {
 }
 
 message GetAirdropRequest {
-  string address = 1;
-  uint64 isClaims = 2;
-  string symbol = 3;
+  string timestamp = 1;
 }
 
 // The response message containing the greetings
@@ -227,6 +225,7 @@ message GetAirdropReply {
   string status = 1;
   string value = 2;
   string txHash = 3;
+  string orderId = 4;
 }
 
 message HealthCheckRequest {}

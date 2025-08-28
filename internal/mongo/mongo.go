@@ -22,6 +22,7 @@ const MaxPricePerSymbol = 30
 
 var ErrNoDocuments error = errors.New("mongo: no documents in result")
 var ErrNoFields error = errors.New("no fields to update")
+var ErrAlreadyClaim = errors.New("address already claimed")
 
 const MarketContract = "0x31f3EB0f255178B0fA3FeCbFe7B5314f38949a4B"
 
@@ -166,8 +167,9 @@ func GetPriceByTimestamp(blockTime uint64, symbol string) (CoinPrice, error) {
 		return CoinPrice{}, errors.New("mongo client is nil" + "GetPriceByTimestamp")
 	}
 	filter := bson.M{
-		"symbol":    symbol,                    // 资产代号，如 "BTCUSDT"
-		"timestamp": bson.M{"$lte": blockTime}, // 小于等于块时间戳
+		"symbol": symbol, // 资产代号，如 "BTCUSDT"
+		// TODO 是否可以对时间判断选择小于等于的时间戳
+		"timestamp": blockTime, // 小于等于块时间戳
 	}
 	opts := options.FindOne().SetSort(bson.D{{"timestamp", -1}})
 	var priceRecord CoinPrice
@@ -275,7 +277,7 @@ func GetOrderForAll(addr string, page, size int64) ([]Order, error) {
 	return res, nil
 }
 
-func UpdateOrderClose(OrderId, ClosePri string, timestamp uint64) error {
+func UpdateOrderClose(OrderId, ClosePri, txHash string, timestamp uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateOrder")
 	}
@@ -283,6 +285,7 @@ func UpdateOrderClose(OrderId, ClosePri string, timestamp uint64) error {
 	update := bson.D{{"$set", bson.D{
 		{"close_price", ClosePri},
 		{"order_end_time", timestamp},
+		{"close_tx_hash", txHash},
 	}}}
 
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
@@ -309,14 +312,13 @@ func UpdateOrderOpenStatus(OrderId, OpenTx, Amount string, IsClosed uint64) erro
 	}
 	return nil
 }
-func UpdateOrderClosedStatus(OrderId, CloseTx, Profit string, IsClosed uint64) error {
+func UpdateOrderClosedStatus(OrderId, Profit string, IsClosed uint64) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateOrderStatus")
 	}
 	filter := bson.D{{"order_id", OrderId}}
 	update := bson.D{{"$set", bson.D{
 		{"is_closed", IsClosed},
-		{"close_tx_hash", CloseTx},
 		{"profit_loss", Profit},
 	}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
@@ -388,7 +390,7 @@ func UpdateRewardAmount(tokenName, totalAmount string) error {
 	}
 	return nil
 }
-func UpdateRewardPool(tokenName, total, reward string) error {
+func UpdateRewardPool(tokenName, total string) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateRewardPool")
 	}
@@ -397,7 +399,6 @@ func UpdateRewardPool(tokenName, total, reward string) error {
 	}
 	update := bson.D{
 		{"$set", bson.D{
-			{"airdrop_reward", reward},
 			{"total_amount", total},
 			{"update_at", time.Now().Unix()},
 		}}}
@@ -502,11 +503,11 @@ func GetAirdrop(tx string) (Airdrop, error) {
 	}
 	return a, nil
 }
-func QueryAirdropByTimes(t1, addr string) error {
+func QueryAirdrop(addr, today string) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "QueryAirdropByTimes")
 	}
-	filter := bson.D{{"to_addr", addr}, {"airdrop_time", t1}}
+	filter := bson.D{{"to_addr", addr}, {"airdrop_time", today}}
 	var a Airdrop
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).FindOne(context.Background(), filter).Decode(&a)
 	if err != nil {
@@ -537,6 +538,38 @@ func GetAirdropForAll(addr string) ([]Airdrop, error) {
 	}
 	return res, nil
 }
+func UpdateAirdropStatus(tx string, i uint64) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "UpdateAirdrop")
+	}
+	filter := bson.M{"tx_hash": tx}
+	update := bson.D{
+		{"$set", bson.D{
+			{"status", i},
+		}}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateAirdrop err: ", err)
+		return errors.New("update airdrop fail")
+	}
+	return nil
+}
+func UpdateAirdropHash(Id, tx string) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "UpdateAirdrop")
+	}
+	filter := bson.M{"order_id": Id}
+	update := bson.D{
+		{"$set", bson.D{
+			{"tx_hash", tx},
+		}}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateAirdrop err: ", err)
+		return errors.New("update airdrop fail")
+	}
+	return nil
+}
 
 // 每日发放空投流水
 func AddDailyAirdrop(air DailyAirdropTrade) error {
@@ -563,6 +596,19 @@ func GetDailyAirdrop(timestamp, symbol string) (DailyAirdropTrade, error) {
 	}
 	return a, nil
 }
+func GetDailyAirdropBySymbol(symbol string) (DailyAirdropTrade, error) {
+	if MonCli == nil {
+		return DailyAirdropTrade{}, errors.New("mongo client is nil" + "GetDailyAirdrop")
+	}
+	filter := bson.D{{"symbol", symbol}}
+	var a DailyAirdropTrade
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).FindOne(context.Background(), filter).Decode(&a)
+	if err != nil {
+		log.Error("FindOne err: ", err)
+		return DailyAirdropTrade{}, ErrNoDocuments
+	}
+	return a, nil
+}
 func UpdateDailyAirdrop(date, symbol, value string) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateDailyAirdrop")
@@ -570,11 +616,29 @@ func UpdateDailyAirdrop(date, symbol, value string) error {
 	filter := bson.D{{"date", date}, {"symbol", symbol}}
 	update := bson.D{
 		{"$set", bson.D{
-			{"remain", value},
+			{"reward", value},
 		}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateDailyAirdrop err: ", err)
+		return errors.New("update airdrop fail")
+	}
+	return nil
+}
+func UpdateDailyAirdropRemain(val, symbol, date, total string) error {
+	if MonCli == nil {
+		return errors.New("mongo client is nil" + "UpdateDailyAirdrop")
+	}
+	filter := bson.D{{"symbol", symbol}}
+	update := bson.D{
+		{"$set", bson.D{
+			{"reward", val},
+			{"date", date},
+			{"pool_total", total},
+		}}}
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		log.Error("UpdateDailyAirdropStatus err: ", err)
 		return errors.New("update airdrop fail")
 	}
 	return nil
@@ -815,11 +879,11 @@ func AddOrderSwitch(i OrderSwitch) error {
 	}
 	return nil
 }
-func GetOrderSwitch(i uint64) (OrderSwitch, error) {
+func GetOrderSwitch(i uint64, types string) (OrderSwitch, error) {
 	if MonCli == nil {
 		return OrderSwitch{}, errors.New("error:mongo.Client is nil" + "GetOrderSwitch")
 	}
-	filter := bson.D{{"chain_id", i}}
+	filter := bson.D{{"chain_id", i}, {"types", types}}
 	var o OrderSwitch
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).FindOne(context.Background(), filter).Decode(&o)
 	if err != nil {

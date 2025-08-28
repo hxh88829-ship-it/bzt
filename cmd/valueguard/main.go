@@ -102,26 +102,34 @@ func main() {
 
 // 加载配置 load
 func LoadConfigInit() error {
-	//初始化mongo数据库
-	cli, err := mongo.NewMongoClient("mongodb://admin:admin@13.212.58.194:9097")
-	if err != nil {
-		return err
-	}
-	mongo.MonCli = cli
-
 	//配置变量
 	/*
 		os.Setenv("Apikey", "dtcd_xxxxxx")
 		os.Setenv("BaseUrl", "http://47.111.28.25:8016")
 		os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
-		os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
-		os.Setenv("RpcUrl", "https://f82o1hrgdl.execute-api.ap-southeast-1.amazonaws.com/prod")
-		//os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+		//	os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92")
+		os.Setenv("OwnerAddress", "0xc020e62ce44297e86dA12CF15CfDc20B83eF3b72") //测试owner
+		//os.Setenv("RpcUrl", "https://f82o1hrgdl.execute-api.ap-southeast-1.amazonaws.com/prod") // 生产
+		os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979") // 测试网
 		os.Setenv("HmacKey", "hmac")
 		os.Setenv("X_Api_Key", "4sip97qapC4vTxS73YdTB6X5hm8Rr8Uk13BdwP2d")
 		os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
-		os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")
+		os.Setenv("ContractBztAddr", "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a")      //测试环境
+		os.Setenv("mongoDbUrl", "mongodb://admin:admin@localhost:27017/?directConnection=true")
 	*/
+
+	//初始化mongo数据库
+	//初始化节点
+	mongoDbUrl := os.Getenv("mongoDbUrl")
+	if mongoDbUrl == "" {
+		return errors.New("mongoDbUrl is empty")
+	}
+	//cli, err := mongo.NewMongoClient("mongodb://admin:admin@13.212.58.194:9097")
+	cli, err := mongo.NewMongoClient(mongoDbUrl)
+	if err != nil {
+		return err
+	}
+	mongo.MonCli = cli
 
 	headerKey := os.Getenv("Apikey")
 	if headerKey == "" {
@@ -153,8 +161,8 @@ func LoadConfigInit() error {
 	}
 	conf.HmacKey = HmacKey
 
-	conf.ContractBztAddr = "0x747294d3e04c1ad8b4897bc6fdab72bfa9b5c3f4"
-
+	conf.ContractBztAddr = "0x747294d3e04c1ad8b4897bc6fdab72bfa9b5c3f4" //生产环境
+	//conf.ContractBztAddr = "0x0d7a5cD806536Fa7c3bA8f580D7dB7144253dE4a" //测试环境
 	ContractDusdtAddress := os.Getenv("ContractDusdtAddress")
 	if ContractDusdtAddress == "" {
 		return errors.New("ContractDusdtAddress is required")
@@ -167,7 +175,6 @@ func LoadConfigInit() error {
 	}
 	conf.X_Api_Key = X_Api_Key
 
-	//初始化节点
 	rpcUrl := os.Getenv("RpcUrl")
 	if rpcUrl == "" {
 		return errors.New("rpc url is empty")
@@ -192,7 +199,7 @@ func LoadConfigInit() error {
 		go RunService(context.Background(), symbols)
 
 		// ✅ 启动空投定时任务
-		go dailyAirdrop.StartAirdropCron(symbols)
+		go dailyAirdrop.StartAirdropCron()
 	}
 	return nil
 }
@@ -209,47 +216,43 @@ func RunService(ctx context.Context, symbols []string) {
 		defer wg.Done()
 		defer func() {
 			if r := recover(); r != nil {
-				log.Errorf("panic in Block checker: %v", r)
+				log.Errorf("panic in block scanner: %v", r)
+				// panic 后自动退出，下一次程序重启可再次启动
 			}
 		}()
-		ticker := time.NewTicker(3 * time.Second)
-		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ctx.Done():
 				log.Info("Block scanner stopping...")
 				return
-			case <-ticker.C:
-				blockCtx, cancel := context.WithTimeout(ctx, 25*time.Second)
-				err := monitorBlock.ScanBlocks(blockCtx)
-				cancel()
-
+			default:
+				// 扫块
+				number, err := monitorBlock.ScanBlocks(ctx)
 				if err != nil {
-					log.Errorf("ScanBlocks error: %v", err)
+					if err.Error() == "block is latest" {
+						time.Sleep(3 * time.Second) // 防止快速循环刷日志
+						continue
+					}
+
+					log.Errorf("ScanBlocks returned error: %v", err)
+					// 出错立即停止本轮，下次循环会重新从错误块开始
+					time.Sleep(3 * time.Second) // 防止快速循环刷日志
+					continue
+				} else {
+					//更新块高 num =>  mongo
+					// ✅ 只有处理成功才更新数据库
+					err = monitorBlock.UpdateScanBlockPlace(number)
+					if err != nil {
+						log.Errorf("UpdateScanBlockPlace failed at block %d: %v", number, err)
+						time.Sleep(3 * time.Second)
+						continue
+					}
 				}
 			}
 		}
 	}() //扫块
 
-	//wg.Add(1)
-	//go func() {
-	//	defer wg.Done()
-	//	ticker := time.NewTicker(3 * time.Minute)
-	//	defer ticker.Stop()
-	//
-	//	for {
-	//		select {
-	//		case <-ctx.Done():
-	//			log.Info("LossBlock retry task stopping...")
-	//			return
-	//		case <-ticker.C:
-	//			err := monitorBlock.RetryLossBlocks(ctx)
-	//			if err != nil {
-	//				log.Errorf("RetryLossBlocks error: %v", err)
-	//			}
-	//		}
-	//	}
-	//}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()

@@ -14,133 +14,88 @@ import (
 
 // StartAirdropCron 初始化每日空投定时任务
 
-func StartAirdropCron(symbols []string) *cron.Cron {
-	c := cron.New(cron.WithSeconds())
-
+func StartAirdropCron() *cron.Cron {
+	loc := time.Now().Location()
+	log.Infof(loc.String())
+	c := cron.New(
+		cron.WithSeconds(),
+		cron.WithLocation(loc),
+	)
+	//TODO
 	// 每天 00:00 执行空投发放
 	c.AddFunc("0 0 0 * * *", func() {
 		dateStr := time.Now().Format("2006-01-02")
 		log.Infof("Start daily airdrop for date %s", dateStr)
-		for _, symbol := range symbols {
-			resStart, err := mongo.GetRewardAmount(symbol)
-			if err != nil {
-				log.Warnf("[%s] GetRewardAmount error: %v", symbol, err)
-				continue
-			}
-			if err := GetAirdropByDay([]string{symbol}, resStart); err != nil {
-				log.Warnf("[%s] GetAirdropByDay error: %v", symbol, err)
-			}
+		resStart, err := mongo.GetRewardAmount("DUSDT")
+		if err != nil {
+			log.Warnf(" GetRewardAmount error: %v", err)
 		}
-	})
+		if err := GetAirdropByDay(resStart); err != nil {
+			log.Warnf("GetAirdropByDay error: %v", err)
+		}
 
-	// 每天 23:59:59 执行空投回收
-	c.AddFunc("59 59 23 * * *", func() {
-		dateStr := time.Now().Format("2006-01-02")
-		log.Infof("Start daily airdrop recovery for date %s", dateStr)
-		for _, symbol := range symbols {
-			resEnd, err := mongo.GetRewardAmount(symbol)
-			if err != nil {
-				log.Warnf("[%s] GetRewardAmount error: %v", symbol, err)
-				continue
-			}
-			resDaily, err := mongo.GetDailyAirdrop(dateStr, symbol)
-			if err != nil {
-				log.Warnf("[%s] GetDailyAirdrop error: %v", symbol, err)
-				continue
-			}
-			if err := AddRewardsToPool([]string{symbol}, resEnd, resDaily, dateStr); err != nil {
-				log.Errorf("[%s] AddRewardsToPool error: %v", symbol, err)
-			}
-		}
 	})
 
 	c.Start()
 	return c
 }
 
-func GetAirdropByDay(symbols []string, res mongo.RewardAmount) error { //取出当天空投
+func GetAirdropByDay(res mongo.RewardAmount) error { //取出当天空投
 	divisor := big.NewInt(100) // 除数，100 表示百分之一
+	// total = 奖励池总额（整数）
+	total := new(big.Int)
+	_, ok := total.SetString(res.TotalAmount, 10)
+	if !ok {
+		return fmt.Errorf("GetAirdropByDay error: %v", res.TotalAmount)
+	}
 
-	for _, symbol := range symbols {
-		// total = 奖励池总额（整数）
-		total := new(big.Int)
-		_, ok := total.SetString(res.TotalAmount, 10)
-		if !ok {
-			return fmt.Errorf("invalid total amount for symbol %s", symbol)
+	// reward = total / 100
+	reward := new(big.Int).Div(total, divisor)
+
+	// totalAfter = total - reward
+	totalAfter := new(big.Int).Sub(total, reward)
+
+	timestamp := time.Now().Format("2006-01-02")
+	airdrop, err := mongo.GetDailyAirdropBySymbol("DUSDT")
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			var dailyAir mongo.DailyAirdropTrade
+			dailyAir.Symbol = "DUSDT"
+			dailyAir.Reward = reward.String()
+			dailyAir.Date = timestamp
+			dailyAir.PoolTotal = total.String()
+			err = mongo.AddDailyAirdrop(dailyAir)
+			if err != nil {
+				return err
+			}
+			return nil
+		} else {
+			return err
 		}
-
-		// reward = total / 100
-		reward := new(big.Int).Div(total, divisor)
-
-		// totalAfter = total - reward
-		totalAfter := new(big.Int).Sub(total, reward)
-
+	}
+	if airdrop.Date != timestamp {
 		// 存入数据库（整数转字符串）
 		err := mongo.UpdateRewardPool(
-			symbol,
+			"DUSDT",
 			totalAfter.String(),
-			reward.String(),
 		)
 		if err != nil {
 			return err
 		}
-		timestamp := time.Now().Format("2006-01-02")
-		_, err = mongo.GetDailyAirdrop(timestamp, symbol)
+		rewarded := new(big.Int) //昨日剩余空投
+		_, ok = rewarded.SetString(airdrop.Reward, 10)
+		if !ok {
+			return fmt.Errorf("GetAirdropByDay error: %v", airdrop.Reward)
+		}
+		totalReward := new(big.Int).Add(rewarded, reward)
+		err = mongo.UpdateDailyAirdropRemain(totalReward.String(), "DUSDT", timestamp, total.String())
 		if err != nil {
-			if errors.Is(err, mongo.ErrNoDocuments) {
-				var dailyAir mongo.DailyAirdropTrade
-				dailyAir.Symbol = symbol
-				dailyAir.Remain = reward.String()
-				dailyAir.Date = timestamp
-				err = mongo.AddDailyAirdrop(dailyAir)
-				if err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
+			return err
 		}
+		return nil
 	}
-	return nil
-}
+	log.Warnf("重复发放以回滚")
 
-func AddRewardsToPool(symbols []string, res mongo.RewardAmount, resDaily mongo.DailyAirdropTrade, timestamp string) error { // 剩余空投放回奖励池
-	for _, symbol := range symbols {
-
-		//  解析奖励池总额（整数）
-		total := new(big.Int)
-		if _, ok := total.SetString(res.TotalAmount, 10); !ok {
-			return fmt.Errorf("invalid total amount for symbol %s: %s", symbol, res.TotalAmount)
-		}
-
-		// 解析剩余空投奖励
-		reward := new(big.Int)
-		if _, ok := reward.SetString(resDaily.Remain, 10); !ok {
-			return fmt.Errorf("invalid airdrop reward for symbol %s: %s", symbol, res.AirdropReward)
-		}
-
-		//  检查空投奖励是否为负数
-		if reward.Sign() < 0 {
-			return fmt.Errorf("invalid airdrop reward for symbol %s: negative value %s", symbol, reward.String())
-		}
-
-		//  计算新的奖励池总额
-		newTotal := new(big.Int).Add(total, reward)
-
-		//  检查新奖励池是否为负数（理论上不会，但做防护）
-		if newTotal.Sign() < 0 {
-			return fmt.Errorf("resulting reward pool for symbol %s is negative: %s", symbol, newTotal.String())
-		}
-
-		// 日志记录
-		log.Infof("AddRewardsToPool | Symbol: %s | Total: %s | Reward: %s | NewTotal: %s",
-			symbol, total.String(), reward.String(), newTotal.String())
-
-		//  更新数据库（奖励池总额 = newTotal, 空投余额归零）
-		if err := mongo.UpdateRewardPool(symbol, newTotal.String(), "0"); err != nil {
-			return fmt.Errorf("failed to update reward pool for symbol %s: %w", symbol, err)
-		}
-	}
 	return nil
 }
 
@@ -178,7 +133,7 @@ func CalculateAirdrop(userLoss, totalLoss, totalReward string) (*big.Int, error)
 
 // 判断是否领取超额并更新数据
 func UpdateLossAmount(addr, symbol string) (*big.Int, string, error) {
-	totals, err := mongo.GetRewardAmount(symbol)
+	reward, err := mongo.GetDailyAirdropBySymbol("DUSDT")
 	if err != nil {
 		return nil, "", err
 	}
@@ -186,7 +141,8 @@ func UpdateLossAmount(addr, symbol string) (*big.Int, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	claims, err := CalculateAirdrop(users.LossAmount, totals.TotalAmount, totals.AirdropReward) // 今日可领
+	log.Infof("UpdateLossAmount, users: %s", users.LossAmount)
+	claims, err := CalculateAirdrop(users.LossAmount, reward.PoolTotal, reward.Reward) // 今日可领
 	if err != nil {
 		return nil, "", err
 	}

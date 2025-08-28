@@ -43,10 +43,9 @@ type Order struct {
 }
 
 type RewardAmount struct {
-	Symbol        string `bson:"symbol" json:"symbol"`
-	UpdateAt      uint64 `bson:"update_at" json:"update_at"`
-	TotalAmount   string `bson:"total_amount" json:"total_amount"`     // 总量
-	AirdropReward string `bson:"airdrop_reward" json:"airdrop_reward"` //从总量中抽取百分之一的量
+	Symbol      string `bson:"symbol" json:"symbol"`
+	UpdateAt    uint64 `bson:"update_at" json:"update_at"`
+	TotalAmount string `bson:"total_amount" json:"total_amount"` // 总量
 }
 
 type UserLossAmount struct {
@@ -59,18 +58,22 @@ type UserLossAmount struct {
 
 // Airdrop 链上扫块空投
 type Airdrop struct {
+	Uid         string `bson:"uid" json:"uid"`
+	OrderId     string `bson:"order_id" json:"order_id"`
 	ToAddr      string `bson:"to_addr" json:"to_addr"`
 	Amount      string `bson:"amount" json:"amount"`
 	Symbol      string `bson:"symbol" json:"symbol"`             // 空投币种
 	AirdropTime string `bson:"airdrop_time" json:"airdrop_time"` // 空投时间
 	TxHash      string `bson:"tx_hash" json:"tx_hash"`           // 交易哈希
+	Status      uint64 `bson:"status" json:"status"`             //0 不成功 1成功
 }
 
 // 。。。
 type DailyAirdropTrade struct {
-	Symbol string `bson:"symbol" json:"symbol"`
-	Remain string `bson:"remain" json:"remain"`
-	Date   string `bson:"date" json:"date"`
+	Symbol    string `bson:"symbol" json:"symbol"`
+	Reward    string `bson:"reward" json:"reward"`
+	Date      string `bson:"date" json:"date"`
+	PoolTotal string `bson:"pool_total" json:"pool_total"`
 }
 
 // Transaction 交易记录
@@ -122,4 +125,5 @@ type DeployTransaction struct {
 type OrderSwitch struct {
 	Status  uint64 `bson:"status" json:"status"`
 	ChainId uint64 `bson:"chain_id" json:"chain_id"`
+	Types   string `bson:"types" json:"types"`
 }

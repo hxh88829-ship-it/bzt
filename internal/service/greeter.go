@@ -97,7 +97,7 @@ func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginReques
 
 	// 清除已使用的签名
 	_ = mongo.UpdateUser(us.Address, "")
-
+	log.Info("login success: ", addr)
 	// 生成 JWT
 
 	jwtToken, err := api.GetJwtKey(us.Uid, strings.ToLower(us.Address))
@@ -142,12 +142,13 @@ func (s *GreeterService) WalletBalance(ctx context.Context, in *v1.WalletBalance
 		return &v1.WalletBalanceReply{}, nil
 	}
 
-	exists, err := IsWalletBound(addr)
+	// 提取 addr ， uid
+	addr, _, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
-		return &v1.WalletBalanceReply{}, err
+		log.Error("GetAddrAndUidByToken err: ", err)
+		return nil, err
 	}
-	if !exists {
-		log.Warnf("<addr> no exists: %s", addr)
+	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
 		return &v1.WalletBalanceReply{}, nil
 	}
 
@@ -179,7 +180,6 @@ func (s *GreeterService) MarketCondition(ctx context.Context, in *v1.MarketCondi
 		return nil, errors.New("invalid time range")
 	}
 
-	// 假设你有这样的方法
 	prices, err := mongo.GetPriceBySymbol(symbol, startTime, endTime)
 	if err != nil {
 		log.Warnf("symbol %v --- err: %v", symbol, err)
@@ -204,28 +204,15 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 	if in.GetAddress() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" {
 		return nil, errors.New("missing required parameters")
 	}
-	ok, err := IsWalletBound(in.GetAddress())
+	// 提取 addr ， uid
+	addr, _, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
+		log.Error("GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
-	if !ok {
-		return &v1.OpenOrderReply{
-			OrderId: "非平台用户地址",
-		}, errors.New("wallet not exists")
-	}
-	// 提取 addr
-	claims, ok := kratosjwt.FromContext(ctx)
-	if !ok {
-		return &v1.OpenOrderReply{}, errors.New("err: jwt.FromContext(ctx)")
-	}
-
-	addr, _ := claims.(jwtv5.MapClaims)["addr"].(string)
-	if addr == "" {
-		return &v1.OpenOrderReply{}, errors.New("addr 提取失败")
-	}
-	log.Info(addr)
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
-		log.Warnf("[OpenOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
+		log.Warnf("[OpenOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s",
+			in.GetSymbol(), strings.ToLower(addr), strings.ToLower(in.GetAddress()))
 		return &v1.OpenOrderReply{}, err
 	}
 	// 不同实例不同节点（0～1023）
@@ -244,7 +231,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		return nil, fmt.Errorf("too many open orders (max %d)", maxOpenOrders)
 	}
 
-	sta, err := mongo.GetOrderSwitch(api.ChainId)
+	sta, err := mongo.GetOrderSwitch(api.ChainId, "OpenOrder")
 	if err != nil {
 		return nil, err
 	}
@@ -277,34 +264,22 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 
 func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderRequest) (*v1.CloseOrderReply, error) {
 	// 1. 参数校验
-	if in.GetAddress() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" || in.GetOrderId() == "" {
+	if in.GetTimestamp() == 0 || in.GetOrderId() == "" {
 		return nil, errors.New("missing required parameters")
 	}
-	/* 核对地址 */
-	ok, err := IsWalletBound(in.GetAddress())
+	var err error
+	// 提取 addr ， uid
+	addr, _, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
+		log.Error("GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
-	if !ok {
-		return &v1.CloseOrderReply{}, nil
-	}
-
-	// 提取 addr
-	claims, ok := kratosjwt.FromContext(ctx)
-	if !ok {
-		return &v1.CloseOrderReply{}, errors.New("err: jwt.FromContext(ctx)")
-	}
-
-	addr, _ := claims.(jwtv5.MapClaims)["addr"].(string)
-	if addr == "" {
-		return &v1.CloseOrderReply{}, errors.New("addr 提取失败")
-	}
-	log.Info("CloseOrder:", addr)
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
-		log.Warnf("[CloseOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
+		log.Warnf("[CloseOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s",
+			in.GetSymbol(), strings.ToLower(addr), strings.ToLower(in.GetAddress()))
 		return &v1.CloseOrderReply{}, err
 	}
-	sta, err := mongo.GetOrderSwitch(api.ChainId)
+	sta, err := mongo.GetOrderSwitch(api.ChainId, "CloseOrder")
 	if err != nil {
 		log.Warnf("[CloseOrder][%s] <UNK>: %v", in.GetSymbol(), err)
 		return nil, err
@@ -313,14 +288,24 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		log.Error("CloseOrder: Abnormal user status ")
 		return &v1.CloseOrderReply{}, errors.New("Abnormal user status ")
 	}
-	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
-	if err != nil {
-		return nil, err
-	}
+
+	//通过关闭订单交易hash是否存在来判断订单是否关闭
 	UserOrderId, err := mongo.GetOrder(in.GetOrderId())
 	if err != nil {
 		return nil, err
 	}
+	if UserOrderId.CloseTxHash != "" {
+		log.Warnf("[CloseOrder][%s] <Repeatedly close>", in.GetSymbol())
+		return &v1.CloseOrderReply{}, errors.New("<UNK>")
+	}
+	if UserOrderId.Symbol != in.GetSymbol() {
+		return &v1.CloseOrderReply{}, errors.New("币种错误")
+	}
+	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
+	if err != nil {
+		return nil, err
+	}
+
 	if UserOrderId.IsClosed == 0 {
 		return &v1.CloseOrderReply{}, errors.New("订单等待链上确认")
 	}
@@ -336,6 +321,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if err != nil {
 		return nil, err
 	}
+
 	input, err := bzt.GetCloseOrderInput(orderId, OpenPrice, ClosePrice, res.Symbol)
 	if err != nil {
 		return nil, err
@@ -345,7 +331,11 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		return nil, err
 	}
 	log.Info(nonce)
-	err = mongo.UpdateOrderClose(orderId.String(), ClosePrice.String(), in.GetTimestamp())
+
+	if tx == "" {
+		return &v1.CloseOrderReply{}, errors.New("交易未生成")
+	}
+	err = mongo.UpdateOrderClose(orderId.String(), ClosePrice.String(), strings.ToLower(tx), in.GetTimestamp())
 	if err != nil {
 		return nil, err
 	}
@@ -355,38 +345,24 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 }
 
 func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropRequest) (*v1.GetAirdropReply, error) {
-	// 1. 参数校验
-	isAddress := regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString
-	addr := strings.ToLower(in.GetAddress())
-	if !isAddress(addr) {
-		return &v1.GetAirdropReply{Status: "invalid address"}, nil
-	}
-	ok, err := IsWalletBound(in.GetAddress())
+	//TODO
+	/*
+			1. 加密校验
+		    2. 流水号来做后面的维护
+		    3. 判断开关
+		    4. 判断 是否能够领取，
+			5 如果不能领取：领过了，或者没资格领取 （返回）
+		    6. 能够领取
+	*/
+	// 提取 addr ， uid
+	addr, uid, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
+		log.Error("GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
-	if !ok {
-		return &v1.GetAirdropReply{
-			Status: "address not exists",
-		}, nil
-	}
-	// 提取 addr
-	claims, ok := kratosjwt.FromContext(ctx)
-	if !ok {
-		log.Error("err: jwt.FromContext")
-		return &v1.GetAirdropReply{}, errors.New("err: jwt.FromContext(ctx)")
-	}
 
-	address, _ := claims.(jwtv5.MapClaims)["addr"].(string)
-	if addr == "" {
-		return &v1.GetAirdropReply{}, errors.New("addr 提取失败")
-	}
-	log.Info("userAddr:", address)
-	if strings.ToLower(address) != strings.ToLower(in.GetAddress()) {
-		log.Warnf("[GetAirdrop][%s] 地址校验失败: token_addr=%s, req_addr=%s", in.GetSymbol(), addr, in.GetAddress())
-		return &v1.GetAirdropReply{}, err
-	}
-	sta, err := mongo.GetOrderSwitch(api.ChainId)
+	//获取开关
+	sta, err := mongo.GetOrderSwitch(api.ChainId, "GetAirdrop")
 	if err != nil {
 		log.Error("GetAirdrop: ", err)
 		return nil, err
@@ -395,57 +371,81 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 		log.Error("GetOrderSwitch:", sta)
 		return &v1.GetAirdropReply{}, errors.New("Abnormal user status ")
 	}
-	// 判断是否领取
-	if in.GetIsClaims() == 0 {
-		return &v1.GetAirdropReply{Status: "no airdrop claimed"}, nil
+
+	// 判断领取资质
+	today := in.GetTimestamp()
+	claims, claimed, err := dailyAirdrop.UpdateLossAmount(strings.ToLower(addr), "DUSDT") // 用户今日可领，领后总额
+	if err != nil {
+		log.Error("UpdateLossAmount:", err)
+		return nil, err
 	}
-	if in.GetIsClaims() == 1 {
-		today := time.Now().Format("2006-01-02")
-		claims, claimed, err := dailyAirdrop.UpdateLossAmount(strings.ToLower(in.GetAddress()), in.GetSymbol()) // 用户今日可领，领后总额
-		if err != nil {
-			return nil, err
-		}
-		daily, err := mongo.GetDailyAirdrop(today, in.GetSymbol()) // 今日空投总额
-		if err != nil {
-			return nil, err
-		}
-		remain, err := api.StringToBigIntSub(daily.Remain, claims.String()) //空投剩余
-		if err != nil {
-			return nil, err
-		}
-		if remain.Sign() < 0 {
-			return &v1.GetAirdropReply{Status: "invalid result"}, nil
-		}
-		err = mongo.QueryAirdropByTimes(today, strings.ToLower(in.GetAddress()))
-		if err != nil {
-			if errors.Is(err, mongo.ErrNoDocuments) {
+	log.Info("claims:", claimed)
 
-				input, err := bzt.GetAirdropInput(common.HexToAddress(in.GetAddress()), claims)
-				if err != nil {
-					return nil, err
-				}
-				tx, nonce, err := bzt.UrlOwnerContractTransfer(input, api.Client)
-				if err != nil {
-					return nil, err
-				}
-				log.Info(nonce)
-
-				err = mongo.UpdateUserClaims(in.GetSymbol(), strings.ToLower(in.GetAddress()), claimed)
-				if err != nil {
-					return nil, err
-				}
-				err = mongo.UpdateDailyAirdrop(today, in.GetSymbol(), remain.String())
-				if err != nil {
-					return nil, err
-				}
-				return &v1.GetAirdropReply{
-					Status: "success",
-					Value:  claims.String(),
-					TxHash: tx,
-				}, nil
-			} else {
+	//通过 UID或者address + 时间 拿到一个唯一的红包订单
+	// 生成订单号
+	err = mongo.QueryAirdrop(strings.ToLower(addr), today)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			OrderId := api.GetSnowflakeID(1)
+			daily, err := mongo.GetDailyAirdrop(today, "DUSDT") // 今日空投总额
+			if err != nil {
 				return nil, err
 			}
+			remain, err := api.StringToBigIntSub(daily.Reward, claims.String()) //空投剩余
+			if err != nil {
+				return nil, err
+			}
+			if remain.Sign() < 0 {
+				return &v1.GetAirdropReply{Status: "invalid result"}, nil
+			}
+
+			input, err := bzt.GetAirdropInput(common.HexToAddress(addr), claims)
+			if err != nil {
+				return nil, err
+			}
+			tx, nonce, err := bzt.UrlOwnerContractTransfer(input, api.Client)
+			if err != nil {
+				return nil, err
+			}
+			log.Info(nonce)
+
+			if tx == "" {
+				return &v1.GetAirdropReply{Status: "交易发送失败"}, nil
+			}
+
+			var air mongo.Airdrop
+			air.OrderId = OrderId
+			air.Symbol = "DUSDT"
+			air.ToAddr = strings.ToLower(addr)
+			air.AirdropTime = today
+			air.Status = uint64(0)
+			air.Amount = claims.String()
+			air.TxHash = strings.ToLower(tx)
+			air.Uid = uid
+
+			err = mongo.AddAirdrop(air)
+			if err != nil {
+				return nil, err
+			}
+
+			err = mongo.UpdateUserClaims("DUSDT", strings.ToLower(addr), claimed)
+			if err != nil {
+				return nil, err
+			}
+			err = mongo.UpdateDailyAirdrop(today, "DUSDT", remain.String())
+			if err != nil {
+				return nil, err
+			}
+
+			return &v1.GetAirdropReply{
+				Status:  "success",
+				Value:   claims.String(),
+				TxHash:  tx,
+				OrderId: OrderId,
+			}, nil
+		} else {
+			log.Error("QueryAirdropByTimes:", err)
+			return nil, err
 		}
 	}
 
@@ -454,17 +454,17 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 
 func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeRequest) (*v1.OrderTradeReply, error) {
 	// 1. 参数校验
-	if in.GetAddress() == "" {
-		return nil, errors.New("missing required parameters")
-	}
-	ok, err := IsWalletBound(in.GetAddress())
+	// 提取 addr ， uid
+	addr, _, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
+		log.Error("GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
-	if !ok {
-		return &v1.OrderTradeReply{}, errors.New("wallet not exists")
+	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
+		log.Warnf("[OrderTrade]: token_addr=%s, req_addr=%s", addr, in.GetAddress())
+		return &v1.OrderTradeReply{}, err
 	}
-	res, err := mongo.GetOrderForAll(in.GetAddress(), in.GetPage(), in.GetPageSize())
+	res, err := mongo.GetOrderForAll(strings.ToLower(addr), in.GetPage(), in.GetPageSize())
 	if err != nil {
 		return nil, err
 	}
@@ -489,6 +489,14 @@ func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeReques
 }
 
 func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRequest) (*v1.AirdropTradeReply, error) {
+	addr, _, err := GetAddrAndUidByToken(ctx)
+	if err != nil {
+		log.Error("GetAddrAndUidByToken err: ", err)
+		return nil, err
+	}
+	if strings.ToLower(addr) != strings.ToLower(in.GetAddr()) {
+		return &v1.AirdropTradeReply{}, err
+	}
 	res, err := mongo.GetAirdropForAll(strings.ToLower(in.GetAddr()))
 	if err != nil {
 		return nil, err
@@ -587,8 +595,8 @@ func (s *GreeterService) GetBztOwnerAddress(ctx context.Context, in *v1.GetBztOw
 
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
-		Version:   "v0.0.12",
-		BuildTime: "2025-08-26T16:51:00Z",
+		Version:   "v0.0.13",
+		BuildTime: "2025-08-29T16:51:00Z",
 	}, nil
 }
 
@@ -612,4 +620,30 @@ func IsWalletBound(addr string) (bool, error) {
 	}
 	log.Errorf("mongo.GetUser err: %s", err)
 	return false, err
+}
+
+func GetAddrAndUidByToken(ctx context.Context) (string, string, error) {
+	cla, ok := kratosjwt.FromContext(ctx)
+	if !ok {
+		log.Error("err: jwt.FromContext")
+		return "", "", errors.New("jwt.FromContext err")
+	}
+
+	claims, ok := cla.(jwtv5.MapClaims)
+	if !ok {
+		log.Error("err: invalid claims type")
+		return "", "", errors.New("invalid claims type")
+	}
+
+	address, _ := claims["addr"].(string)
+	if address == "" {
+		return "", "", errors.New("invalid address")
+	}
+
+	uid, _ := claims["sub"].(string)
+	if uid == "" {
+		return "", "", errors.New("invalid uid")
+	}
+	log.Info("GetAirdrop:", address, "\n", "UID:", uid)
+	return address, uid, nil
 }

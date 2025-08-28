@@ -14,7 +14,6 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"google.golang.org/grpc/metadata"
 	"math"
 	"math/big"
 	"strings"
@@ -472,7 +471,7 @@ func GetJwtKey(uid, addr string) (string, error) {
 		"iat":  time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte("123456"))
+	return token.SignedString([]byte("123456")) //TODO 强密钥之后修改
 }
 
 func GetTokenBalance(ctx context.Context, addr string, symbol string) (string, error) {
@@ -515,21 +514,4 @@ func ParseJwtAddr(tokenStr string) (string, error) {
 	}
 
 	return "", fmt.Errorf("invalid token")
-}
-
-func ExtractTokenFromContext(ctx context.Context) (string, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return "", errors.New("missing metadata in context")
-	}
-
-	var token string
-	if authHeaders, exists := md["authorization"]; exists && len(authHeaders) > 0 {
-		token = strings.TrimPrefix(authHeaders[0], "Bearer ")
-	}
-
-	if token == "" {
-		return "", errors.New("authorization header not found")
-	}
-	return token, nil
 }

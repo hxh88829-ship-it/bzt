@@ -951,9 +951,7 @@ func (x *CloseOrderReply) GetTx() string {
 
 type GetAirdropRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	IsClaims      uint64                 `protobuf:"varint,2,opt,name=isClaims,proto3" json:"isClaims,omitempty"`
-	Symbol        string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Timestamp     string                 `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -988,23 +986,9 @@ func (*GetAirdropRequest) Descriptor() ([]byte, []int) {
 	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *GetAirdropRequest) GetAddress() string {
+func (x *GetAirdropRequest) GetTimestamp() string {
 	if x != nil {
-		return x.Address
-	}
-	return ""
-}
-
-func (x *GetAirdropRequest) GetIsClaims() uint64 {
-	if x != nil {
-		return x.IsClaims
-	}
-	return 0
-}
-
-func (x *GetAirdropRequest) GetSymbol() string {
-	if x != nil {
-		return x.Symbol
+		return x.Timestamp
 	}
 	return ""
 }
@@ -1015,6 +999,7 @@ type GetAirdropReply struct {
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 	TxHash        string                 `protobuf:"bytes,3,opt,name=txHash,proto3" json:"txHash,omitempty"`
+	OrderId       string                 `protobuf:"bytes,4,opt,name=orderId,proto3" json:"orderId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1066,6 +1051,13 @@ func (x *GetAirdropReply) GetValue() string {
 func (x *GetAirdropReply) GetTxHash() string {
 	if x != nil {
 		return x.TxHash
+	}
+	return ""
+}
+
+func (x *GetAirdropReply) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
 	}
 	return ""
 }
@@ -2131,15 +2123,14 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x06symbol\x18\x03 \x01(\tR\x06symbol\x12\x18\n" +
 	"\aorderId\x18\x04 \x01(\tR\aorderId\"!\n" +
 	"\x0fCloseOrderReply\x12\x0e\n" +
-	"\x02tx\x18\x01 \x01(\tR\x02tx\"a\n" +
-	"\x11GetAirdropRequest\x12\x18\n" +
-	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1a\n" +
-	"\bisClaims\x18\x02 \x01(\x04R\bisClaims\x12\x16\n" +
-	"\x06symbol\x18\x03 \x01(\tR\x06symbol\"W\n" +
+	"\x02tx\x18\x01 \x01(\tR\x02tx\"1\n" +
+	"\x11GetAirdropRequest\x12\x1c\n" +
+	"\ttimestamp\x18\x01 \x01(\tR\ttimestamp\"q\n" +
 	"\x0fGetAirdropReply\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x12\x16\n" +
-	"\x06txHash\x18\x03 \x01(\tR\x06txHash\"\x14\n" +
+	"\x06txHash\x18\x03 \x01(\tR\x06txHash\x12\x18\n" +
+	"\aorderId\x18\x04 \x01(\tR\aorderId\"\x14\n" +
 	"\x12HealthCheckRequest\"*\n" +
 	"\x10HealthCheckReply\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\"]\n" +

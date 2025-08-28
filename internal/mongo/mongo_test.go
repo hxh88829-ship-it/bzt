@@ -56,12 +56,12 @@ func TestGetPriceByTimestamp(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	//res, err := GetPriceByTimestamp(1754027483, "BTCUSDT")
-	//if err != nil {
-	//	t.Error(err)
-	//	return
-	//}
-	//t.Log(res.Price, res.Timestamp, res.Index, res.Symbol)
+	res, err := GetPriceByTimestamp(1756369087, "ETHUSDT")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(res.Price, res.Timestamp, res.Index, res.Symbol)
 
 }
 
@@ -107,7 +107,7 @@ func TestUpdateRewardPool(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	err = UpdateRewardPool("BTCUSDT", "7114", "71.14")
+	err = UpdateRewardPool("DUSDT", "7114")
 	if err != nil {
 		t.Error(err)
 		return
@@ -236,7 +236,7 @@ func TestUpdateScanBlock(t *testing.T) {
 }
 
 func TestAddOrderSwitch(t *testing.T) {
-	cli, err := NewMongoClient(dbUrl)
+	cli, err := NewMongoClient("")
 	if err != nil {
 		t.Error(err)
 		return
@@ -246,6 +246,7 @@ func TestAddOrderSwitch(t *testing.T) {
 	var a OrderSwitch
 	a.Status = 0
 	a.ChainId = 9798
+	a.Types = "CloseOrder"
 	err = AddOrderSwitch(a)
 	if err != nil {
 		return
@@ -260,9 +261,22 @@ func TestGetOrderSwitch(t *testing.T) {
 	defer cli.Close()
 	MonCli = cli
 	var i uint64 = 9798
-	res, err := GetOrderSwitch(i)
+	res, err := GetOrderSwitch(i, "")
 	if err != nil {
 		return
 	}
 	t.Log(res)
+}
+func TestUpdateDailyAirdrop(t *testing.T) {
+	cli, err := NewMongoClient("mongodb://admin:admin@localhost:27017/?directConnection=true")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	err = UpdateDailyAirdrop("2025-08-29", "USDT", "30871")
+	if err != nil {
+		return
+	}
 }
