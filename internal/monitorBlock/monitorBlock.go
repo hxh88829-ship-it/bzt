@@ -103,9 +103,9 @@ func GetMongodbBlockAndLinkBlock() (uint64, uint64, error) {
 	//	SafeBlock = 0
 	//}
 
-	if mongoBln < 11696216 {
-		mongoBln = 11696216
-	}
+	//if mongoBln < 11696216 {
+	//	mongoBln = 11696216
+	//}
 	return mongoBln, NewBlockNumber, nil
 }
 

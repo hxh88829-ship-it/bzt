@@ -99,8 +99,7 @@ func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginReques
 	_ = mongo.UpdateUser(us.Address, "")
 	log.Info("login success: ", addr)
 	// 生成 JWT
-
-	jwtToken, err := api.GetJwtKey(us.Uid, strings.ToLower(us.Address))
+	jwtToken, err := api.GetJwtKey(us.Uid, strings.ToLower(us.Address), conf.Secret)
 	if err != nil {
 		return nil, err
 	}
@@ -276,13 +275,13 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		return nil, err
 	}
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
-		log.Warnf("[CloseOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s",
-			in.GetSymbol(), strings.ToLower(addr), strings.ToLower(in.GetAddress()))
+		log.Warnf("[CloseOrder] 地址校验失败: token_addr=%s, req_addr=%s",
+			strings.ToLower(addr), strings.ToLower(in.GetAddress()))
 		return &v1.CloseOrderReply{}, err
 	}
 	sta, err := mongo.GetOrderSwitch(api.ChainId, "CloseOrder")
 	if err != nil {
-		log.Warnf("[CloseOrder][%s] <UNK>: %v", in.GetSymbol(), err)
+		log.Warnf("[CloseOrder] : %v", err)
 		return nil, err
 	}
 	if sta.Status != uint64(0) {
@@ -296,8 +295,8 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		return nil, err
 	}
 	if UserOrderId.CloseTxHash != "" {
-		log.Warnf("[CloseOrder][%s] <Repeatedly close>", in.GetSymbol())
-		return &v1.CloseOrderReply{}, errors.New("<UNK>")
+		log.Warnf("[CloseOrder][%s] <Repeatedly close>", UserOrderId.Symbol)
+		return &v1.CloseOrderReply{}, errors.New("<Repeatedly close>")
 	}
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), UserOrderId.Symbol)
 	if err != nil {
@@ -352,6 +351,9 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 			5 如果不能领取：领过了，或者没资格领取 （返回）
 		    6. 能够领取
 	*/
+	if in.GetTimestamp() == "" {
+		return nil, errors.New("missing required parameters")
+	}
 	// 提取 addr ， uid
 	addr, uid, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
@@ -451,7 +453,6 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 }
 
 func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeRequest) (*v1.OrderTradeReply, error) {
-	// 1. 参数校验
 	// 提取 addr ， uid
 	addr, _, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
@@ -462,6 +463,7 @@ func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeReques
 		log.Warnf("[OrderTrade]: token_addr=%s, req_addr=%s", addr, in.GetAddress())
 		return &v1.OrderTradeReply{}, err
 	}
+	// 查询订单记录
 	res, err := mongo.GetOrderForAll(strings.ToLower(addr), in.GetPage(), in.GetPageSize())
 	if err != nil {
 		return nil, err
@@ -481,12 +483,14 @@ func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeReques
 		rel.OrderEndTime = value.OrderEndTime
 		rel.OpenTxHash = value.OpenTxHash
 		rel.CloseTxHash = value.CloseTxHash
+		rel.Uid = value.Uid
 		result.Result = append(result.Result, &rel)
 	}
 	return &result, nil
 }
 
 func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRequest) (*v1.AirdropTradeReply, error) {
+	// 提取 addr ， uid
 	addr, _, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
 		log.Error("GetAddrAndUidByToken err: ", err)
@@ -495,6 +499,7 @@ func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRe
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddr()) {
 		return &v1.AirdropTradeReply{}, err
 	}
+	//查询空投记录
 	res, err := mongo.GetAirdropForAll(strings.ToLower(in.GetAddr()))
 	if err != nil {
 		return nil, err
@@ -506,6 +511,10 @@ func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRe
 		rel.Amount = v.Amount
 		rel.UsersAddr = v.ToAddr
 		rel.Times = v.AirdropTime
+		rel.Uid = v.Uid
+		rel.OrderId = v.OrderId
+		rel.Status = v.Status
+		rel.TxHash = v.TxHash
 		result.Result = append(result.Result, &rel)
 	}
 	return &result, nil
@@ -642,6 +651,5 @@ func GetAddrAndUidByToken(ctx context.Context) (string, string, error) {
 	if uid == "" {
 		return "", "", errors.New("invalid uid")
 	}
-	log.Info("GetAirdrop:", address, "\n", "UID:", uid)
 	return address, uid, nil
 }

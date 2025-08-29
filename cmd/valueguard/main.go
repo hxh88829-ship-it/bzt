@@ -174,6 +174,11 @@ func LoadConfigInit() error {
 	}
 	conf.X_Api_Key = X_Api_Key
 
+	conf.Secret, err = api.GenerateSecret()
+	if err != nil {
+		log.Error("generate secret err: ", err)
+		return err
+	}
 	rpcUrl := os.Getenv("RpcUrl")
 	if rpcUrl == "" {
 		return errors.New("rpc url is empty")

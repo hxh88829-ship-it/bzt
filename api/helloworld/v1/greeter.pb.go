@@ -840,8 +840,7 @@ type CloseOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	Timestamp     uint64                 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Symbol        string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	OrderId       string                 `protobuf:"bytes,4,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	OrderId       string                 `protobuf:"bytes,3,opt,name=orderId,proto3" json:"orderId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -888,13 +887,6 @@ func (x *CloseOrderRequest) GetTimestamp() uint64 {
 		return x.Timestamp
 	}
 	return 0
-}
-
-func (x *CloseOrderRequest) GetSymbol() string {
-	if x != nil {
-		return x.Symbol
-	}
-	return ""
 }
 
 func (x *CloseOrderRequest) GetOrderId() string {
@@ -1261,6 +1253,7 @@ type OrderDetails struct {
 	OrderEndTime   uint64                 `protobuf:"varint,10,opt,name=orderEndTime,proto3" json:"orderEndTime,omitempty"`
 	OpenTxHash     string                 `protobuf:"bytes,11,opt,name=openTxHash,proto3" json:"openTxHash,omitempty"`
 	CloseTxHash    string                 `protobuf:"bytes,12,opt,name=closeTxHash,proto3" json:"closeTxHash,omitempty"`
+	Uid            string                 `protobuf:"bytes,13,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1379,6 +1372,13 @@ func (x *OrderDetails) GetCloseTxHash() string {
 	return ""
 }
 
+func (x *OrderDetails) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
 type AirdropTradeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Addr          string                 `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
@@ -1475,6 +1475,9 @@ type AirdropDetails struct {
 	Symbol        string                 `protobuf:"bytes,3,opt,name=symbol,proto3" json:"symbol,omitempty"`
 	Times         string                 `protobuf:"bytes,4,opt,name=times,proto3" json:"times,omitempty"`
 	TxHash        string                 `protobuf:"bytes,5,opt,name=txHash,proto3" json:"txHash,omitempty"`
+	Uid           string                 `protobuf:"bytes,6,opt,name=uid,proto3" json:"uid,omitempty"`
+	OrderId       string                 `protobuf:"bytes,7,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	Status        uint64                 `protobuf:"varint,8,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1542,6 +1545,27 @@ func (x *AirdropDetails) GetTxHash() string {
 		return x.TxHash
 	}
 	return ""
+}
+
+func (x *AirdropDetails) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *AirdropDetails) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *AirdropDetails) GetStatus() uint64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
 }
 
 type BztDappRequest struct {
@@ -2009,7 +2033,6 @@ type GetConfigsReply struct {
 	ChainId              uint64                 `protobuf:"varint,1,opt,name=chainId,proto3" json:"chainId,omitempty"`
 	BztContractAddress   string                 `protobuf:"bytes,2,opt,name=bztContractAddress,proto3" json:"bztContractAddress,omitempty"`
 	DusdtContractAddress string                 `protobuf:"bytes,3,opt,name=dusdtContractAddress,proto3" json:"dusdtContractAddress,omitempty"`
-	MongoDbUrl           string                 `protobuf:"bytes,4,opt,name=mongoDbUrl,proto3" json:"mongoDbUrl,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -2061,13 +2084,6 @@ func (x *GetConfigsReply) GetBztContractAddress() string {
 func (x *GetConfigsReply) GetDusdtContractAddress() string {
 	if x != nil {
 		return x.DusdtContractAddress
-	}
-	return ""
-}
-
-func (x *GetConfigsReply) GetMongoDbUrl() string {
-	if x != nil {
-		return x.MongoDbUrl
 	}
 	return ""
 }
@@ -2124,12 +2140,11 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x06symbol\x18\x03 \x01(\tR\x06symbol\"B\n" +
 	"\x0eOpenOrderReply\x12\x18\n" +
 	"\aorderId\x18\x01 \x01(\tR\aorderId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\x04R\x06status\"}\n" +
+	"\x06status\x18\x02 \x01(\x04R\x06status\"e\n" +
 	"\x11CloseOrderRequest\x12\x18\n" +
 	"\aaddress\x18\x01 \x01(\tR\aaddress\x12\x1c\n" +
-	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x16\n" +
-	"\x06symbol\x18\x03 \x01(\tR\x06symbol\x12\x18\n" +
-	"\aorderId\x18\x04 \x01(\tR\aorderId\"!\n" +
+	"\ttimestamp\x18\x02 \x01(\x04R\ttimestamp\x12\x18\n" +
+	"\aorderId\x18\x03 \x01(\tR\aorderId\"!\n" +
 	"\x0fCloseOrderReply\x12\x0e\n" +
 	"\x02tx\x18\x01 \x01(\tR\x02tx\"1\n" +
 	"\x11GetAirdropRequest\x12\x1c\n" +
@@ -2147,7 +2162,7 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x04page\x18\x02 \x01(\x03R\x04page\x12\x1a\n" +
 	"\bpageSize\x18\x03 \x01(\x03R\bpageSize\"F\n" +
 	"\x0fOrderTradeReply\x123\n" +
-	"\x06result\x18\x01 \x03(\v2\x1b.helloworld.v1.OrderDetailsR\x06result\"\x82\x03\n" +
+	"\x06result\x18\x01 \x03(\v2\x1b.helloworld.v1.OrderDetailsR\x06result\"\x94\x03\n" +
 	"\fOrderDetails\x12\x18\n" +
 	"\aorderId\x18\x01 \x01(\tR\aorderId\x12\x16\n" +
 	"\x06symbol\x18\x02 \x01(\tR\x06symbol\x12 \n" +
@@ -2167,17 +2182,21 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\n" +
 	"openTxHash\x18\v \x01(\tR\n" +
 	"openTxHash\x12 \n" +
-	"\vcloseTxHash\x18\f \x01(\tR\vcloseTxHash\")\n" +
+	"\vcloseTxHash\x18\f \x01(\tR\vcloseTxHash\x12\x10\n" +
+	"\x03uid\x18\r \x01(\tR\x03uid\")\n" +
 	"\x13AirdropTradeRequest\x12\x12\n" +
 	"\x04addr\x18\x01 \x01(\tR\x04addr\"J\n" +
 	"\x11AirdropTradeReply\x125\n" +
-	"\x06result\x18\x01 \x03(\v2\x1d.helloworld.v1.AirdropDetailsR\x06result\"\x8c\x01\n" +
+	"\x06result\x18\x01 \x03(\v2\x1d.helloworld.v1.AirdropDetailsR\x06result\"\xd0\x01\n" +
 	"\x0eAirdropDetails\x12\x1c\n" +
 	"\tusersAddr\x18\x01 \x01(\tR\tusersAddr\x12\x16\n" +
 	"\x06amount\x18\x02 \x01(\tR\x06amount\x12\x16\n" +
 	"\x06symbol\x18\x03 \x01(\tR\x06symbol\x12\x14\n" +
 	"\x05times\x18\x04 \x01(\tR\x05times\x12\x16\n" +
-	"\x06txHash\x18\x05 \x01(\tR\x06txHash\"\x10\n" +
+	"\x06txHash\x18\x05 \x01(\tR\x06txHash\x12\x10\n" +
+	"\x03uid\x18\x06 \x01(\tR\x03uid\x12\x18\n" +
+	"\aorderId\x18\a \x01(\tR\aorderId\x12\x16\n" +
+	"\x06status\x18\b \x01(\x04R\x06status\"\x10\n" +
 	"\x0eBztDappRequest\"l\n" +
 	"\fBztDappReply\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x03R\x04code\x12\x18\n" +
@@ -2200,14 +2219,11 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12\x1d\n" +
 	"\n" +
 	"build_time\x18\x02 \x01(\tR\tbuildTime\"\x13\n" +
-	"\x11GetConfigsRequest\"\xaf\x01\n" +
+	"\x11GetConfigsRequest\"\x8f\x01\n" +
 	"\x0fGetConfigsReply\x12\x18\n" +
 	"\achainId\x18\x01 \x01(\x04R\achainId\x12.\n" +
 	"\x12bztContractAddress\x18\x02 \x01(\tR\x12bztContractAddress\x122\n" +
-	"\x14dusdtContractAddress\x18\x03 \x01(\tR\x14dusdtContractAddress\x12\x1e\n" +
-	"\n" +
-	"mongoDbUrl\x18\x04 \x01(\tR\n" +
-	"mongoDbUrl2\xf1\x0e\n" +
+	"\x14dusdtContractAddress\x18\x03 \x01(\tR\x14dusdtContractAddress2\xf1\x0e\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +

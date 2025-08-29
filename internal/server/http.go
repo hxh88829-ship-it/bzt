@@ -24,7 +24,7 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 			recovery.Recovery(),
 			selector.Server(
 				jwt.Server(func(token *jwtv5.Token) (interface{}, error) {
-					return []byte("123456"), nil
+					return []byte(conf.Secret), nil
 				}),
 			).Match(func(ctx context.Context, operation string) bool {
 				fmt.Println("Operation:", operation) //找到接口对应程序内的路径

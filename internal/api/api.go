@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/snowflake"
@@ -463,7 +465,7 @@ func GetSnowflakeID(i int64) string {
 	id := node.Generate().String()
 	return id
 }
-func GetJwtKey(uid, addr string) (string, error) {
+func GetJwtKey(uid, addr, secret string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":  uid,
 		"addr": addr,
@@ -471,7 +473,7 @@ func GetJwtKey(uid, addr string) (string, error) {
 		"iat":  time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte("123456")) //TODO 强密钥之后修改
+	return token.SignedString([]byte(secret)) //TODO 强密钥修改
 }
 
 func GetTokenBalance(ctx context.Context, addr string, symbol string) (string, error) {
@@ -490,28 +492,10 @@ func GetTokenBalance(ctx context.Context, addr string, symbol string) (string, e
 	}
 }
 
-func ParseJwtAddr(tokenStr string) (string, error) {
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		// 确认签名方法是 HMAC
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte("123456"), nil
-	})
-
-	if err != nil {
+func GenerateSecret() (string, error) {
+	buf := make([]byte, 32) // 256 bits
+	if _, err := rand.Read(buf); err != nil {
 		return "", err
 	}
-
-	// token.Valid 为 true 时才能安全使用
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		addr, ok := claims["addr"].(string)
-		if !ok {
-			return "", fmt.Errorf("addr not found in claims")
-		}
-		return addr, nil
-	}
-
-	return "", fmt.Errorf("invalid token")
+	return hex.EncodeToString(buf), nil
 }

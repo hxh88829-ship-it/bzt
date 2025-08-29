@@ -207,8 +207,7 @@ message OpenOrderReply {
 message CloseOrderRequest {
   string address = 1;
   uint64 timestamp = 2;
-  string symbol = 3;
-  string orderId = 4;
+  string orderId = 3;
 }
 
 // The response message containing the greetings
@@ -258,6 +257,7 @@ message OrderDetails {
   uint64 orderEndTime = 10;
   string openTxHash = 11;
   string closeTxHash = 12;
+  string uid = 13;
 }
 
 message AirdropTradeRequest {
@@ -275,6 +275,9 @@ message AirdropDetails {
   string symbol = 3;
   string times = 4;
   string txHash = 5;
+  string uid = 6;
+  string orderId = 7;
+  uint64 status = 8;
 }
 
 message BztDappRequest {}
@@ -323,5 +326,4 @@ message GetConfigsReply {
   uint64 chainId = 1;
   string bztContractAddress = 2;
   string dusdtContractAddress = 3;
-  string mongoDbUrl = 4;
 }

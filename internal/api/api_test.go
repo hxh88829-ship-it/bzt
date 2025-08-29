@@ -363,17 +363,3 @@ func TestStringToBigIntSum(t *testing.T) {
 	}
 	t.Log(res)
 }
-
-func TestGetCode(t *testing.T) {
-	token, err := GetJwtKey("123", "qweasd123")
-	if err != nil {
-		t.Error("GetJwtKey fail")
-		return
-	}
-	addr, err := ParseJwtAddr(token)
-	if err != nil {
-		t.Error("ParseJwtAddr fail")
-		return
-	}
-	t.Log(addr)
-}

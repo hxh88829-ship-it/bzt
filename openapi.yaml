@@ -316,6 +316,12 @@ components:
                     type: string
                 txHash:
                     type: string
+                uid:
+                    type: string
+                orderId:
+                    type: string
+                status:
+                    type: string
         helloworld.v1.AirdropTradeReply:
             type: object
             properties:
@@ -367,8 +373,6 @@ components:
                 address:
                     type: string
                 timestamp:
-                    type: string
-                symbol:
                     type: string
                 orderId:
                     type: string
@@ -436,8 +440,6 @@ components:
                 bztContractAddress:
                     type: string
                 dusdtContractAddress:
-                    type: string
-                mongoDbUrl:
                     type: string
             description: The response message containing the greetings
         helloworld.v1.GetConfigsRequest:
@@ -548,6 +550,8 @@ components:
                 openTxHash:
                     type: string
                 closeTxHash:
+                    type: string
+                uid:
                     type: string
         helloworld.v1.OrderTradeReply:
             type: object
