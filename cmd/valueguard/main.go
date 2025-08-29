@@ -193,24 +193,6 @@ func LoadConfigInit() error {
 	api.ChainId = id.Uint64()
 	log.Info("chain id is:  ", id)
 
-	/*
-		1. 更新块高
-		2.加入三个开关
-	*/
-	err = mongo.AddOrderSwitchMany()
-	if err != nil {
-		log.Error("mongo.AddOrderSwitchMany", "err", err)
-		return err
-	}
-	var bl mongo.ScanBlock
-	bl.NetWork = 9798
-	bl.LatestBlock = 11690398
-	bl.Time = 1756437327
-	err = mongo.UpdateScanBlock(bl)
-	if err != nil {
-		log.Error("mongo.UpdateScanBlock", "err", err)
-		return err
-	}
 	if id.Uint64() == 9798 {
 		symbols := []string{"BTCUSDT", "ETHUSDT"}
 		go RunService(context.Background(), symbols)

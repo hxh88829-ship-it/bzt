@@ -715,9 +715,9 @@ func UpdateScanBlock(sbl ScanBlock) error {
 
 	return nil
 }
-func GetScanBlock(i uint64) (ScanBlock, error) {
+func GetScanBlock(i uint64) (uint64, error) {
 	if MonCli == nil {
-		return ScanBlock{}, errors.New("mongo client is nil " + "GetBlock")
+		return 0, errors.New("mongo client is nil " + "GetBlock")
 	}
 	filter := bson.D{{"netWork", i}}
 	var bl ScanBlock
@@ -725,9 +725,9 @@ func GetScanBlock(i uint64) (ScanBlock, error) {
 		Collection(scanBlock).FindOne(context.Background(), filter).Decode(&bl)
 	if err != nil {
 		log.Error("FindOne err: ", err)
-		return ScanBlock{}, ErrNoDocuments
+		return 0, ErrNoDocuments
 	}
-	return bl, nil
+	return bl.LatestBlock, nil
 }
 
 // 错误块

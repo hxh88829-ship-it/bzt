@@ -23,18 +23,18 @@ func ScanBlocks(ctx context.Context) (uint64, error) {
 		return 0, fmt.Errorf("GetMongodbBlockAndLinkBlock failed: %w", err)
 	}
 
-	if mongoBln.LatestBlock > newBlockNumber {
-		log.Warnf("数据库块 %d 高于链上最新块 %d，可能回滚", mongoBln.LatestBlock, newBlockNumber)
+	if mongoBln > newBlockNumber {
+		log.Warnf("数据库块 %d 高于链上最新块 %d，可能回滚", mongoBln, newBlockNumber)
 		return 0, fmt.Errorf("database block ahead of chain")
 	}
 
-	if mongoBln.LatestBlock == newBlockNumber {
+	if mongoBln == newBlockNumber {
 		//	log.Info("数据库块高", mongoBln.LatestBlock, "\n", "link:", newBlockNumber)
 		return 0, errors.New("block is latest")
 	}
 
 	//只处理一个块
-	blockNum := mongoBln.LatestBlock + 1
+	blockNum := mongoBln + 1
 	err = ScanOneBlock(ctx, blockNum)
 	if err != nil {
 		// ❗ 出错，立即返回，下一轮从这个块重新开始
@@ -69,7 +69,7 @@ func UpdateScanBlockPlace(blockNum uint64) error {
 	}
 	return nil
 }
-func GetMongodbBlockAndLinkBlock() (mongo.ScanBlock, uint64, error) {
+func GetMongodbBlockAndLinkBlock() (uint64, uint64, error) {
 	chainId := api.ChainId
 
 	// 1. 从Mongo获取上次扫描的区块号
@@ -82,18 +82,18 @@ func GetMongodbBlockAndLinkBlock() (mongo.ScanBlock, uint64, error) {
 			bl.LatestBlock = 0
 			err = mongo.AddScanBlock(bl)
 			if err != nil {
-				return mongo.ScanBlock{}, 0, err
+				return 0, 0, err
 			}
-			mongoBln = bl
+			mongoBln = bl.LatestBlock
 		} else {
-			return mongo.ScanBlock{}, 0, err
+			return 0, 0, err
 		}
 	}
 	//链上新块
 	NewBlockNumber, err := api.GetBlockNumber()
 	if err != nil {
 		log.Error("ScanBlocks: api.GetBlockNumber error:", err)
-		return mongo.ScanBlock{}, 0, err
+		return 0, 0, err
 	}
 	//安全块
 	//var SafeBlock uint64
@@ -102,6 +102,10 @@ func GetMongodbBlockAndLinkBlock() (mongo.ScanBlock, uint64, error) {
 	//} else {
 	//	SafeBlock = 0
 	//}
+
+	if mongoBln < 11696216 {
+		mongoBln = 11696216
+	}
 	return mongoBln, NewBlockNumber, nil
 }
 
