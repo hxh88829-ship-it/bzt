@@ -892,3 +892,64 @@ func GetOrderSwitch(i uint64, types string) (OrderSwitch, error) {
 	}
 	return o, nil
 }
+
+func AddOrderSwitchMany() error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil" + "AddOrderSwitch")
+	}
+	filter := bson.D{{"chain_id", 9798}}
+	var o OrderSwitch
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).FindOne(context.Background(), filter).Decode(&o)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			log.Info("FindOne err: ", err)
+			var a OrderSwitch
+			a.Status = 0
+			a.ChainId = 9798
+			a.Types = "OpenOrder"
+			var b OrderSwitch
+			b.Status = 0
+			b.ChainId = 9798
+			b.Types = "CloseOrder"
+			var c OrderSwitch
+			c.Status = 0
+			c.ChainId = 9798
+			c.Types = "GetAirdrop"
+			_, err = MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).InsertOne(context.Background(), a)
+			if err != nil {
+				log.Error("InsertOne err: ", err)
+				return err
+			}
+			_, err = MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).InsertOne(context.Background(), b)
+			if err != nil {
+				log.Error("InsertOne err: ", err)
+				return err
+			}
+			_, err = MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).InsertOne(context.Background(), c)
+			if err != nil {
+				log.Error("InsertOne err: ", err)
+				return err
+			}
+		}
+	}
+	filter = bson.D{{"dapp_name", "bzt"}}
+	var b BztDapp
+	err = MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).FindOne(context.Background(), filter).Decode(&b)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			log.Info("FindOne err: ", err)
+			var d BztDapp
+			d.AppId = 1
+			d.DappIntroduce = "bzt"
+			d.DappIcon = "https://upmpc-test.s3.ap-southeast-1.amazonaws.com/dtc/nft/hx/baozhitong/png/1756194866469_fj47uc5ukam.png"
+			d.DappName = "bzt"
+			d.DappUrl = "http://13.228.99.71:9015/"
+			_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).InsertOne(context.Background(), d)
+			if err != nil {
+				log.Error("InsertOne err: ", err)
+				return err
+			}
+		}
+	}
+	return nil
+}

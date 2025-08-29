@@ -604,7 +604,6 @@ func (s *GreeterService) GetConfigs(ctx context.Context, in *v1.GetConfigsReques
 		ChainId:              api.ChainId,
 		BztContractAddress:   conf.ContractBztAddr,
 		DusdtContractAddress: conf.ContractDusdtAddress,
-		MongoDbUrl:           conf.MongoDBUrl,
 	}, nil
 }
 

@@ -83,7 +83,6 @@ func main() {
 		panic(err)
 	}
 
-	log.Info(bc)
 	if err := LoadConfigInit(); err != nil {
 		panic(err)
 	}
@@ -124,7 +123,6 @@ func LoadConfigInit() error {
 	if mongoDbUrl == "" {
 		return errors.New("mongoDbUrl is empty")
 	}
-	conf.MongoDBUrl = mongoDbUrl
 	//cli, err := mongo.NewMongoClient("mongodb://admin:admin@13.212.58.194:9097")
 	cli, err := mongo.NewMongoClient(mongoDbUrl)
 	if err != nil {
@@ -195,6 +193,24 @@ func LoadConfigInit() error {
 	api.ChainId = id.Uint64()
 	log.Info("chain id is:  ", id)
 
+	/*
+		1. 更新块高
+		2.加入三个开关
+	*/
+	err = mongo.AddOrderSwitchMany()
+	if err != nil {
+		log.Error("mongo.AddOrderSwitchMany", "err", err)
+		return err
+	}
+	var bl mongo.ScanBlock
+	bl.NetWork = 9798
+	bl.LatestBlock = 11690398
+	bl.Time = 1756437327
+	err = mongo.UpdateScanBlock(bl)
+	if err != nil {
+		log.Error("mongo.UpdateScanBlock", "err", err)
+		return err
+	}
 	if id.Uint64() == 9798 {
 		symbols := []string{"BTCUSDT", "ETHUSDT"}
 		go RunService(context.Background(), symbols)
