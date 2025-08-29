@@ -437,6 +437,8 @@ components:
                     type: string
                 dusdtContractAddress:
                     type: string
+                mongoDbUrl:
+                    type: string
             description: The response message containing the greetings
         helloworld.v1.GetConfigsRequest:
             type: object

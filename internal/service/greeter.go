@@ -205,7 +205,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		return nil, errors.New("missing required parameters")
 	}
 	// 提取 addr ， uid
-	addr, _, err := GetAddrAndUidByToken(ctx)
+	addr, uid, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
 		log.Error("GetAddrAndUidByToken err: ", err)
 		return nil, err
@@ -236,6 +236,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		return nil, err
 	}
 	order := mongo.Order{
+		Uid:            uid,
 		OrderId:        orderId,
 		Symbol:         in.GetSymbol(),
 		OpenPrice:      res.Price,
@@ -298,10 +299,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		log.Warnf("[CloseOrder][%s] <Repeatedly close>", in.GetSymbol())
 		return &v1.CloseOrderReply{}, errors.New("<UNK>")
 	}
-	if UserOrderId.Symbol != in.GetSymbol() {
-		return &v1.CloseOrderReply{}, errors.New("币种错误")
-	}
-	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
+	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), UserOrderId.Symbol)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +320,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		return nil, err
 	}
 
-	input, err := bzt.GetCloseOrderInput(orderId, OpenPrice, ClosePrice, res.Symbol)
+	input, err := bzt.GetCloseOrderInput(orderId, OpenPrice, ClosePrice, UserOrderId.Symbol)
 	if err != nil {
 		return nil, err
 	}
@@ -606,6 +604,7 @@ func (s *GreeterService) GetConfigs(ctx context.Context, in *v1.GetConfigsReques
 		ChainId:              api.ChainId,
 		BztContractAddress:   conf.ContractBztAddr,
 		DusdtContractAddress: conf.ContractDusdtAddress,
+		MongoDbUrl:           conf.MongoDBUrl,
 	}, nil
 }
 

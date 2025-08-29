@@ -323,4 +323,5 @@ message GetConfigsReply {
   uint64 chainId = 1;
   string bztContractAddress = 2;
   string dusdtContractAddress = 3;
+  string mongoDbUrl = 4;
 }

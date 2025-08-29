@@ -124,6 +124,7 @@ func LoadConfigInit() error {
 	if mongoDbUrl == "" {
 		return errors.New("mongoDbUrl is empty")
 	}
+	conf.MongoDBUrl = mongoDbUrl
 	//cli, err := mongo.NewMongoClient("mongodb://admin:admin@13.212.58.194:9097")
 	cli, err := mongo.NewMongoClient(mongoDbUrl)
 	if err != nil {

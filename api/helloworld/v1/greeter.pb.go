@@ -2009,6 +2009,7 @@ type GetConfigsReply struct {
 	ChainId              uint64                 `protobuf:"varint,1,opt,name=chainId,proto3" json:"chainId,omitempty"`
 	BztContractAddress   string                 `protobuf:"bytes,2,opt,name=bztContractAddress,proto3" json:"bztContractAddress,omitempty"`
 	DusdtContractAddress string                 `protobuf:"bytes,3,opt,name=dusdtContractAddress,proto3" json:"dusdtContractAddress,omitempty"`
+	MongoDbUrl           string                 `protobuf:"bytes,4,opt,name=mongoDbUrl,proto3" json:"mongoDbUrl,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -2060,6 +2061,13 @@ func (x *GetConfigsReply) GetBztContractAddress() string {
 func (x *GetConfigsReply) GetDusdtContractAddress() string {
 	if x != nil {
 		return x.DusdtContractAddress
+	}
+	return ""
+}
+
+func (x *GetConfigsReply) GetMongoDbUrl() string {
+	if x != nil {
+		return x.MongoDbUrl
 	}
 	return ""
 }
@@ -2192,11 +2200,14 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12\x1d\n" +
 	"\n" +
 	"build_time\x18\x02 \x01(\tR\tbuildTime\"\x13\n" +
-	"\x11GetConfigsRequest\"\x8f\x01\n" +
+	"\x11GetConfigsRequest\"\xaf\x01\n" +
 	"\x0fGetConfigsReply\x12\x18\n" +
 	"\achainId\x18\x01 \x01(\x04R\achainId\x12.\n" +
 	"\x12bztContractAddress\x18\x02 \x01(\tR\x12bztContractAddress\x122\n" +
-	"\x14dusdtContractAddress\x18\x03 \x01(\tR\x14dusdtContractAddress2\xf1\x0e\n" +
+	"\x14dusdtContractAddress\x18\x03 \x01(\tR\x14dusdtContractAddress\x12\x1e\n" +
+	"\n" +
+	"mongoDbUrl\x18\x04 \x01(\tR\n" +
+	"mongoDbUrl2\xf1\x0e\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +

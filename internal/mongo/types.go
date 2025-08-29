@@ -27,6 +27,7 @@ type CoinPrice struct {
 
 // Order 订单
 type Order struct {
+	Uid            string `bson:"uid" json:"uid"`
 	OrderId        string `bson:"order_id" json:"order_id"`
 	Symbol         string `bson:"symbol" json:"symbol"` // 质押币种
 	OpenPrice      string `bson:"open_price" json:"open_price"`

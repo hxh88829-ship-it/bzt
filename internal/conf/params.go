@@ -20,6 +20,7 @@ var (
 	ContractBztAddr      string
 	ContractDusdtAddress string
 	X_Api_Key            string
+	MongoDBUrl           string
 )
 
 // XApiKey      string
