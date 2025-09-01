@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	dbUrl = ""
+	dbUrl = "mongodb://admin:admin@13.212.58.194:9097"
 )
 
 // 添加用户·
@@ -56,7 +56,7 @@ func TestGetPriceByTimestamp(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	res, err := GetPriceByTimestamp(1756369087, "ETHUSDT")
+	res, err := GetPriceByTimestamp(1756699521, "ETHUSDT")
 	if err != nil {
 		t.Error(err)
 		return

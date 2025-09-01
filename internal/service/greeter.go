@@ -90,13 +90,13 @@ func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginReques
 	if err != nil {
 		return nil, errors.New("signature verification failed")
 	}
-	if addr != us.Address {
+	if strings.ToLower(addr) != strings.ToLower(us.Address) {
 		log.Warnf("⚠️ 地址不匹配: 签名地址: %s, 绑定地址: %s", addr, us.Address)
 		return nil, errors.New("signature not match with address")
 	}
 
 	// 清除已使用的签名
-	_ = mongo.UpdateUser(us.Address, "")
+	_ = mongo.UpdateUser(strings.ToLower(us.Address), "")
 	log.Info("login success: ", addr)
 	// 生成 JWT
 	jwtToken, err := api.GetJwtKey(us.Uid, strings.ToLower(us.Address), conf.Secret)
@@ -142,12 +142,12 @@ func (s *GreeterService) WalletBalance(ctx context.Context, in *v1.WalletBalance
 	}
 
 	// 提取 addr ， uid
-	addr, _, err := GetAddrAndUidByToken(ctx)
+	address, _, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
 		log.Error("GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
-	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
+	if strings.ToLower(address) != addr {
 		return &v1.WalletBalanceReply{}, nil
 	}
 
@@ -220,7 +220,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 	if err != nil {
 		return nil, err
 	}
-	count, err := mongo.CountOpenOrdersByAddress(in.GetAddress())
+	count, err := mongo.CountOpenOrdersByAddress(strings.ToLower(addr))
 	if err != nil {
 		return nil, errors.New("failed to check open order count")
 	}
@@ -242,7 +242,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		ClosePrice:     "",
 		ProfitLoss:     "",
 		Amount:         "",
-		UsersAddr:      in.GetAddress(),
+		UsersAddr:      strings.ToLower(addr),
 		IsClosed:       uint64(0), // 0=未开仓确认（待链上确认）
 		OrderStartTime: in.GetTimestamp(),
 		OrderEndTime:   0,
@@ -332,6 +332,8 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if tx == "" {
 		return &v1.CloseOrderReply{}, errors.New("交易未生成")
 	}
+
+	//TODO 是否需要判断返回hash回执是0或1
 	err = mongo.UpdateOrderClose(orderId.String(), ClosePrice.String(), strings.ToLower(tx), in.GetTimestamp())
 	if err != nil {
 		return nil, err
