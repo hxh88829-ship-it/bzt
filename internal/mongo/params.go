@@ -5,7 +5,6 @@ var (
 )
 
 const (
-	//DatabaseNameForChain = "bzt"
 	DatabaseNameForChain = "bzt_hx"
 	user                 = "user"
 	scanBlock            = "scanBlock"

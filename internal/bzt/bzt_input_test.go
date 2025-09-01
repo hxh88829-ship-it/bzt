@@ -50,10 +50,9 @@ func TestGetAirdropInput(t *testing.T) {
 
 func TestUrlGetKeyAddress(t *testing.T) {
 
-	conf.Apikey = ""
-	conf.Apikey = ""
-	conf.BaseUrl = ""
-	conf.KeyId = ""
+	conf.Apikey = "dtcd_xxxxxx"
+	conf.BaseUrl = "http://47.111.28.25:8016"
+	conf.KeyId = "0a1382ae-7e21-49e8-928e-0614103b2045"
 
 	res, err := UrlGetKeyAddress()
 	if err != nil {
