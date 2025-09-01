@@ -603,7 +603,7 @@ func (s *GreeterService) GetBztOwnerAddress(ctx context.Context, in *v1.GetBztOw
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
 		Version:   "v0.0.13",
-		BuildTime: "2025-08-29T16:51:00Z",
+		BuildTime: "2025-09-01T11:04:00Z",
 	}, nil
 }
 
