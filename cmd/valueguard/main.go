@@ -114,6 +114,7 @@ func LoadConfigInit() error {
 		os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
 		//os.Setenv("mongoDbUrl", "mongodb://admin:admin@localhost:27017/?directConnection=true") //本地测试
 		os.Setenv("mongoDbUrl", "mongodb://admin:admin@13.212.58.194:9097") //远程测试
+		//测试需要修改四步，推送注意还原
 	*/
 
 	//初始化mongo数据库
@@ -122,7 +123,6 @@ func LoadConfigInit() error {
 	if mongoDbUrl == "" {
 		return errors.New("mongoDbUrl is empty")
 	}
-	//cli, err := mongo.NewMongoClient("mongodb://admin:admin@13.212.58.194:9097")
 	cli, err := mongo.NewMongoClient(mongoDbUrl)
 	if err != nil {
 		return err

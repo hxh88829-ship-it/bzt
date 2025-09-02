@@ -306,7 +306,7 @@ func AirdropTrade(event *bzt.BztAirdrop, blTime uint64, status bool) error {
 
 func AddTransactionTrade(txh *types.Transaction, receipt *types.Receipt,
 	from common.Address, blTime uint64, types string) (bool, error) {
-	_, err := mongo.GetTransaction(receipt.TxHash.String())
+	_, err := mongo.GetTransaction(strings.ToLower(receipt.TxHash.String()))
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			var tx mongo.Transaction

@@ -68,6 +68,13 @@ func GetAirdropByDay(res mongo.RewardAmount) error { //取出当天空投
 			if err != nil {
 				return err
 			}
+			err = mongo.UpdateRewardPool(
+				"DUSDT",
+				totalAfter.String(),
+			)
+			if err != nil {
+				return err
+			}
 			return nil
 		} else {
 			return err
@@ -146,7 +153,7 @@ func UpdateLossAmount(addr, symbol string) (*big.Int, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	Claimed, err := api.StringToBigIntSum(users.ClaimAirdrop, claims.String()) // 目前已领
+	Claimed, err := api.StringToBigIntSum(users.ClaimAirdrop, claims.String()) // 目前已领加今日可领
 	if err != nil {
 		return nil, "", err
 	}

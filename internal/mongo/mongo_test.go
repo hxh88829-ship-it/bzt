@@ -138,7 +138,7 @@ func TestGetAirdropForAll(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	res, err := GetAirdropForAll("0x34dc39ff05a10cb21724b477e6f1900fd4d8e72f")
+	res, err := GetAirdropForAll("0x483d9448b11d0dFB8136f5A3189cA1F953f3C632")
 	if err != nil {
 		t.Error(err)
 		return

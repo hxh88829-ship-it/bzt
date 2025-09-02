@@ -499,6 +499,7 @@ func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRe
 		return nil, err
 	}
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddr()) {
+		log.Warnf("[OrderTrade]: token_addr=%s, req_addr=%s", addr, in.GetAddr())
 		return &v1.AirdropTradeReply{}, err
 	}
 	//查询空投记录
@@ -604,7 +605,7 @@ func (s *GreeterService) GetBztOwnerAddress(ctx context.Context, in *v1.GetBztOw
 
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
-		Version:   "v0.0.17",
+		Version:   "v0.0.18",
 		BuildTime: "2025-09-01T11:04:00Z",
 	}, nil
 }
