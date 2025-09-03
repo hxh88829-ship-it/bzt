@@ -206,7 +206,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		return nil, errors.New("missing required parameters")
 	}
 	log.Infof(
-		"MarketCondition  parameters – address: %q, timestamp: %d, symbol: %q",
+		"OpenOrder  parameters – address: %q, timestamp: %d, symbol: %q",
 		in.GetAddress(),
 		in.GetTimestamp(),
 		in.GetSymbol(),
@@ -263,7 +263,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		log.Errorf("CreateOrder failed: %v", err)
 		return nil, errors.New("failed to create order")
 	}
-	log.Info("MarketCondition  parameters:", orderId, "\n", sta.Status)
+	log.Info("OpenOrder  parameters:", orderId, "\n", sta.Status)
 	return &v1.OpenOrderReply{
 		OrderId: orderId,
 		Status:  sta.Status,
