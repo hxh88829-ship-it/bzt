@@ -28,11 +28,11 @@ func StartAirdropCron() *cron.Cron {
 		log.Infof("Start daily airdrop for date %s", dateStr)
 		resStart, err := mongo.GetRewardAmount("DUSDT")
 		if err != nil {
-			log.Warnf(" GetRewardAmount error: %v", err)
+			log.Warnf("StartAirdropCron  GetRewardAmount error: %v", err)
 			return
 		}
 		if err := GetAirdropByDay(resStart); err != nil {
-			log.Warnf("GetAirdropByDay error: %v", err)
+			log.Warnf("StartAirdropCron GetAirdropByDay error: %v", err)
 			return
 		}
 
@@ -68,6 +68,7 @@ func GetAirdropByDay(res mongo.RewardAmount) error { //取出当天空投
 			dailyAir.PoolTotal = total.String()
 			err = mongo.AddDailyAirdrop(dailyAir)
 			if err != nil {
+				log.Errorf("GetAirdropByDay AddDailyAirdrop error: %v", err)
 				return err
 			}
 			err = mongo.UpdateRewardPool(
@@ -75,10 +76,12 @@ func GetAirdropByDay(res mongo.RewardAmount) error { //取出当天空投
 				totalAfter.String(),
 			)
 			if err != nil {
+				log.Errorf("GetAirdropByDay UpdateRewardPool error: %v", err)
 				return err
 			}
 			return nil
 		} else {
+			log.Errorf("GetAirdropByDay error: %v", err)
 			return err
 		}
 	}
@@ -89,6 +92,7 @@ func GetAirdropByDay(res mongo.RewardAmount) error { //取出当天空投
 			totalAfter.String(),
 		)
 		if err != nil {
+			log.Errorf("GetAirdropByDay UpdateRewardPool error: %v", err)
 			return err
 		}
 		rewarded := new(big.Int) //昨日剩余空投
@@ -99,6 +103,7 @@ func GetAirdropByDay(res mongo.RewardAmount) error { //取出当天空投
 		totalReward := new(big.Int).Add(rewarded, reward)
 		err = mongo.UpdateDailyAirdropRemain(totalReward.String(), "DUSDT", timestamp, total.String())
 		if err != nil {
+			log.Errorf("GetAirdropByDay UpdateDailyAirdropRemain error: %v", err)
 			return err
 		}
 		return nil
@@ -144,23 +149,28 @@ func CalculateAirdrop(userLoss, totalLoss, totalReward string) (*big.Int, error)
 func UpdateLossAmount(addr, symbol string) (*big.Int, string, error) {
 	reward, err := mongo.GetDailyAirdropBySymbol("DUSDT")
 	if err != nil {
+		log.Errorf("UpdateLossAmount GetDailyAirdropBySymbol error: %v", err)
 		return nil, "", err
 	}
 	users, err := mongo.GetUserLossAmount(strings.ToLower(addr), symbol) //用户当前
 	if err != nil {
+		log.Errorf("UpdateLossAmount GetUserLossAmount error: %v", err)
 		return nil, "", err
 	}
 	log.Infof("UpdateLossAmount, users: %s", users.LossAmount)
 	claims, err := CalculateAirdrop(users.LossAmount, reward.PoolTotal, reward.Reward) // 今日可领
 	if err != nil {
+		log.Errorf("UpdateLossAmount CalculateAirdrop error: %v", err)
 		return nil, "", err
 	}
 	Claimed, err := api.StringToBigIntSum(users.ClaimAirdrop, claims.String()) // 目前已领加今日可领
 	if err != nil {
+		log.Errorf("UpdateLossAmount api.StringToBigIntSum error: %v", err)
 		return nil, "", err
 	}
 	compareRes, err := CompareBigInt(users.LossAmount, Claimed.String()) //领取是否超出以损
 	if err != nil {
+		log.Errorf("UpdateLossAmount CompareBigInt error: %v", err)
 		return nil, "", err
 	}
 	if compareRes == -1 {

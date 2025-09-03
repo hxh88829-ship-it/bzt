@@ -48,13 +48,13 @@ func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1
 func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletRequest) (*v1.BindWalletReply, error) {
 	isAddress := regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString
 	addr := strings.ToLower(in.GetAddress()) //转小写
-	log.Info(in.GetAddress(), "\n", addr)
+	log.Info("BindWallet address: ", in.GetAddress())
 	if !isAddress(addr) {
 		return &v1.BindWalletReply{Metadata: "invalid address"}, nil
 	}
 	exists, err := IsWalletBound(addr)
 	if err != nil {
-		log.Error("IsWalletBound:", err)
+		log.Error("BindWallet IsWalletBound:", err)
 		return &v1.BindWalletReply{}, err
 	}
 	if exists {
@@ -73,6 +73,7 @@ func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletReques
 
 	err = mongo.AddUser(user)
 	if err != nil {
+		log.Error("BindWallet AddUser:", err)
 		return nil, err
 	}
 	return &v1.BindWalletReply{
@@ -85,11 +86,13 @@ func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletReques
 func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginRequest) (*v1.LoginReply, error) {
 	us, err := mongo.GetUser(strings.ToLower(in.GetAddress()))
 	if err != nil {
+		log.Error("LoginWithWallet GetUser:", err)
 		return nil, err
 	}
-
+	log.Info("LoginWithWallet :", in.GetAddress())
 	addr, err := api.VerifyForAddress(us.OriginalMessage, in.GetSignature())
 	if err != nil {
+		log.Error("LoginWithWallet VerifyForAddress:", err)
 		return nil, errors.New("signature verification failed")
 	}
 	if strings.ToLower(addr) != strings.ToLower(us.Address) {
@@ -103,6 +106,7 @@ func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginReques
 	// 生成 JWT
 	jwtToken, err := api.GetJwtKey(us.Uid, strings.ToLower(us.Address), conf.Secret)
 	if err != nil {
+		log.Error("LoginWithWallet GetJwtKey:", err)
 		return nil, err
 	}
 
@@ -114,11 +118,13 @@ func (s *GreeterService) LoginWithWallet(ctx context.Context, in *v1.LoginReques
 func (s *GreeterService) GetLoginMessage(ctx context.Context, in *v1.GetLoginMessageRequest) (*v1.GetLoginMessageReply, error) {
 	isAddress := regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString
 	addr := strings.ToLower(in.GetAddress())
+	log.Info("GetLoginMessage: ", in.GetAddress())
 	if !isAddress(addr) {
 		return &v1.GetLoginMessageReply{Metadata: "invalid address"}, nil
 	}
 	exists, err := IsWalletBound(addr)
 	if err != nil {
+		log.Error("GetLoginMessage IsWalletBound:", err)
 		return &v1.GetLoginMessageReply{}, err
 	}
 	if !exists {
@@ -214,7 +220,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 	// 提取 addr ， uid
 	addr, uid, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
-		log.Error("GetAddrAndUidByToken err: ", err)
+		log.Error("OpenOrder GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
@@ -226,10 +232,12 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 	orderId := api.GetSnowflakeID(0)
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
 	if err != nil {
+		log.Error("OpenOrder GetPriceByTimestamp err: ", err)
 		return nil, err
 	}
 	count, err := mongo.CountOpenOrdersByAddress(strings.ToLower(addr))
 	if err != nil {
+		log.Error("OpenOrder CountOpenOrdersByAddress err: ", err)
 		return nil, errors.New("failed to check open order count")
 	}
 
@@ -240,6 +248,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 
 	sta, err := mongo.GetOrderSwitch(api.ChainId, "OpenOrder")
 	if err != nil {
+		log.Error("OpenOrder GetOrderSwitch err: ", err)
 		return nil, err
 	}
 	order := mongo.Order{
@@ -285,7 +294,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	// 提取 addr ， uid
 	addr, _, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
-		log.Error("GetAddrAndUidByToken err: ", err)
+		log.Error("CloseOrder GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
@@ -295,7 +304,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	}
 	sta, err := mongo.GetOrderSwitch(api.ChainId, "CloseOrder")
 	if err != nil {
-		log.Warnf("[CloseOrder] : %v", err)
+		log.Warnf("[CloseOrder] GetOrderSwitch : %v", err)
 		return nil, err
 	}
 	if sta.Status != uint64(0) {
@@ -314,31 +323,38 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	}
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), UserOrderId.Symbol)
 	if err != nil {
+		log.Error("CloseOrder GetPriceByTimestamp err: ", err)
 		return nil, err
 	}
-
+	//防止用户重复关仓
 	if UserOrderId.IsClosed == 0 {
 		return &v1.CloseOrderReply{}, errors.New("订单等待链上确认")
 	}
 	orderId, err := api.StringToBigInt(UserOrderId.OrderId)
 	if err != nil {
+		log.Error("CloseOrder StringToBigInt err: ", err)
 		return nil, err
 	}
 	OpenPrice, err := api.StringToBigInt(UserOrderId.OpenPrice)
 	if err != nil {
+		log.Error("CloseOrder StringToBigInt err: ", err)
 		return nil, err
 	}
 	ClosePrice, err := api.StringToBigInt(res.Price)
 	if err != nil {
+		log.Error("CloseOrder StringToBigInt err: ", err)
 		return nil, err
 	}
-
+	log.Infof("orderId:%q,   OpenPrice:%q,   ClosePrice:%q,   UserOrderId.Symbol:%q",
+		orderId, OpenPrice, ClosePrice, UserOrderId.Symbol)
 	input, err := bzt.GetCloseOrderInput(orderId, OpenPrice, ClosePrice, UserOrderId.Symbol)
 	if err != nil {
+		log.Error("CloseOrder GetCloseOrderInput err: ", err)
 		return nil, err
 	}
 	tx, nonce, err := bzt.UrlOwnerContractTransfer(input, api.Client)
 	if err != nil {
+		log.Error("CloseOrder UrlOwnerContractTransfer err: ", err)
 		return nil, err
 	}
 	log.Info(nonce, "\n", tx)
@@ -350,6 +366,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	//TODO 是否需要判断返回hash回执是0或1
 	err = mongo.UpdateOrderClose(orderId.String(), ClosePrice.String(), strings.ToLower(tx), in.GetTimestamp())
 	if err != nil {
+		log.Error("CloseOrder UpdateOrderClose err: ", err)
 		return nil, err
 	}
 	return &v1.CloseOrderReply{
@@ -374,14 +391,14 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	// 提取 addr ， uid
 	addr, uid, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
-		log.Error("GetAddrAndUidByToken err: ", err)
+		log.Error("GetAirdrop GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
 
 	//获取开关
 	sta, err := mongo.GetOrderSwitch(api.ChainId, "GetAirdrop")
 	if err != nil {
-		log.Error("GetAirdrop: ", err)
+		log.Error("GetAirdrop GetOrderSwitch: ", err)
 		return nil, err
 	}
 	if sta.Status != 0 {
@@ -393,7 +410,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	today := in.GetTimestamp()
 	claims, claimed, err := dailyAirdrop.UpdateLossAmount(strings.ToLower(addr), "DUSDT") // 用户今日可领，领后总额
 	if err != nil {
-		log.Error("UpdateLossAmount:", err)
+		log.Error("GetAirdrop UpdateLossAmount:", err)
 		return nil, err
 	}
 	log.Info("claims:", claimed)
@@ -406,10 +423,12 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 			OrderId := api.GetSnowflakeID(1)
 			daily, err := mongo.GetDailyAirdrop(today, "DUSDT") // 今日空投总额
 			if err != nil {
+				log.Error("GetAirdrop GetDailyAirdrop:", err)
 				return nil, err
 			}
 			remain, err := api.StringToBigIntSub(daily.Reward, claims.String()) //空投剩余
 			if err != nil {
+				log.Error("GetAirdrop StringToBigIntSub:", err)
 				return nil, err
 			}
 			if remain.Sign() < 0 {
@@ -418,10 +437,12 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 
 			input, err := bzt.GetAirdropInput(common.HexToAddress(addr), claims)
 			if err != nil {
+				log.Error("GetAirdrop GetAirdropInput:", err)
 				return nil, err
 			}
 			tx, nonce, err := bzt.UrlOwnerContractTransfer(input, api.Client)
 			if err != nil {
+				log.Error("GetAirdrop UrlOwnerContractTransfer err: ", err)
 				return nil, err
 			}
 			log.Info(nonce)
@@ -442,15 +463,18 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 
 			err = mongo.AddAirdrop(air)
 			if err != nil {
+				log.Error("GetAirdrop AddAirdrop:", err)
 				return nil, err
 			}
 
 			err = mongo.UpdateUserClaims("DUSDT", strings.ToLower(addr), claimed)
 			if err != nil {
+				log.Error("GetAirdrop UpdateUserClaims:", err)
 				return nil, err
 			}
 			err = mongo.UpdateDailyAirdrop(today, "DUSDT", remain.String())
 			if err != nil {
+				log.Error("GetAirdrop UpdateDailyAirdrop:", err)
 				return nil, err
 			}
 
@@ -476,6 +500,7 @@ func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeReques
 		log.Error("GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
+	log.Info("OrderTrade GetAddrAndUidByToken:", addr)
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
 		log.Warnf("[OrderTrade]: token_addr=%s, req_addr=%s", addr, in.GetAddress())
 		return &v1.OrderTradeReply{}, err
@@ -483,6 +508,7 @@ func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeReques
 	// 查询订单记录
 	res, err := mongo.GetOrderForAll(strings.ToLower(addr), in.GetPage(), in.GetPageSize())
 	if err != nil {
+		log.Error("OrderTrade GetOrderForAll err: ", err)
 		return nil, err
 	}
 	var result v1.OrderTradeReply
@@ -513,6 +539,7 @@ func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRe
 		log.Error("GetAddrAndUidByToken err: ", err)
 		return nil, err
 	}
+	log.Info("AirdropTrade GetAddrAndUidByToken:", addr)
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddr()) {
 		log.Warnf("[OrderTrade]: token_addr=%s, req_addr=%s", addr, in.GetAddr())
 		return &v1.AirdropTradeReply{}, err
@@ -520,6 +547,7 @@ func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRe
 	//查询空投记录
 	res, err := mongo.GetAirdropForAll(strings.ToLower(in.GetAddr()))
 	if err != nil {
+		log.Error("AirdropTrade GetAirdropForAll err: ", err)
 		return nil, err
 	}
 	var result v1.AirdropTradeReply
@@ -610,6 +638,7 @@ func (s *GreeterService) DeployContract(ctx context.Context, in *v1.DeployContra
 func (s *GreeterService) GetBztOwnerAddress(ctx context.Context, in *v1.GetBztOwnerAddressRequest) (*v1.GetBztOwnerAddressReply, error) {
 	ownerAddr, err := bzt.UrlGetKeyAddress()
 	if err != nil {
+		log.Error("GetBztOwnerAddress err: ", err)
 		return nil, err
 	}
 	log.Info("UrlGetKeyAddress", ownerAddr)
@@ -620,8 +649,8 @@ func (s *GreeterService) GetBztOwnerAddress(ctx context.Context, in *v1.GetBztOw
 
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
-		Version:   "v0.0.18",
-		BuildTime: "2025-09-01T11:04:00Z",
+		Version:   "v0.0.22",
+		BuildTime: "2025-09-04T11:04:00Z",
 	}, nil
 }
 
@@ -643,7 +672,7 @@ func IsWalletBound(addr string) (bool, error) {
 	if errors.Is(err, mongo.ErrNoDocuments) {
 		return false, nil
 	}
-	log.Errorf("mongo.GetUser err: %s", err)
+	log.Errorf("IsWalletBound mongo.GetUser err: %s", err)
 	return false, err
 }
 

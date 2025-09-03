@@ -114,6 +114,7 @@ func ConvertPriceToBigIntString(priceStr string, precision int64) (string, error
 	// 先用 big.Float 解析字符串
 	priceFloat, _, err := big.ParseFloat(priceStr, 10, 256, big.ToNearestEven)
 	if err != nil {
+		log.Errorf("[ConvertPriceToBigIntString] convert error: %v", err)
 		return "", err
 	}
 

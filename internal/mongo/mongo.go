@@ -87,7 +87,7 @@ func AddUser(a Users) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).InsertOne(context.Background(), a)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddUser InsertOne err: ", err)
 		return errors.New("add user fail")
 	}
 	return nil
@@ -100,6 +100,7 @@ func GetUser(addr string) (Users, error) {
 	var ma Users
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).FindOne(context.Background(), filter).Decode(&ma)
 	if err != nil {
+		log.Error("GetUser FindOne err: ", err)
 		return Users{}, ErrNoDocuments
 	}
 	return ma, nil
@@ -115,7 +116,7 @@ func UpdateUser(addr, OriginalMessage string) error {
 	}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).UpdateMany(context.Background(), filter, update)
 	if err != nil {
-		log.Error(err, "UpdateUser fail")
+		log.Error("UpdateUser fail ", err)
 		return err
 	}
 	return nil
@@ -128,7 +129,7 @@ func AddPrice(v CoinPrice) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).InsertOne(context.Background(), v)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddPrice InsertOne err: ", err)
 		return errors.New("add price fail")
 	}
 	return nil
@@ -141,7 +142,7 @@ func GetPriceForIndex(symbol string, ind uint64) (CoinPrice, error) {
 	var ma CoinPrice
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).FindOne(context.Background(), filter).Decode(&ma)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetPriceForIndex FindOne err: ", err)
 		return CoinPrice{}, ErrNoDocuments
 	}
 	return ma, nil
@@ -157,7 +158,7 @@ func SavePrice(symbol, price string, ind, times uint64) error {
 	}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateLogin err: ", err)
+		log.Error("SavePrice UpdateLogin err: ", err)
 		return errors.New("save price fail")
 	}
 	return nil
@@ -175,7 +176,7 @@ func GetPriceByTimestamp(blockTime uint64, symbol string) (CoinPrice, error) {
 	var priceRecord CoinPrice
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).FindOne(context.Background(), filter, opts).Decode(&priceRecord)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetPriceByTimestamp  FindOne err: ", err)
 		return CoinPrice{}, ErrNoDocuments
 	}
 	return priceRecord, nil
@@ -199,6 +200,7 @@ func GetPriceBySymbol(symbol string, start, end int64) ([]CoinPrice, error) {
 
 	cursor, err := collection.Find(context.Background(), filter, opts)
 	if err != nil {
+		log.Error("GetPriceBySymbol FindOne err: ", err)
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
@@ -218,7 +220,7 @@ func AddOrder(a Order) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).InsertOne(context.Background(), a)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddOrder InsertOne err: ", err)
 		return errors.New("add order fail")
 	}
 	return nil
@@ -231,7 +233,7 @@ func GetOrder(OrderId string) (Order, error) {
 	var ma Order
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).FindOne(context.Background(), filter).Decode(&ma)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetOrder FindOne err: ", err)
 		return Order{}, ErrNoDocuments
 	}
 	return ma, nil
@@ -264,14 +266,14 @@ func GetOrderForAll(addr string, page, size int64) ([]Order, error) {
 	cursor, err := MonCli.Client.Database(DatabaseNameForChain).
 		Collection(order).Find(context.Background(), filter, opts)
 	if err != nil {
-		log.Error("Find err: ", err)
+		log.Error("GetOrderForAll Find err: ", err)
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	var res []Order
 	if err := cursor.All(context.Background(), &res); err != nil {
-		log.Error("Cursor decode err: ", err)
+		log.Error("GetOrderForAll Cursor decode err: ", err)
 		return nil, err
 	}
 	return res, nil
@@ -290,8 +292,8 @@ func UpdateOrderClose(OrderId, ClosePri, txHash string, timestamp uint64) error 
 
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateLogin err: ", err)
-		return errors.New("update order fail")
+		log.Error("UpdateOrderClose  err: ", err)
+		return errors.New("UpdateOrderClose fail")
 	}
 	return nil
 }
@@ -307,8 +309,8 @@ func UpdateOrderOpenStatus(OrderId, OpenTx, Amount string, IsClosed uint64) erro
 	}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateLogin err: ", err)
-		return errors.New("update order fail")
+		log.Error("UpdateOrderOpenStatus err: ", err)
+		return errors.New("UpdateOrderOpenStatus fail")
 	}
 	return nil
 }
@@ -323,8 +325,8 @@ func UpdateOrderClosedStatus(OrderId, Profit string, IsClosed uint64) error {
 	}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateLogin err: ", err)
-		return errors.New("update order fail")
+		log.Error("UpdateOrderClosedStatus err: ", err)
+		return errors.New("UpdateOrderClosedStatus fail")
 	}
 	return nil
 }
@@ -340,6 +342,7 @@ func CountOpenOrdersByAddress(address string) (int64, error) {
 	}
 	count, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).CountDocuments(context.Background(), filter)
 	if err != nil {
+		log.Error("CountOpenOrdersByAddress err: ", err)
 		return 0, err
 	}
 	return count, nil
@@ -352,7 +355,7 @@ func AddRewardAmount(a RewardAmount) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).InsertOne(context.Background(), a)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddRewardAmount InsertOne err: ", err)
 		return errors.New("add loss amount fail")
 	}
 	return nil
@@ -367,29 +370,12 @@ func GetRewardAmount(tokenName string) (RewardAmount, error) {
 	var loss RewardAmount
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).FindOne(context.Background(), filter).Decode(&loss)
 	if err != nil {
+		log.Error("GetRewardAmount FindOne err: ", err)
 		return RewardAmount{}, ErrNoDocuments
 	}
 	return loss, nil
 }
-func UpdateRewardAmount(tokenName, totalAmount string) error {
-	if MonCli == nil {
-		return errors.New("mongo client is nil" + "UpdateRewardAmount")
-	}
-	filter := bson.M{
-		"symbol": tokenName,
-	}
-	update := bson.D{
-		{"$set", bson.D{
-			{"total_amount", totalAmount},
-			{"update_at", time.Now().Unix()},
-		}}}
-	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).UpdateOne(context.Background(), filter, update)
-	if err != nil {
-		log.Error("UpdateLoss err: ", err)
-		return errors.New("update amount fail")
-	}
-	return nil
-}
+
 func UpdateRewardPool(tokenName, total string) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateRewardPool")
@@ -404,7 +390,7 @@ func UpdateRewardPool(tokenName, total string) error {
 		}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateLoss err: ", err)
+		log.Error("UpdateRewardPool err: ", err)
 		return errors.New("update amount fail")
 	}
 	return nil
@@ -417,7 +403,7 @@ func AddUserLossAmount(a UserLossAmount) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).InsertOne(context.Background(), a)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddUserLossAmount InsertOne err: ", err)
 		return errors.New("add user loss amount fail")
 	}
 	return nil
@@ -433,6 +419,7 @@ func GetUserLossAmount(addr, tokenName string) (UserLossAmount, error) {
 	var loss UserLossAmount
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).FindOne(context.Background(), filter).Decode(&loss)
 	if err != nil {
+		log.Error("GetUserLossAmount FindOne err: ", err)
 		return UserLossAmount{}, ErrNoDocuments
 	}
 	return loss, nil
@@ -452,7 +439,7 @@ func UpdateUserLossAmount(tokenName, addr, Amount string) error {
 		}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateLoss err: ", err)
+		log.Error("UpdateUserLossAmount err: ", err)
 		return errors.New("update loss amount fail")
 	}
 	return nil
@@ -472,8 +459,8 @@ func UpdateUserClaims(tokenName, addr, Amount string) error {
 		}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateLoss err: ", err)
-		return errors.New("update loss amount fail")
+		log.Error("UpdateUserClaims err: ", err)
+		return errors.New("UpdateUserClaims fail")
 	}
 	return nil
 }
@@ -485,7 +472,7 @@ func AddAirdrop(air Airdrop) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).InsertOne(context.Background(), air)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddAirdrop InsertOne err: ", err)
 		return errors.New("add airdrop fail")
 	}
 	return nil
@@ -498,7 +485,7 @@ func GetAirdrop(tx string) (Airdrop, error) {
 	var a Airdrop
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).FindOne(context.Background(), filter).Decode(&a)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetAirdrop FindOne err: ", err)
 		return Airdrop{}, ErrNoDocuments
 	}
 	return a, nil
@@ -511,7 +498,7 @@ func QueryAirdrop(addr, today string) error {
 	var a Airdrop
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).FindOne(context.Background(), filter).Decode(&a)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("QueryAirdrop FindOne err: ", err)
 		return ErrNoDocuments
 	}
 	return nil
@@ -526,14 +513,14 @@ func GetAirdropForAll(addr string) ([]Airdrop, error) {
 
 	cursor, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).Find(context.Background(), filter, opts)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetAirdropForAll FindOne err: ", err)
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	var res []Airdrop
 	if err := cursor.All(context.Background(), &res); err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetAirdropForAll FindOne err: ", err)
 		return nil, err
 	}
 	return res, nil
@@ -549,8 +536,8 @@ func UpdateAirdropStatus(tx string, i uint64) error {
 		}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateAirdrop err: ", err)
-		return errors.New("update airdrop fail")
+		log.Error("UpdateAirdropStatus err: ", err)
+		return errors.New("UpdateAirdropStatus fail")
 	}
 	return nil
 }
@@ -578,7 +565,7 @@ func AddDailyAirdrop(air DailyAirdropTrade) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).InsertOne(context.Background(), air)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddDailyAirdrop InsertOne err: ", err)
 		return errors.New("add daily airdrop fail")
 	}
 	return nil
@@ -591,20 +578,20 @@ func GetDailyAirdrop(timestamp, symbol string) (DailyAirdropTrade, error) {
 	var a DailyAirdropTrade
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).FindOne(context.Background(), filter).Decode(&a)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetDailyAirdrop FindOne err: ", err)
 		return DailyAirdropTrade{}, ErrNoDocuments
 	}
 	return a, nil
 }
 func GetDailyAirdropBySymbol(symbol string) (DailyAirdropTrade, error) {
 	if MonCli == nil {
-		return DailyAirdropTrade{}, errors.New("mongo client is nil" + "GetDailyAirdrop")
+		return DailyAirdropTrade{}, errors.New("mongo client is nil" + "GetDailyAirdropBySymbol")
 	}
 	filter := bson.D{{"symbol", symbol}}
 	var a DailyAirdropTrade
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).FindOne(context.Background(), filter).Decode(&a)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetDailyAirdropBySymbol FindOne err: ", err)
 		return DailyAirdropTrade{}, ErrNoDocuments
 	}
 	return a, nil
@@ -627,7 +614,7 @@ func UpdateDailyAirdrop(date, symbol, value string) error {
 }
 func UpdateDailyAirdropRemain(val, symbol, date, total string) error {
 	if MonCli == nil {
-		return errors.New("mongo client is nil" + "UpdateDailyAirdrop")
+		return errors.New("mongo client is nil" + "UpdateDailyAirdropRemain")
 	}
 	filter := bson.D{{"symbol", symbol}}
 	update := bson.D{
@@ -651,7 +638,7 @@ func AddTransaction(tx Transaction) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction).InsertOne(context.Background(), tx)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddTransaction InsertOne err: ", err)
 		return errors.New("add transaction fail")
 	}
 	return nil
@@ -664,7 +651,7 @@ func GetTransaction(tx string) (Transaction, error) {
 	var txh Transaction
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction).FindOne(context.Background(), filter).Decode(&txh)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetTransaction FindOne err: ", err)
 		return Transaction{}, ErrNoDocuments
 	}
 	return txh, nil
@@ -692,7 +679,7 @@ func AddScanBlock(a ScanBlock) error {
 
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(scanBlock).InsertOne(context.Background(), a)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddScanBlock InsertOne err: ", err)
 		return err
 	}
 	return nil
@@ -709,7 +696,7 @@ func UpdateScanBlock(sbl ScanBlock) error {
 	}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(scanBlock).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error(err, "UpdateUser fail")
+		log.Error("UpdateScanBlock fail ", err)
 		return err
 	}
 
@@ -724,7 +711,7 @@ func GetScanBlock(i uint64) (uint64, error) {
 	err := MonCli.Client.Database(DatabaseNameForChain).
 		Collection(scanBlock).FindOne(context.Background(), filter).Decode(&bl)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetScanBlock FindOne err: ", err)
 		return 0, ErrNoDocuments
 	}
 	return bl.LatestBlock, nil
@@ -811,7 +798,7 @@ func AddBztDapp(a BztDapp) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).InsertOne(context.Background(), a)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddBztDapp InsertOne err: ", err)
 		return err
 	}
 	return nil
@@ -824,7 +811,7 @@ func GetBztDapp(name string) (BztDapp, error) {
 	var b BztDapp
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).FindOne(context.Background(), filter).Decode(&b)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetBztDapp FindOne err: ", err)
 		return b, ErrNoDocuments
 	}
 	return b, nil
@@ -837,7 +824,7 @@ func UpdateBztDapp(url, name string) error {
 	update := bson.D{{"$set", bson.D{{"dapp_icon", url}}}}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		log.Error("UpdateOne err: ", err)
+		log.Error("UpdateBztDapp err: ", err)
 		return err
 	}
 	return nil
@@ -849,7 +836,7 @@ func AddDeployTransaction(tx DeployTransaction) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(deployContract).InsertOne(context.Background(), tx)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddDeployTransaction InsertOne err: ", err)
 		return err
 	}
 	return nil
@@ -874,7 +861,7 @@ func AddOrderSwitch(i OrderSwitch) error {
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).InsertOne(context.Background(), i)
 	if err != nil {
-		log.Error("InsertOne err: ", err)
+		log.Error("AddOrderSwitch InsertOne err: ", err)
 		return err
 	}
 	return nil
@@ -887,7 +874,7 @@ func GetOrderSwitch(i uint64, types string) (OrderSwitch, error) {
 	var o OrderSwitch
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).FindOne(context.Background(), filter).Decode(&o)
 	if err != nil {
-		log.Error("FindOne err: ", err)
+		log.Error("GetOrderSwitch FindOne err: ", err)
 		return o, ErrNoDocuments
 	}
 	return o, nil

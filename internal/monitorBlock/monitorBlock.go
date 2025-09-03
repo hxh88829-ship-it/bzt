@@ -265,12 +265,12 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 	if event.ProfitLoss.Sign() >= 0 {
 		value, err := api.StringToBigIntDiv(Order.ProfitLoss.String(), "2")
 		if err != nil {
-			log.Errorf("ProfitLoss > 0 StringToBigIntDiv err: %v", err)
+			log.Errorf("ProfitLoss >= 0 StringToBigIntDiv err: %v", err)
 			return err
 		}
 		err = RewardPool(Order, value, blTime)
 		if err != nil {
-			log.Errorf("ProfitLoss > 0 RewardPool : %v", err)
+			log.Errorf("ProfitLoss >= 0 RewardPool : %v", err)
 			return err
 		}
 	} else {
@@ -361,7 +361,7 @@ func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 		log.Errorf("GetRewardAmounterr: %v", err)
 		return err
 	}
-	err = mongo.UpdateRewardAmount("DUSDT", newValue.String())
+	err = mongo.UpdateRewardPool("DUSDT", newValue.String())
 	if err != nil {
 		log.Errorf("UpdateRewardAmounterr: %v", err)
 		return err
