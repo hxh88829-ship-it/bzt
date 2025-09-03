@@ -29,9 +29,11 @@ func StartAirdropCron() *cron.Cron {
 		resStart, err := mongo.GetRewardAmount("DUSDT")
 		if err != nil {
 			log.Warnf(" GetRewardAmount error: %v", err)
+			return
 		}
 		if err := GetAirdropByDay(resStart); err != nil {
 			log.Warnf("GetAirdropByDay error: %v", err)
+			return
 		}
 
 	})
