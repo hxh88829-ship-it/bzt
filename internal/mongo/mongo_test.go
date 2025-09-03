@@ -56,7 +56,7 @@ func TestGetPriceByTimestamp(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	res, err := GetPriceByTimestamp(1756699521, "ETHUSDT")
+	res, err := GetPriceByTimestamp(1756792416, "BTCUSDT")
 	if err != nil {
 		t.Error(err)
 		return

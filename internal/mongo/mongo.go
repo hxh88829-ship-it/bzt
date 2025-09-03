@@ -169,7 +169,7 @@ func GetPriceByTimestamp(blockTime uint64, symbol string) (CoinPrice, error) {
 	filter := bson.M{
 		"symbol": symbol, // 资产代号，如 "BTCUSDT"
 		// TODO 是否可以对时间判断选择小于等于的时间戳
-		"timestamp": blockTime, // 小于等于块时间戳
+		"timestamp": bson.M{"$lte": blockTime}, // 小于等于块时间戳
 	}
 	opts := options.FindOne().SetSort(bson.D{{"timestamp", -1}})
 	var priceRecord CoinPrice

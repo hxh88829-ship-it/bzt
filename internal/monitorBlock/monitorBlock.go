@@ -72,6 +72,13 @@ func UpdateScanBlockPlace(blockNum uint64) error {
 func GetMongodbBlockAndLinkBlock() (uint64, uint64, error) {
 	chainId := api.ChainId
 
+	//链上新块
+	NewBlockNumber, err := api.GetBlockNumber()
+	if err != nil {
+		log.Error("ScanBlocks: api.GetBlockNumber error:", err)
+		return 0, 0, err
+	}
+
 	// 1. 从Mongo获取上次扫描的区块号
 	mongoBln, err := mongo.GetScanBlock(chainId)
 	if err != nil {
@@ -79,7 +86,7 @@ func GetMongodbBlockAndLinkBlock() (uint64, uint64, error) {
 			var bl mongo.ScanBlock
 			bl.NetWork = chainId
 			bl.Time = time.Now().Unix()
-			bl.LatestBlock = 0
+			bl.LatestBlock = NewBlockNumber
 			err = mongo.AddScanBlock(bl)
 			if err != nil {
 				return 0, 0, err
@@ -89,12 +96,7 @@ func GetMongodbBlockAndLinkBlock() (uint64, uint64, error) {
 			return 0, 0, err
 		}
 	}
-	//链上新块
-	NewBlockNumber, err := api.GetBlockNumber()
-	if err != nil {
-		log.Error("ScanBlocks: api.GetBlockNumber error:", err)
-		return 0, 0, err
-	}
+
 	//安全块
 	//var SafeBlock uint64
 	//if NewBlockNumber > 10 {

@@ -48,11 +48,13 @@ func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1
 func (s *GreeterService) BindWallet(ctx context.Context, in *v1.BindWalletRequest) (*v1.BindWalletReply, error) {
 	isAddress := regexp.MustCompile(`^0x[0-9a-fA-F]{40}$`).MatchString
 	addr := strings.ToLower(in.GetAddress()) //转小写
+	log.Info(in.GetAddress(), "\n", addr)
 	if !isAddress(addr) {
 		return &v1.BindWalletReply{Metadata: "invalid address"}, nil
 	}
 	exists, err := IsWalletBound(addr)
 	if err != nil {
+		log.Error("IsWalletBound:", err)
 		return &v1.BindWalletReply{}, err
 	}
 	if exists {
@@ -174,7 +176,7 @@ func (s *GreeterService) MarketCondition(ctx context.Context, in *v1.MarketCondi
 	symbol := in.GetSymbol()
 	startTime := in.GetStartTime()
 	endTime := in.GetEndTime()
-
+	//log.Infof("MarketCondition called – symbol: %s, startTime: %d, endTime: %d", symbol, startTime, endTime)
 	if startTime >= endTime {
 		return nil, errors.New("invalid time range")
 	}
@@ -203,6 +205,12 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 	if in.GetAddress() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" {
 		return nil, errors.New("missing required parameters")
 	}
+	log.Infof(
+		"MarketCondition  parameters – address: %q, timestamp: %d, symbol: %q",
+		in.GetAddress(),
+		in.GetTimestamp(),
+		in.GetSymbol(),
+	)
 	// 提取 addr ， uid
 	addr, uid, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
@@ -255,7 +263,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		log.Errorf("CreateOrder failed: %v", err)
 		return nil, errors.New("failed to create order")
 	}
-
+	log.Info("MarketCondition  parameters:", orderId, "\n", sta.Status)
 	return &v1.OpenOrderReply{
 		OrderId: orderId,
 		Status:  sta.Status,
@@ -267,6 +275,12 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if in.GetTimestamp() == 0 || in.GetOrderId() == "" {
 		return nil, errors.New("missing required parameters")
 	}
+	log.Infof(
+		"CloseOrder  parameters – address: %q, timestamp: %d, OrderId: %q",
+		in.GetAddress(),
+		in.GetTimestamp(),
+		in.GetOrderId(),
+	)
 	var err error
 	// 提取 addr ， uid
 	addr, _, err := GetAddrAndUidByToken(ctx)
@@ -327,7 +341,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 	if err != nil {
 		return nil, err
 	}
-	log.Info(nonce)
+	log.Info(nonce, "\n", tx)
 
 	if tx == "" {
 		return &v1.CloseOrderReply{}, errors.New("交易未生成")
@@ -356,6 +370,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	if in.GetTimestamp() == "" {
 		return nil, errors.New("missing required parameters")
 	}
+	log.Info("GetAirdrop:", in.GetTimestamp())
 	// 提取 addr ， uid
 	addr, uid, err := GetAddrAndUidByToken(ctx)
 	if err != nil {
