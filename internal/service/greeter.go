@@ -206,6 +206,35 @@ func (s *GreeterService) MarketCondition(ctx context.Context, in *v1.MarketCondi
 	}, nil
 }
 
+func (s *GreeterService) GetHistoricalPrice(ctx context.Context, in *v1.GetHistoricalPriceRequest) (*v1.GetHistoricalPriceReply, error) {
+	symbol := in.GetSymbol()
+	startTime := in.GetStartTime()
+	endTime := in.GetEndTime()
+	page := in.GetPage()
+	size := in.GetSize()
+	if startTime >= endTime {
+		return nil, errors.New("invalid time range")
+	}
+
+	prices, err := mongo.GetPriceBySymbolPaged(symbol, startTime, endTime, page, size)
+	if err != nil {
+		log.Warnf("symbol %v --- err: %v", symbol, err)
+		return nil, errors.New("failed to get price history")
+	}
+
+	var marketPrices []*v1.MarketPrice
+	for _, p := range prices {
+		marketPrices = append(marketPrices, &v1.MarketPrice{
+			Price: p.Price,
+			Time:  p.Timestamp,
+		})
+	}
+
+	return &v1.GetHistoricalPriceReply{
+		Prices: marketPrices,
+	}, nil
+}
+
 func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest) (*v1.OpenOrderReply, error) {
 	// 1. 参数校验
 	if in.GetAddress() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" {
@@ -224,7 +253,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		return nil, err
 	}
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
-		log.Warnf("[OpenOrder][%s] 地址校验失败: token_addr=%s, req_addr=%s",
+		log.Warnf("[OpenOrder][%q] 地址校验失败: token_addr=%q, req_addr=%q",
 			in.GetSymbol(), strings.ToLower(addr), strings.ToLower(in.GetAddress()))
 		return &v1.OpenOrderReply{}, err
 	}
@@ -269,10 +298,10 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 	}
 	err = mongo.AddOrder(order)
 	if err != nil {
-		log.Errorf("CreateOrder failed: %v", err)
+		log.Errorf("CreateOrder failed: %q", err)
 		return nil, errors.New("failed to create order")
 	}
-	log.Info("OpenOrder  parameters:", orderId, "\n", sta.Status)
+	log.Infof("OpenOrder  parameters: orderId:%q, sta.Status:%d", orderId, sta.Status)
 	return &v1.OpenOrderReply{
 		OrderId: orderId,
 		Status:  sta.Status,
@@ -298,7 +327,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		return nil, err
 	}
 	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
-		log.Warnf("[CloseOrder] 地址校验失败: token_addr=%s, req_addr=%s",
+		log.Warnf("[CloseOrder] 地址校验失败: token_addr=%q, req_addr=%q",
 			strings.ToLower(addr), strings.ToLower(in.GetAddress()))
 		return &v1.CloseOrderReply{}, err
 	}
@@ -635,15 +664,33 @@ func (s *GreeterService) DeployContract(ctx context.Context, in *v1.DeployContra
 	return &v1.DeployContractReply{TxHash: tx.TxHash}, nil
 }
 
-func (s *GreeterService) GetBztOwnerAddress(ctx context.Context, in *v1.GetBztOwnerAddressRequest) (*v1.GetBztOwnerAddressReply, error) {
-	ownerAddr, err := bzt.UrlGetKeyAddress()
+func (s *GreeterService) GetBztDetails(ctx context.Context, in *v1.GetBztDetailsRequest) (*v1.GetBztDetailsReply, error) {
+	urlOwnerAddr, err := bzt.UrlGetKeyAddress()
 	if err != nil {
 		log.Error("GetBztOwnerAddress err: ", err)
 		return nil, err
 	}
-	log.Info("UrlGetKeyAddress", ownerAddr)
-	return &v1.GetBztOwnerAddressReply{
-		BztAddr: ownerAddr,
+	log.Info("UrlGetKeyAddress", urlOwnerAddr)
+	ba, err := bzt.GetTokenBalance()
+	if err != nil {
+		log.Error("GetTokenBalance err: ", err)
+		return nil, err
+	}
+	dusdt, err := bzt.GetUsdToken()
+	if err != nil {
+		log.Error("GetUsdToken err: ", err)
+		return nil, err
+	}
+	bztOwner, err := bzt.GetOwner()
+	if err != nil {
+		log.Error("GetOwner err: ", err)
+		return nil, err
+	}
+	return &v1.GetBztDetailsReply{
+		BztAddr:    bztOwner,
+		Balance:    ba.String(),
+		DusdtToken: dusdt,
+		UrlAddr:    urlOwnerAddr,
 	}, nil
 }
 

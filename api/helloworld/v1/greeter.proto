@@ -99,9 +99,9 @@ service Greeter {
     };
   }
 
-  rpc GetBztOwnerAddress (GetBztOwnerAddressRequest) returns (GetBztOwnerAddressReply) {
+  rpc GetBztDetails (GetBztDetailsRequest) returns (GetBztDetailsReply) {
     option (google.api.http) = {
-      post: "/v1/getBztOwnerAddress"
+      post: "/v1/getBztDetails"
       body: "*"
     };
   }
@@ -115,6 +115,13 @@ service Greeter {
   rpc GetConfigs (GetConfigsRequest) returns (GetConfigsReply) {
     option (google.api.http) = {
       post: "/v1/getConfigs"
+      body: "*"
+    };
+  }
+
+  rpc GetHistoricalPrice(GetHistoricalPriceRequest) returns (GetHistoricalPriceReply) {
+    option (google.api.http) = {
+      post: "/v1/getHistoricalPrice"
       body: "*"
     };
   }
@@ -178,8 +185,8 @@ message WalletBalanceReply {
 
 message MarketConditionRequest {
   string symbol = 1;
-  int64 start_time = 2;
-  int64 end_time = 3;
+  uint64 start_time = 2;
+  uint64 end_time = 3;
 }
 
 message MarketPrice {
@@ -304,11 +311,14 @@ message DeployContractReply {
 }
 
 
-message GetBztOwnerAddressRequest {}
+message GetBztDetailsRequest {}
 
 // The response message containing the greetings
-message GetBztOwnerAddressReply {
+message GetBztDetailsReply {
   string bztAddr = 1;
+  string balance = 2;
+  string dusdtToken = 3;
+  string urlAddr = 4;
 }
 
 message GetBztVersionRequest {}
@@ -326,4 +336,17 @@ message GetConfigsReply {
   uint64 chainId = 1;
   string bztContractAddress = 2;
   string dusdtContractAddress = 3;
+}
+
+
+message GetHistoricalPriceRequest {
+  string symbol = 1;
+  uint64 start_time = 2;
+  uint64 end_time = 3;
+  int64 page = 4;
+  int64 size = 5;
+}
+
+message GetHistoricalPriceReply {
+  repeated MarketPrice prices = 1;
 }

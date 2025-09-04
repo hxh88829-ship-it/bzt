@@ -277,7 +277,7 @@ func RunService(ctx context.Context, symbols []string) {
 					if err != nil {
 						log.Errorf("Failed to fetch %s: %v", symbol, err)
 					}
-					symbolIndexes[symbol] = (index + 1) % 30
+					symbolIndexes[symbol] = (index + 1) % 3600
 				}
 			}
 		}

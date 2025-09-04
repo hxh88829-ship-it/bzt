@@ -33,9 +33,10 @@ const (
 	Greeter_AirdropTrade_FullMethodName       = "/helloworld.v1.Greeter/AirdropTrade"
 	Greeter_BztDapp_FullMethodName            = "/helloworld.v1.Greeter/BztDapp"
 	Greeter_DeployContract_FullMethodName     = "/helloworld.v1.Greeter/DeployContract"
-	Greeter_GetBztOwnerAddress_FullMethodName = "/helloworld.v1.Greeter/GetBztOwnerAddress"
+	Greeter_GetBztDetails_FullMethodName      = "/helloworld.v1.Greeter/GetBztDetails"
 	Greeter_GetBztVersion_FullMethodName      = "/helloworld.v1.Greeter/GetBztVersion"
 	Greeter_GetConfigs_FullMethodName         = "/helloworld.v1.Greeter/GetConfigs"
+	Greeter_GetHistoricalPrice_FullMethodName = "/helloworld.v1.Greeter/GetHistoricalPrice"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -59,9 +60,10 @@ type GreeterClient interface {
 	AirdropTrade(ctx context.Context, in *AirdropTradeRequest, opts ...grpc.CallOption) (*AirdropTradeReply, error)
 	BztDapp(ctx context.Context, in *BztDappRequest, opts ...grpc.CallOption) (*BztDappReply, error)
 	DeployContract(ctx context.Context, in *DeployContractRequest, opts ...grpc.CallOption) (*DeployContractReply, error)
-	GetBztOwnerAddress(ctx context.Context, in *GetBztOwnerAddressRequest, opts ...grpc.CallOption) (*GetBztOwnerAddressReply, error)
+	GetBztDetails(ctx context.Context, in *GetBztDetailsRequest, opts ...grpc.CallOption) (*GetBztDetailsReply, error)
 	GetBztVersion(ctx context.Context, in *GetBztVersionRequest, opts ...grpc.CallOption) (*GetBztVersionReply, error)
 	GetConfigs(ctx context.Context, in *GetConfigsRequest, opts ...grpc.CallOption) (*GetConfigsReply, error)
+	GetHistoricalPrice(ctx context.Context, in *GetHistoricalPriceRequest, opts ...grpc.CallOption) (*GetHistoricalPriceReply, error)
 }
 
 type greeterClient struct {
@@ -212,10 +214,10 @@ func (c *greeterClient) DeployContract(ctx context.Context, in *DeployContractRe
 	return out, nil
 }
 
-func (c *greeterClient) GetBztOwnerAddress(ctx context.Context, in *GetBztOwnerAddressRequest, opts ...grpc.CallOption) (*GetBztOwnerAddressReply, error) {
+func (c *greeterClient) GetBztDetails(ctx context.Context, in *GetBztDetailsRequest, opts ...grpc.CallOption) (*GetBztDetailsReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetBztOwnerAddressReply)
-	err := c.cc.Invoke(ctx, Greeter_GetBztOwnerAddress_FullMethodName, in, out, cOpts...)
+	out := new(GetBztDetailsReply)
+	err := c.cc.Invoke(ctx, Greeter_GetBztDetails_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -236,6 +238,16 @@ func (c *greeterClient) GetConfigs(ctx context.Context, in *GetConfigsRequest, o
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetConfigsReply)
 	err := c.cc.Invoke(ctx, Greeter_GetConfigs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) GetHistoricalPrice(ctx context.Context, in *GetHistoricalPriceRequest, opts ...grpc.CallOption) (*GetHistoricalPriceReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetHistoricalPriceReply)
+	err := c.cc.Invoke(ctx, Greeter_GetHistoricalPrice_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -263,9 +275,10 @@ type GreeterServer interface {
 	AirdropTrade(context.Context, *AirdropTradeRequest) (*AirdropTradeReply, error)
 	BztDapp(context.Context, *BztDappRequest) (*BztDappReply, error)
 	DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error)
-	GetBztOwnerAddress(context.Context, *GetBztOwnerAddressRequest) (*GetBztOwnerAddressReply, error)
+	GetBztDetails(context.Context, *GetBztDetailsRequest) (*GetBztDetailsReply, error)
 	GetBztVersion(context.Context, *GetBztVersionRequest) (*GetBztVersionReply, error)
 	GetConfigs(context.Context, *GetConfigsRequest) (*GetConfigsReply, error)
+	GetHistoricalPrice(context.Context, *GetHistoricalPriceRequest) (*GetHistoricalPriceReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -318,14 +331,17 @@ func (UnimplementedGreeterServer) BztDapp(context.Context, *BztDappRequest) (*Bz
 func (UnimplementedGreeterServer) DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeployContract not implemented")
 }
-func (UnimplementedGreeterServer) GetBztOwnerAddress(context.Context, *GetBztOwnerAddressRequest) (*GetBztOwnerAddressReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBztOwnerAddress not implemented")
+func (UnimplementedGreeterServer) GetBztDetails(context.Context, *GetBztDetailsRequest) (*GetBztDetailsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBztDetails not implemented")
 }
 func (UnimplementedGreeterServer) GetBztVersion(context.Context, *GetBztVersionRequest) (*GetBztVersionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBztVersion not implemented")
 }
 func (UnimplementedGreeterServer) GetConfigs(context.Context, *GetConfigsRequest) (*GetConfigsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConfigs not implemented")
+}
+func (UnimplementedGreeterServer) GetHistoricalPrice(context.Context, *GetHistoricalPriceRequest) (*GetHistoricalPriceReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHistoricalPrice not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -600,20 +616,20 @@ func _Greeter_DeployContract_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Greeter_GetBztOwnerAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetBztOwnerAddressRequest)
+func _Greeter_GetBztDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBztDetailsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GreeterServer).GetBztOwnerAddress(ctx, in)
+		return srv.(GreeterServer).GetBztDetails(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Greeter_GetBztOwnerAddress_FullMethodName,
+		FullMethod: Greeter_GetBztDetails_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GreeterServer).GetBztOwnerAddress(ctx, req.(*GetBztOwnerAddressRequest))
+		return srv.(GreeterServer).GetBztDetails(ctx, req.(*GetBztDetailsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -650,6 +666,24 @@ func _Greeter_GetConfigs_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GreeterServer).GetConfigs(ctx, req.(*GetConfigsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_GetHistoricalPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHistoricalPriceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).GetHistoricalPrice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_GetHistoricalPrice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).GetHistoricalPrice(ctx, req.(*GetHistoricalPriceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -718,8 +752,8 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Greeter_DeployContract_Handler,
 		},
 		{
-			MethodName: "GetBztOwnerAddress",
-			Handler:    _Greeter_GetBztOwnerAddress_Handler,
+			MethodName: "GetBztDetails",
+			Handler:    _Greeter_GetBztDetails_Handler,
 		},
 		{
 			MethodName: "GetBztVersion",
@@ -728,6 +762,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConfigs",
 			Handler:    _Greeter_GetConfigs_Handler,
+		},
+		{
+			MethodName: "GetHistoricalPrice",
+			Handler:    _Greeter_GetHistoricalPrice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

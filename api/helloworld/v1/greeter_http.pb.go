@@ -25,9 +25,10 @@ const OperationGreeterBztDapp = "/helloworld.v1.Greeter/BztDapp"
 const OperationGreeterCloseOrder = "/helloworld.v1.Greeter/CloseOrder"
 const OperationGreeterDeployContract = "/helloworld.v1.Greeter/DeployContract"
 const OperationGreeterGetAirdrop = "/helloworld.v1.Greeter/GetAirdrop"
-const OperationGreeterGetBztOwnerAddress = "/helloworld.v1.Greeter/GetBztOwnerAddress"
+const OperationGreeterGetBztDetails = "/helloworld.v1.Greeter/GetBztDetails"
 const OperationGreeterGetBztVersion = "/helloworld.v1.Greeter/GetBztVersion"
 const OperationGreeterGetConfigs = "/helloworld.v1.Greeter/GetConfigs"
+const OperationGreeterGetHistoricalPrice = "/helloworld.v1.Greeter/GetHistoricalPrice"
 const OperationGreeterGetLoginMessage = "/helloworld.v1.Greeter/GetLoginMessage"
 const OperationGreeterHealth = "/helloworld.v1.Greeter/Health"
 const OperationGreeterLoginWithWallet = "/helloworld.v1.Greeter/LoginWithWallet"
@@ -44,9 +45,10 @@ type GreeterHTTPServer interface {
 	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error)
 	DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error)
 	GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error)
-	GetBztOwnerAddress(context.Context, *GetBztOwnerAddressRequest) (*GetBztOwnerAddressReply, error)
+	GetBztDetails(context.Context, *GetBztDetailsRequest) (*GetBztDetailsReply, error)
 	GetBztVersion(context.Context, *GetBztVersionRequest) (*GetBztVersionReply, error)
 	GetConfigs(context.Context, *GetConfigsRequest) (*GetConfigsReply, error)
+	GetHistoricalPrice(context.Context, *GetHistoricalPriceRequest) (*GetHistoricalPriceReply, error)
 	GetLoginMessage(context.Context, *GetLoginMessageRequest) (*GetLoginMessageReply, error)
 	Health(context.Context, *HealthCheckRequest) (*HealthCheckReply, error)
 	LoginWithWallet(context.Context, *LoginRequest) (*LoginReply, error)
@@ -74,9 +76,10 @@ func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r.POST("/v1/airdropTrade", _Greeter_AirdropTrade0_HTTP_Handler(srv))
 	r.GET("/bzt/dapp", _Greeter_BztDapp0_HTTP_Handler(srv))
 	r.POST("/v1/deployContract", _Greeter_DeployContract0_HTTP_Handler(srv))
-	r.POST("/v1/getBztOwnerAddress", _Greeter_GetBztOwnerAddress0_HTTP_Handler(srv))
+	r.POST("/v1/getBztDetails", _Greeter_GetBztDetails0_HTTP_Handler(srv))
 	r.GET("/bzt/version", _Greeter_GetBztVersion0_HTTP_Handler(srv))
 	r.POST("/v1/getConfigs", _Greeter_GetConfigs0_HTTP_Handler(srv))
+	r.POST("/v1/getHistoricalPrice", _Greeter_GetHistoricalPrice0_HTTP_Handler(srv))
 }
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -381,24 +384,24 @@ func _Greeter_DeployContract0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.
 	}
 }
 
-func _Greeter_GetBztOwnerAddress0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+func _Greeter_GetBztDetails0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetBztOwnerAddressRequest
+		var in GetBztDetailsRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationGreeterGetBztOwnerAddress)
+		http.SetOperation(ctx, OperationGreeterGetBztDetails)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetBztOwnerAddress(ctx, req.(*GetBztOwnerAddressRequest))
+			return srv.GetBztDetails(ctx, req.(*GetBztDetailsRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetBztOwnerAddressReply)
+		reply := out.(*GetBztDetailsReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -444,6 +447,28 @@ func _Greeter_GetConfigs0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Cont
 	}
 }
 
+func _Greeter_GetHistoricalPrice0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetHistoricalPriceRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterGetHistoricalPrice)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetHistoricalPrice(ctx, req.(*GetHistoricalPriceRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetHistoricalPriceReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GreeterHTTPClient interface {
 	AirdropTrade(ctx context.Context, req *AirdropTradeRequest, opts ...http.CallOption) (rsp *AirdropTradeReply, err error)
 	BindWallet(ctx context.Context, req *BindWalletRequest, opts ...http.CallOption) (rsp *BindWalletReply, err error)
@@ -451,9 +476,10 @@ type GreeterHTTPClient interface {
 	CloseOrder(ctx context.Context, req *CloseOrderRequest, opts ...http.CallOption) (rsp *CloseOrderReply, err error)
 	DeployContract(ctx context.Context, req *DeployContractRequest, opts ...http.CallOption) (rsp *DeployContractReply, err error)
 	GetAirdrop(ctx context.Context, req *GetAirdropRequest, opts ...http.CallOption) (rsp *GetAirdropReply, err error)
-	GetBztOwnerAddress(ctx context.Context, req *GetBztOwnerAddressRequest, opts ...http.CallOption) (rsp *GetBztOwnerAddressReply, err error)
+	GetBztDetails(ctx context.Context, req *GetBztDetailsRequest, opts ...http.CallOption) (rsp *GetBztDetailsReply, err error)
 	GetBztVersion(ctx context.Context, req *GetBztVersionRequest, opts ...http.CallOption) (rsp *GetBztVersionReply, err error)
 	GetConfigs(ctx context.Context, req *GetConfigsRequest, opts ...http.CallOption) (rsp *GetConfigsReply, err error)
+	GetHistoricalPrice(ctx context.Context, req *GetHistoricalPriceRequest, opts ...http.CallOption) (rsp *GetHistoricalPriceReply, err error)
 	GetLoginMessage(ctx context.Context, req *GetLoginMessageRequest, opts ...http.CallOption) (rsp *GetLoginMessageReply, err error)
 	Health(ctx context.Context, req *HealthCheckRequest, opts ...http.CallOption) (rsp *HealthCheckReply, err error)
 	LoginWithWallet(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginReply, err error)
@@ -550,11 +576,11 @@ func (c *GreeterHTTPClientImpl) GetAirdrop(ctx context.Context, in *GetAirdropRe
 	return &out, nil
 }
 
-func (c *GreeterHTTPClientImpl) GetBztOwnerAddress(ctx context.Context, in *GetBztOwnerAddressRequest, opts ...http.CallOption) (*GetBztOwnerAddressReply, error) {
-	var out GetBztOwnerAddressReply
-	pattern := "/v1/getBztOwnerAddress"
+func (c *GreeterHTTPClientImpl) GetBztDetails(ctx context.Context, in *GetBztDetailsRequest, opts ...http.CallOption) (*GetBztDetailsReply, error) {
+	var out GetBztDetailsReply
+	pattern := "/v1/getBztDetails"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationGreeterGetBztOwnerAddress))
+	opts = append(opts, http.Operation(OperationGreeterGetBztDetails))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -581,6 +607,19 @@ func (c *GreeterHTTPClientImpl) GetConfigs(ctx context.Context, in *GetConfigsRe
 	pattern := "/v1/getConfigs"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationGreeterGetConfigs))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *GreeterHTTPClientImpl) GetHistoricalPrice(ctx context.Context, in *GetHistoricalPriceRequest, opts ...http.CallOption) (*GetHistoricalPriceReply, error) {
+	var out GetHistoricalPriceReply
+	pattern := "/v1/getHistoricalPrice"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterGetHistoricalPrice))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

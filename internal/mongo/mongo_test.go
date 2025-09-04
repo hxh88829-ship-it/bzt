@@ -56,12 +56,12 @@ func TestGetPriceByTimestamp(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	res, err := GetPriceByTimestamp(1756792416, "BTCUSDT")
+	res, err := GetPriceBySymbolPaged("BTCUSDT", 1756975887, 1756975947, 0, 20)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Log(res.Price, res.Timestamp, res.Index, res.Symbol)
+	t.Log(res)
 
 }
 
@@ -90,8 +90,8 @@ func TestUpdateUserLossAmount(t *testing.T) {
 	}
 	defer cli.Close()
 	MonCli = cli
-	addr := strings.ToLower("0x331E865F47fd1b197d04Fe60E45DEf0C3A1EBA24")
-	err = UpdateUserLossAmount("BTCUSDT", addr, "150")
+	addr := strings.ToLower("0x331e865f47fd1b197d04fe60e45def0c3a1eba24")
+	err = UpdateUserProfit("DUSDT", addr, "160")
 	if err != nil {
 		t.Error(err)
 		return

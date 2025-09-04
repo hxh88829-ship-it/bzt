@@ -157,16 +157,16 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.GetAirdropReply'
-    /v1/getBztOwnerAddress:
+    /v1/getBztDetails:
         post:
             tags:
                 - Greeter
-            operationId: Greeter_GetBztOwnerAddress
+            operationId: Greeter_GetBztDetails
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/helloworld.v1.GetBztOwnerAddressRequest'
+                            $ref: '#/components/schemas/helloworld.v1.GetBztDetailsRequest'
                 required: true
             responses:
                 "200":
@@ -174,7 +174,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/helloworld.v1.GetBztOwnerAddressReply'
+                                $ref: '#/components/schemas/helloworld.v1.GetBztDetailsReply'
     /v1/getConfigs:
         post:
             tags:
@@ -193,6 +193,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.GetConfigsReply'
+    /v1/getHistoricalPrice:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_GetHistoricalPrice
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.GetHistoricalPriceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.GetHistoricalPriceReply'
     /v1/getLoginMessage:
         post:
             tags:
@@ -415,13 +433,19 @@ components:
             properties:
                 timestamp:
                     type: string
-        helloworld.v1.GetBztOwnerAddressReply:
+        helloworld.v1.GetBztDetailsReply:
             type: object
             properties:
                 bztAddr:
                     type: string
+                balance:
+                    type: string
+                dusdtToken:
+                    type: string
+                urlAddr:
+                    type: string
             description: The response message containing the greetings
-        helloworld.v1.GetBztOwnerAddressRequest:
+        helloworld.v1.GetBztDetailsRequest:
             type: object
             properties: {}
         helloworld.v1.GetBztVersionReply:
@@ -445,6 +469,26 @@ components:
         helloworld.v1.GetConfigsRequest:
             type: object
             properties: {}
+        helloworld.v1.GetHistoricalPriceReply:
+            type: object
+            properties:
+                prices:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.MarketPrice'
+        helloworld.v1.GetHistoricalPriceRequest:
+            type: object
+            properties:
+                symbol:
+                    type: string
+                startTime:
+                    type: string
+                endTime:
+                    type: string
+                page:
+                    type: string
+                size:
+                    type: string
         helloworld.v1.GetLoginMessageReply:
             type: object
             properties:

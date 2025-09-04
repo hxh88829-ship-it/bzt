@@ -152,7 +152,7 @@ func UpdateLossAmount(addr, symbol string) (*big.Int, string, error) {
 		log.Errorf("UpdateLossAmount GetDailyAirdropBySymbol error: %v", err)
 		return nil, "", err
 	}
-	users, err := mongo.GetUserLossAmount(strings.ToLower(addr), symbol) //用户当前
+	users, err := mongo.GetUserAmount(strings.ToLower(addr), symbol) //用户当前
 	if err != nil {
 		log.Errorf("UpdateLossAmount GetUserLossAmount error: %v", err)
 		return nil, "", err

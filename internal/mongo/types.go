@@ -49,10 +49,11 @@ type RewardAmount struct {
 	TotalAmount string `bson:"total_amount" json:"total_amount"` // 总量
 }
 
-type UserLossAmount struct {
+type UserAmount struct {
 	Symbol       string `bson:"symbol" json:"symbol"`
-	UpdateAt     uint64 `bson:"update_at" json:"update_at"`
+	UpdateAt     int64  `bson:"update_at" json:"update_at"`
 	LossAmount   string `bson:"loss_amount" json:"loss_amount"`
+	Profit       string `bson:"profit" json:"profit"`
 	UserAddr     string `bson:"user_addr" json:"user_addr"`
 	ClaimAirdrop string `bson:"claim_airdrop" json:"claim_airdrop"`
 }
