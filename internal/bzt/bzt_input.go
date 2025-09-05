@@ -235,6 +235,7 @@ func UrlContractSignOwner(data []byte, cli *ethclient.Client) (string, string, e
 	toContract := common.HexToAddress(conf.ContractBztAddr)
 
 	// 设置 gasPrice 和 gasLimit
+	//TODO 单价和gas规定标准进行修改
 	gasPrice := new(big.Int)
 	gasPrice.SetString("300000000000", 10) // 200 gwei
 	gasPriceStr := gasPrice.String()

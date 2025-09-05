@@ -257,39 +257,41 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 		log.Errorf("UpdateOrderClosedStatus err: %v", err)
 		return err
 	}
-	Order, err := bzt.GetOrders(event.OrderId.Int64())
-	if err != nil {
-		log.Errorf("GetOrders err: %v", err)
-		return err
+	user := strings.ToLower(event.User.String())
+	// 使用 event.ProfitLoss 进行判断和计算
+	profitLoss := event.ProfitLoss
+	var value *big.Int
+
+	if profitLoss.Sign() >= 0 {
+		// 除以2，整数除法
+		value = new(big.Int).Div(profitLoss, big.NewInt(2))
+	} else {
+		// 取绝对值，相当于乘以-1，但使用Abs方法更安全
+		value = new(big.Int).Abs(profitLoss)
 	}
-	if event.ProfitLoss.Sign() >= 0 {
-		value, err := api.StringToBigIntDiv(Order.ProfitLoss.String(), "2")
-		if err != nil {
-			log.Errorf("ProfitLoss >= 0 StringToBigIntDiv err: %v", err)
-			return err
-		}
-		err = RewardPool(Order, value, blTime)
+	if value.Sign() < 0 {
+		return errors.New(" value must be non-negative")
+	}
+
+	// 现在根据正负执行不同的逻辑
+	if profitLoss.Sign() >= 0 {
+		err = RewardPool(value, blTime)
 		if err != nil {
 			log.Errorf("ProfitLoss >= 0 RewardPool : %v", err)
 			return err
 		}
-		err = UserProfitAmount(Order, value, blTime)
+		err = UserProfitAmount(user, value, blTime)
 		if err != nil {
 			log.Errorf("ProfitLoss >= 0 UserProfitAmount : %v", err)
 			return err
 		}
 	} else {
-		value, err := api.StringToBigIntDiv(Order.ProfitLoss.String(), "-1")
-		if err != nil {
-			log.Errorf("ProfitLoss < 0 StringToBigIntDiv err: %v", err)
-			return err
-		}
-		err = RewardPool(Order, value, blTime)
+		err = RewardPool(value, blTime)
 		if err != nil {
 			log.Errorf("ProfitLoss < 0 RewardPool : %v", err)
 			return err
 		}
-		err = UserLossAmount(Order, value, blTime)
+		err = UserLossAmount(user, value, blTime)
 		if err != nil {
 			log.Errorf("ProfitLoss < 0 UserLossAmount : %v", err)
 			return err
@@ -297,7 +299,6 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 	}
 	return nil
 }
-
 func AirdropTrade(event *bzt.BztAirdrop, blTime uint64, status bool) error {
 	if !status {
 		return nil
@@ -343,7 +344,7 @@ func AddTransactionTrade(txh *types.Transaction, receipt *types.Receipt,
 	return false, nil
 }
 
-func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
+func RewardPool(value *big.Int, blTime uint64) error {
 	Res, err := mongo.GetRewardAmount("DUSDT")
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -356,6 +357,7 @@ func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 				log.Errorf("AddRewardAmount err: %v", err)
 				return err
 			}
+			return nil
 		} else {
 			log.Errorf("GetRewardAmounterr: %v", err)
 			return err
@@ -373,68 +375,78 @@ func RewardPool(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
 	}
 	return nil
 }
-func UserLossAmount(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
-	res, err := mongo.GetUserAmount(strings.ToLower(Order.User.String()), "DUSDT")
+func UserLossAmount(user string, value *big.Int, blTime uint64) error {
+	log.Infof("UserLossAmount start user=%s value=%s blockTime=%d", user, value.String(), blTime)
+
+	res, err := mongo.GetUserAmount(user, "DUSDT")
 	if err != nil {
+		log.Infof("GetUserAmount err: %v", err)
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			var amount mongo.UserAmount
 			amount.Symbol = "DUSDT"
 			amount.LossAmount = value.String()
 			amount.UpdateAt = int64(blTime)
-			amount.UserAddr = strings.ToLower(Order.User.String())
+			amount.UserAddr = user
 			amount.ClaimAirdrop = "0"
 			amount.Profit = "0"
-			err = mongo.AddUserAmount(amount)
+			err := mongo.AddUserAmount(amount)
 			if err != nil {
-				log.Errorf("AddUserLossAmount err: %v", err)
+				log.Errorf("AddUserAmount failed: %v", err)
 				return err
 			}
 			return nil
-		} else {
-			log.Errorf("GetUserLossAmounterr: %v", err)
-			return err
 		}
+		return err
 	}
+
+	log.Infof("GetUserAmount found existing record: %+v", res)
 	newValue, err := api.StringToBigIntSum(res.LossAmount, value.String())
 	if err != nil {
-		log.Errorf("GetUserLossAmounterr: %v", err)
+		log.Errorf("StringToBigIntSum error: %v", err)
 		return err
 	}
-	err = mongo.UpdateUserAmount("DUSDT", strings.ToLower(Order.User.String()), newValue.String())
+	log.Infof("lossAmount:= %s addvalue:= %s  newValue:= %s", res.LossAmount, value, newValue.String())
+	err = mongo.UpdateUserAmount("DUSDT", user, newValue.String())
 	if err != nil {
-		log.Errorf("UpdateUserLossAmount err: %v", err)
+		log.Errorf("UpdateUserAmount failed: %v", err)
 		return err
 	}
+	log.Infof("UpdateUserAmount success user=%s newLoss=%s", user, newValue.String())
 	return nil
 }
-func UserProfitAmount(Order *bzt.OrderInfo, value *big.Int, blTime uint64) error {
-	res, err := mongo.GetUserAmount(strings.ToLower(Order.User.String()), "DUSDT")
+
+func UserProfitAmount(user string, value *big.Int, blTime uint64) error {
+	log.Infof("UserProfitAmount start user=%s value=%s blockTime=%d", user, value.String(), blTime)
+
+	res, err := mongo.GetUserAmount(user, "DUSDT")
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			var amount mongo.UserAmount
 			amount.Symbol = "DUSDT"
 			amount.LossAmount = "0"
 			amount.UpdateAt = int64(blTime)
-			amount.UserAddr = strings.ToLower(Order.User.String())
+			amount.UserAddr = user
 			amount.ClaimAirdrop = "0"
 			amount.Profit = value.String()
 			err = mongo.AddUserAmount(amount)
 			if err != nil {
-				log.Errorf("AddUserLossAmount err: %v", err)
+				log.Errorf("AddUserAmount err: %v", err)
 				return err
 			}
 			return nil
 		} else {
-			log.Errorf("GetUserLossAmounterr: %v", err)
+			log.Errorf("UserProfitAmount: %v", err)
 			return err
 		}
 	}
+	log.Infof("GetUserAmount found existing record: %+v", res)
 	newValue, err := api.StringToBigIntSum(res.Profit, value.String())
 	if err != nil {
 		log.Errorf("GetUserLossAmounterr: %v", err)
 		return err
 	}
-	err = mongo.UpdateUserProfit("DUSDT", strings.ToLower(Order.User.String()), newValue.String())
+	log.Infof("UserProfitAmount:= %s addvalue:= %s  newValue:=%s", res.Profit, value, newValue.String())
+	err = mongo.UpdateUserProfit("DUSDT", user, newValue.String())
 	if err != nil {
 		log.Errorf("UpdateUserLossAmount err: %v", err)
 		return err

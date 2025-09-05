@@ -374,7 +374,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		log.Error("CloseOrder StringToBigInt err: ", err)
 		return nil, err
 	}
-	log.Infof("orderId:%q,   OpenPrice:%q,   ClosePrice:%q,   UserOrderId.Symbol:%q",
+	log.Infof("orderId:%v,   OpenPrice:%v,   ClosePrice:%v,   UserOrderId.Symbol:%q",
 		orderId, OpenPrice, ClosePrice, UserOrderId.Symbol)
 	input, err := bzt.GetCloseOrderInput(orderId, OpenPrice, ClosePrice, UserOrderId.Symbol)
 	if err != nil {

@@ -436,12 +436,12 @@ func UpdateRewardPool(tokenName, total string) error {
 // 用户亏损记录
 func AddUserAmount(a UserAmount) error {
 	if MonCli == nil {
-		return errors.New("mongo client is nil" + "AddUserLossAmount")
+		return errors.New("mongo client is nil" + "AddUserAmount")
 	}
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).InsertOne(context.Background(), a)
 	if err != nil {
-		log.Error("AddUserLossAmount InsertOne err: ", err)
-		return errors.New("add user loss amount fail")
+		log.Error("AddUserAmount InsertOne err: ", err)
+		return errors.New("add user  amount fail")
 	}
 	return nil
 }
