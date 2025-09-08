@@ -560,24 +560,41 @@ func QueryAirdrop(addr, today string) error {
 	}
 	return nil
 }
-func GetAirdropForAll(addr string) ([]Airdrop, error) {
+func GetAirdropForAll(addr string, page, size int64) ([]Airdrop, error) {
 	if MonCli == nil {
 		return nil, errors.New("error:mongo.Client is nil" + "GetAirdropForAll")
 	}
-	filter := bson.M{"to_addr": bson.M{"$eq": strings.ToLower(addr)}}
-	// 可选项：分页/排序
-	opts := options.Find().SetSort(bson.D{{"airdrop_time", 1}})
+	// 构建查询条件
+	filter := bson.M{}
+	if addr != "" {
+		filter["to_addr"] = strings.ToLower(addr)
+	}
 
-	cursor, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).Find(context.Background(), filter, opts)
+	// 分页参数处理
+	if page <= 0 {
+		page = 1
+	}
+	if size <= 0 {
+		size = 10
+	}
+
+	opts := options.Find().
+		SetSort(bson.D{{"airdrop_time", -1}}). // 按创建时间倒序
+		SetSkip((page - 1) * size).            // 跳过前面 (page-1)*size 条
+		SetLimit(size)                         // 限制返回 size 条
+
+	// 查询
+	cursor, err := MonCli.Client.Database(DatabaseNameForChain).
+		Collection(airdrop).Find(context.Background(), filter, opts)
 	if err != nil {
-		log.Error("GetAirdropForAll FindOne err: ", err)
+		log.Error("GetAirdropForAll Find err: ", err)
 		return nil, err
 	}
 	defer cursor.Close(context.Background())
 
 	var res []Airdrop
 	if err := cursor.All(context.Background(), &res); err != nil {
-		log.Error("GetAirdropForAll FindOne err: ", err)
+		log.Error("GetAirdropForAll Cursor  err: ", err)
 		return nil, err
 	}
 	return res, nil

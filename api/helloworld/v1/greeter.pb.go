@@ -1382,6 +1382,8 @@ func (x *OrderDetails) GetUid() string {
 type AirdropTradeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Addr          string                 `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
+	Page          int64                  `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
+	Size          int64                  `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1421,6 +1423,20 @@ func (x *AirdropTradeRequest) GetAddr() string {
 		return x.Addr
 	}
 	return ""
+}
+
+func (x *AirdropTradeRequest) GetPage() int64 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *AirdropTradeRequest) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
 }
 
 // The response message containing the greetings
@@ -2327,9 +2343,11 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"openTxHash\x18\v \x01(\tR\n" +
 	"openTxHash\x12 \n" +
 	"\vcloseTxHash\x18\f \x01(\tR\vcloseTxHash\x12\x10\n" +
-	"\x03uid\x18\r \x01(\tR\x03uid\")\n" +
+	"\x03uid\x18\r \x01(\tR\x03uid\"Q\n" +
 	"\x13AirdropTradeRequest\x12\x12\n" +
-	"\x04addr\x18\x01 \x01(\tR\x04addr\"J\n" +
+	"\x04addr\x18\x01 \x01(\tR\x04addr\x12\x12\n" +
+	"\x04page\x18\x02 \x01(\x03R\x04page\x12\x12\n" +
+	"\x04size\x18\x03 \x01(\x03R\x04size\"J\n" +
 	"\x11AirdropTradeReply\x125\n" +
 	"\x06result\x18\x01 \x03(\v2\x1d.helloworld.v1.AirdropDetailsR\x06result\"\xd0\x01\n" +
 	"\x0eAirdropDetails\x12\x1c\n" +

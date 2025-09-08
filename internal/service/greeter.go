@@ -574,7 +574,7 @@ func (s *GreeterService) AirdropTrade(ctx context.Context, in *v1.AirdropTradeRe
 		return &v1.AirdropTradeReply{}, err
 	}
 	//查询空投记录
-	res, err := mongo.GetAirdropForAll(strings.ToLower(in.GetAddr()))
+	res, err := mongo.GetAirdropForAll(strings.ToLower(in.GetAddr()), in.GetPage(), in.GetSize())
 	if err != nil {
 		log.Error("AirdropTrade GetAirdropForAll err: ", err)
 		return nil, err

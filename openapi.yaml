@@ -353,6 +353,10 @@ components:
             properties:
                 addr:
                     type: string
+                page:
+                    type: string
+                size:
+                    type: string
         helloworld.v1.BindWalletReply:
             type: object
             properties:
