@@ -90,6 +90,7 @@ type Transaction struct {
 	Value           string `bson:"value" json:"value"`
 	Gas             uint64 `bson:"gas" json:"gas"`
 	GasPrice        string `bson:"gas_price" json:"gas_price"`
+	TotalFee        uint64 `bson:"total_fee" json:"total_fee"`
 	TransactionType string `bson:"transaction_type" json:"transaction_type"`
 	Status          uint64 `bson:"status" json:"status"`
 }

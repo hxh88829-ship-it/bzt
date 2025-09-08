@@ -236,8 +236,14 @@ func UrlContractSignOwner(data []byte, cli *ethclient.Client) (string, string, e
 
 	// 设置 gasPrice 和 gasLimit
 	//TODO 单价和gas规定标准进行修改
-	gasPrice := new(big.Int)
-	gasPrice.SetString("300000000000", 10) // 200 gwei
+	//gasPrice := new(big.Int)
+	//gasPrice.SetString("300000000000", 10) // 200 gwei
+	gasPrice, err := cli.SuggestGasPrice(context.Background())
+	if err != nil {
+		log.Error(" suggestGasPrice:", err)
+		return "", "", err
+	}
+
 	gasPriceStr := gasPrice.String()
 	gasLimit := uint64(600000)
 

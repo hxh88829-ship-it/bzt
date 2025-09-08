@@ -317,6 +317,7 @@ func AddTransactionTrade(txh *types.Transaction, receipt *types.Receipt,
 	_, err := mongo.GetTransaction(strings.ToLower(receipt.TxHash.String()))
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
+			totalFee := receipt.GasUsed * receipt.EffectiveGasPrice.Uint64()
 			var tx mongo.Transaction
 			tx.TxHash = strings.ToLower(receipt.TxHash.String())
 			tx.From = strings.ToLower(from.String())
@@ -324,12 +325,13 @@ func AddTransactionTrade(txh *types.Transaction, receipt *types.Receipt,
 			tx.Value = txh.Value().String()
 			tx.Data = hexutil.Encode(txh.Data())
 			tx.Nonce = txh.Nonce()
-			tx.Gas = txh.Gas()
-			tx.GasPrice = txh.GasPrice().String()
+			tx.Gas = receipt.GasUsed
+			tx.GasPrice = receipt.EffectiveGasPrice.String()
 			tx.Number = receipt.BlockNumber.Uint64()
 			tx.Status = receipt.Status
 			tx.Time = blTime
 			tx.TransactionType = types
+			tx.TotalFee = totalFee
 			err = mongo.AddTransaction(tx)
 			if err != nil {
 				log.Errorf("AddTransaction err: %v", err)

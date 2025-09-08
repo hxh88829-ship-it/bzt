@@ -71,6 +71,7 @@ func GetAirdropByDay(res mongo.RewardAmount) error { //取出当天空投
 				log.Errorf("GetAirdropByDay AddDailyAirdrop error: %v", err)
 				return err
 			}
+			log.Info("Reward: ", reward.String())
 			err = mongo.UpdateRewardPool(
 				"DUSDT",
 				totalAfter.String(),
@@ -101,6 +102,7 @@ func GetAirdropByDay(res mongo.RewardAmount) error { //取出当天空投
 			return fmt.Errorf("GetAirdropByDay error: %v", airdrop.Reward)
 		}
 		totalReward := new(big.Int).Add(rewarded, reward)
+		log.Infof("GetAirdropByDay totalReward: %v  rewarded: %v  Reward: %v", totalReward, rewarded, reward)
 		err = mongo.UpdateDailyAirdropRemain(totalReward.String(), "DUSDT", timestamp, total.String())
 		if err != nil {
 			log.Errorf("GetAirdropByDay UpdateDailyAirdropRemain error: %v", err)
