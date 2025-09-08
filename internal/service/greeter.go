@@ -696,8 +696,8 @@ func (s *GreeterService) GetBztDetails(ctx context.Context, in *v1.GetBztDetails
 
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
-		Version:   "v0.0.22",
-		BuildTime: "2025-09-04T11:04:00Z",
+		Version:   "v0.0.26",
+		BuildTime: "2025-09-08T13:50:00Z",
 	}, nil
 }
 
@@ -747,3 +747,8 @@ func GetAddrAndUidByToken(ctx context.Context) (string, string, error) {
 	}
 	return address, uid, nil
 }
+
+/*
+	余额，等于未关仓加上用户亏损减去盈利部分
+	奖励，等于用户盈利一半加上用户亏损
+*/
