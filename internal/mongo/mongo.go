@@ -445,12 +445,11 @@ func AddUserAmount(a UserAmount) error {
 	}
 	return nil
 }
-func GetUserAmount(addr, tokenName string) (UserAmount, error) {
+func GetUserAmount(addr string) (UserAmount, error) {
 	if MonCli == nil {
 		return UserAmount{}, errors.New("mongo client is nil" + "GetUserAmount")
 	}
 	filter := bson.M{
-		"symbol":    tokenName,
 		"user_addr": strings.ToLower(addr),
 	}
 	var loss UserAmount
@@ -461,12 +460,11 @@ func GetUserAmount(addr, tokenName string) (UserAmount, error) {
 	}
 	return loss, nil
 }
-func UpdateUserAmount(tokenName, addr, Amount string) error {
+func UpdateUserAmount(addr, Amount string) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateUserAmount")
 	}
 	filter := bson.M{
-		"symbol":    tokenName,
 		"user_addr": strings.ToLower(addr),
 	}
 	update := bson.D{
@@ -481,12 +479,11 @@ func UpdateUserAmount(tokenName, addr, Amount string) error {
 	}
 	return nil
 }
-func UpdateUserProfit(tokenName, addr, Amount string) error {
+func UpdateUserProfit(addr, Amount string) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateUserProfit")
 	}
 	filter := bson.M{
-		"symbol":    tokenName,
 		"user_addr": strings.ToLower(addr),
 	}
 	update := bson.D{
@@ -501,12 +498,11 @@ func UpdateUserProfit(tokenName, addr, Amount string) error {
 	}
 	return nil
 }
-func UpdateUserClaims(tokenName, addr, Amount string) error {
+func UpdateUserClaims(addr, Amount string) error {
 	if MonCli == nil {
 		return errors.New("mongo client is nil" + "UpdateUserClaims")
 	}
 	filter := bson.M{
-		"symbol":    tokenName,
 		"user_addr": strings.ToLower(addr),
 	}
 	update := bson.D{
@@ -954,63 +950,386 @@ func GetOrderSwitch(i uint64, types string) (OrderSwitch, error) {
 	return o, nil
 }
 
-func AddOrderSwitchMany() error {
+func AddKLineData(i Kline, CollectionName string) error {
 	if MonCli == nil {
-		return errors.New("error:mongo.Client is nil" + "AddOrderSwitch")
+		return errors.New("error:mongo.Client is nil" + "AddKLineData")
 	}
-	filter := bson.D{{"chain_id", 9798}}
-	var o OrderSwitch
-	err := MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).FindOne(context.Background(), filter).Decode(&o)
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(CollectionName).InsertOne(context.Background(), i)
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			log.Info("FindOne err: ", err)
-			var a OrderSwitch
-			a.Status = 0
-			a.ChainId = 9798
-			a.Types = "OpenOrder"
-			var b OrderSwitch
-			b.Status = 0
-			b.ChainId = 9798
-			b.Types = "CloseOrder"
-			var c OrderSwitch
-			c.Status = 0
-			c.ChainId = 9798
-			c.Types = "GetAirdrop"
-			_, err = MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).InsertOne(context.Background(), a)
-			if err != nil {
-				log.Error("InsertOne err: ", err)
-				return err
-			}
-			_, err = MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).InsertOne(context.Background(), b)
-			if err != nil {
-				log.Error("InsertOne err: ", err)
-				return err
-			}
-			_, err = MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).InsertOne(context.Background(), c)
-			if err != nil {
-				log.Error("InsertOne err: ", err)
-				return err
-			}
-		}
+		log.Error("AddKLineData InsertOne err: ", err)
+		return err
 	}
-	filter = bson.D{{"dapp_name", "bzt"}}
-	var b BztDapp
-	err = MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).FindOne(context.Background(), filter).Decode(&b)
+	return nil
+}
+func AddKLineDataMany(docs []interface{}, collectionName string) error {
+	if MonCli == nil {
+		return errors.New("mongo.Client is nil: AddKLineData")
+	}
+
+	if len(docs) == 0 {
+		return nil // 没有数据直接返回
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := MonCli.Client.Database(DatabaseNameForChain).Collection(collectionName)
+
+	// 批量插入
+	_, err := collection.InsertMany(ctx, docs)
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			log.Info("FindOne err: ", err)
-			var d BztDapp
-			d.AppId = 1
-			d.DappIntroduce = "bzt"
-			d.DappIcon = "https://upmpc-test.s3.ap-southeast-1.amazonaws.com/dtc/nft/hx/baozhitong/png/1756194866469_fj47uc5ukam.png"
-			d.DappName = "bzt"
-			d.DappUrl = "http://13.228.99.71:9015/"
-			_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(bztDapp).InsertOne(context.Background(), d)
-			if err != nil {
-				log.Error("InsertOne err: ", err)
-				return err
-			}
-		}
+		log.Errorf("AddKLineData InsertMany error: %v", err)
+		return err
 	}
+
+	return nil
+}
+func GetKLineData(types, symbol, CollectionName string, page, size int64) ([]Kline, error) {
+	if MonCli == nil {
+		return []Kline{}, errors.New("error:mongo.Client is nil ：GetKLineData")
+	}
+	filter := bson.M{
+		"data_type": types,
+		"symbol":    symbol,
+	}
+	// 分页参数处理
+	if page <= 0 {
+		page = 1
+	}
+	if size <= 0 {
+		size = 100
+	}
+
+	opts := options.Find().
+		SetSort(bson.D{{"close_time", -1}}). // 按创建时间倒序
+		SetSkip((page - 1) * size).          // 跳过前面 (page-1)*size 条
+		SetLimit(size)                       // 限制返回 size 条
+
+	// 查询
+	cursor, err := MonCli.Client.Database(DatabaseNameForChain).
+		Collection(CollectionName).Find(context.Background(), filter, opts)
+	if err != nil {
+		log.Error("GetKLineData Find err: ", err)
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var res []Kline
+	if err := cursor.All(context.Background(), &res); err != nil {
+		log.Error("GetKLineData Cursor  err: ", err)
+		return nil, err
+	}
+	return res, nil
+}
+
+// EnsureKlineIndexes TODO 编写接口创建索引，提升效率
+func EnsureKlineIndexes() error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil: EnsureKlineIndexes")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err := KlineOneDayIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = KlineThreeDayIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = KlineOneHourIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = KlineFourHourIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = TxHashIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = AirdropOneIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = UserAmountIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = OrderIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = OrderAddrIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = PriceIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = PriceAndTimeIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = UserIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	return nil
+}
+
+func KlineOneDayIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(kLineByOneDay)
+
+	// 定义需要的索引
+	indexModels := []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{"symbol", 1},
+				{"data_type", 1},
+				{"close_time", -1},
+			},
+			Options: options.Index().SetName("symbol_dataType_closeTime_idx"),
+		},
+	}
+	// 创建索引（已存在的不会重复建）
+	_, err := coll.Indexes().CreateMany(ctx, indexModels)
+	if err != nil {
+		log.Errorf("创建 symbol_dataType_closeTime_idx 索引失败: %s.%s", DatabaseNameForChain, kLineByOneDay)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, kLineByOneDay)
+	return nil
+}
+func KlineThreeDayIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(kLineByThreeDay)
+
+	// 定义需要的索引
+	indexModels := []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{"symbol", 1},
+				{"data_type", 1},
+				{"close_time", -1},
+			},
+			Options: options.Index().SetName("symbol_dataType_closeTime_idx"),
+		},
+	}
+	// 创建索引（已存在的不会重复建）
+	_, err := coll.Indexes().CreateMany(ctx, indexModels)
+	if err != nil {
+		log.Errorf("创建 symbol_dataType_closeTime_idx 索引失败: %s.%s", DatabaseNameForChain, kLineByThreeDay)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, kLineByThreeDay)
+	return nil
+}
+func KlineOneHourIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(kLineByOneHour)
+
+	// 定义需要的索引
+	indexModels := []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{"symbol", 1},
+				{"data_type", 1},
+				{"close_time", -1},
+			},
+			Options: options.Index().SetName("symbol_dataType_closeTime_idx"),
+		},
+	}
+	// 创建索引（已存在的不会重复建）
+	_, err := coll.Indexes().CreateMany(ctx, indexModels)
+	if err != nil {
+		log.Errorf("创建 symbol_dataType_closeTime_idx 索引失败: %s.%s", DatabaseNameForChain, kLineByOneHour)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, kLineByOneHour)
+	return nil
+}
+func KlineFourHourIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(kLineByFourHour)
+
+	// 定义需要的索引
+	indexModels := []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{"symbol", 1},
+				{"data_type", 1},
+				{"close_time", -1},
+			},
+			Options: options.Index().SetName("symbol_dataType_closeTime_idx"),
+		},
+	}
+	// 创建索引（已存在的不会重复建）
+	_, err := coll.Indexes().CreateMany(ctx, indexModels)
+	if err != nil {
+		log.Errorf("创建 symbol_dataType_closeTime_idx 索引失败: %s.%s", DatabaseNameForChain, kLineByFourHour)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, kLineByFourHour)
+	return nil
+}
+func TxHashIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction)
+
+	// 在交易记录表创建索引
+	index := mongo.IndexModel{
+		Keys:    bson.D{{"tx_hash", 1}}, // 升序索引
+		Options: options.Index().SetUnique(true).SetName("txHash_idx"),
+	}
+
+	// 创建索引
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 txHash_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, transaction)
+	return nil
+}
+func AirdropOneIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"to_addr", 1},
+		},
+		Options: options.Index().SetName("toAddr_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 toAddr_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, airdrop)
+	return nil
+}
+func UserAmountIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"user_addr", 1},
+		},
+		Options: options.Index().SetName("userAddr_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 userAddr_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, lossAmount)
+	return nil
+}
+func OrderIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(order)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"order_id", 1},
+		},
+		Options: options.Index().SetUnique(true).SetName("orderId_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 orderId_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, order)
+	return nil
+}
+func OrderAddrIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(order)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"users_addr", 1},
+		},
+		Options: options.Index().SetName("usersAddr_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 usersAddr_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, order)
+	return nil
+}
+func PriceIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"symbol", 1},
+			{"index", 1},
+		},
+		Options: options.Index().SetUnique(true).SetName("symbol_index_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 symbol_index_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, newPrice)
+	return nil
+}
+func PriceAndTimeIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"symbol", 1},
+			{"timestamp", -1},
+		},
+		Options: options.Index().SetName("symbol_timestamp_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 symbol_timestamp_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, newPrice)
+	return nil
+}
+func UserIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(user)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"address", 1},
+		},
+		Options: options.Index().SetUnique(true).SetName("address_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 address_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, user)
+	return nil
+}
+
+func DailyAirdropIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"symbol", 1},
+		},
+		Options: options.Index().SetName("symbol_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 symbol_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 单个索引已确保存在: %s.%s", DatabaseNameForChain, dailyAirdrops)
 	return nil
 }

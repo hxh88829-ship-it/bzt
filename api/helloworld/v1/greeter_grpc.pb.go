@@ -37,6 +37,10 @@ const (
 	Greeter_GetBztVersion_FullMethodName      = "/helloworld.v1.Greeter/GetBztVersion"
 	Greeter_GetConfigs_FullMethodName         = "/helloworld.v1.Greeter/GetConfigs"
 	Greeter_GetHistoricalPrice_FullMethodName = "/helloworld.v1.Greeter/GetHistoricalPrice"
+	Greeter_GetKLineData_FullMethodName       = "/helloworld.v1.Greeter/GetKLineData"
+	Greeter_QueryKLineData_FullMethodName     = "/helloworld.v1.Greeter/QueryKLineData"
+	Greeter_ClaimsAirdrop_FullMethodName      = "/helloworld.v1.Greeter/ClaimsAirdrop"
+	Greeter_IndexSwitch_FullMethodName        = "/helloworld.v1.Greeter/IndexSwitch"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -64,6 +68,10 @@ type GreeterClient interface {
 	GetBztVersion(ctx context.Context, in *GetBztVersionRequest, opts ...grpc.CallOption) (*GetBztVersionReply, error)
 	GetConfigs(ctx context.Context, in *GetConfigsRequest, opts ...grpc.CallOption) (*GetConfigsReply, error)
 	GetHistoricalPrice(ctx context.Context, in *GetHistoricalPriceRequest, opts ...grpc.CallOption) (*GetHistoricalPriceReply, error)
+	GetKLineData(ctx context.Context, in *GetKLineDataRequest, opts ...grpc.CallOption) (*GetKLineDataReply, error)
+	QueryKLineData(ctx context.Context, in *QueryKLineDataRequest, opts ...grpc.CallOption) (*QueryKLineDataReply, error)
+	ClaimsAirdrop(ctx context.Context, in *ClaimsAirdropRequest, opts ...grpc.CallOption) (*ClaimsAirdropReply, error)
+	IndexSwitch(ctx context.Context, in *IndexSwitchRequest, opts ...grpc.CallOption) (*IndexSwitchReply, error)
 }
 
 type greeterClient struct {
@@ -254,6 +262,46 @@ func (c *greeterClient) GetHistoricalPrice(ctx context.Context, in *GetHistorica
 	return out, nil
 }
 
+func (c *greeterClient) GetKLineData(ctx context.Context, in *GetKLineDataRequest, opts ...grpc.CallOption) (*GetKLineDataReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetKLineDataReply)
+	err := c.cc.Invoke(ctx, Greeter_GetKLineData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) QueryKLineData(ctx context.Context, in *QueryKLineDataRequest, opts ...grpc.CallOption) (*QueryKLineDataReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(QueryKLineDataReply)
+	err := c.cc.Invoke(ctx, Greeter_QueryKLineData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) ClaimsAirdrop(ctx context.Context, in *ClaimsAirdropRequest, opts ...grpc.CallOption) (*ClaimsAirdropReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClaimsAirdropReply)
+	err := c.cc.Invoke(ctx, Greeter_ClaimsAirdrop_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) IndexSwitch(ctx context.Context, in *IndexSwitchRequest, opts ...grpc.CallOption) (*IndexSwitchReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IndexSwitchReply)
+	err := c.cc.Invoke(ctx, Greeter_IndexSwitch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -279,6 +327,10 @@ type GreeterServer interface {
 	GetBztVersion(context.Context, *GetBztVersionRequest) (*GetBztVersionReply, error)
 	GetConfigs(context.Context, *GetConfigsRequest) (*GetConfigsReply, error)
 	GetHistoricalPrice(context.Context, *GetHistoricalPriceRequest) (*GetHistoricalPriceReply, error)
+	GetKLineData(context.Context, *GetKLineDataRequest) (*GetKLineDataReply, error)
+	QueryKLineData(context.Context, *QueryKLineDataRequest) (*QueryKLineDataReply, error)
+	ClaimsAirdrop(context.Context, *ClaimsAirdropRequest) (*ClaimsAirdropReply, error)
+	IndexSwitch(context.Context, *IndexSwitchRequest) (*IndexSwitchReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -342,6 +394,18 @@ func (UnimplementedGreeterServer) GetConfigs(context.Context, *GetConfigsRequest
 }
 func (UnimplementedGreeterServer) GetHistoricalPrice(context.Context, *GetHistoricalPriceRequest) (*GetHistoricalPriceReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHistoricalPrice not implemented")
+}
+func (UnimplementedGreeterServer) GetKLineData(context.Context, *GetKLineDataRequest) (*GetKLineDataReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetKLineData not implemented")
+}
+func (UnimplementedGreeterServer) QueryKLineData(context.Context, *QueryKLineDataRequest) (*QueryKLineDataReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryKLineData not implemented")
+}
+func (UnimplementedGreeterServer) ClaimsAirdrop(context.Context, *ClaimsAirdropRequest) (*ClaimsAirdropReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClaimsAirdrop not implemented")
+}
+func (UnimplementedGreeterServer) IndexSwitch(context.Context, *IndexSwitchRequest) (*IndexSwitchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IndexSwitch not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -688,6 +752,78 @@ func _Greeter_GetHistoricalPrice_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_GetKLineData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetKLineDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).GetKLineData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_GetKLineData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).GetKLineData(ctx, req.(*GetKLineDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_QueryKLineData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryKLineDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).QueryKLineData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_QueryKLineData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).QueryKLineData(ctx, req.(*QueryKLineDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_ClaimsAirdrop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClaimsAirdropRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).ClaimsAirdrop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_ClaimsAirdrop_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).ClaimsAirdrop(ctx, req.(*ClaimsAirdropRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_IndexSwitch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IndexSwitchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).IndexSwitch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_IndexSwitch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).IndexSwitch(ctx, req.(*IndexSwitchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -766,6 +902,22 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetHistoricalPrice",
 			Handler:    _Greeter_GetHistoricalPrice_Handler,
+		},
+		{
+			MethodName: "GetKLineData",
+			Handler:    _Greeter_GetKLineData_Handler,
+		},
+		{
+			MethodName: "QueryKLineData",
+			Handler:    _Greeter_QueryKLineData_Handler,
+		},
+		{
+			MethodName: "ClaimsAirdrop",
+			Handler:    _Greeter_ClaimsAirdrop_Handler,
+		},
+		{
+			MethodName: "IndexSwitch",
+			Handler:    _Greeter_IndexSwitch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

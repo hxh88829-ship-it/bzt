@@ -126,6 +126,34 @@ service Greeter {
     };
   }
 
+  rpc GetKLineData(GetKLineDataRequest) returns (GetKLineDataReply) {
+    option (google.api.http) = {
+      post: "/v1/getKLineData"
+      body: "*"
+    };
+  }
+
+  rpc QueryKLineData(QueryKLineDataRequest) returns (QueryKLineDataReply) {
+    option (google.api.http) = {
+      post: "/v1/queryKLineData"
+      body: "*"
+    };
+  }
+
+  rpc ClaimsAirdrop(ClaimsAirdropRequest) returns (ClaimsAirdropReply) {
+    option (google.api.http) = {
+      post: "/v1/claimsAirdrop"
+      body: "*"
+    };
+  }
+
+  rpc IndexSwitch(IndexSwitchRequest) returns (IndexSwitchReply) {
+    option (google.api.http) = {
+      post: "/v1/indexSwitch"
+      body: "*"
+    };
+  }
+
 }
 
 // The request message containing the user's name.
@@ -232,6 +260,9 @@ message GetAirdropReply {
   string value = 2;
   string txHash = 3;
   string orderId = 4;
+  string claims = 5;
+  string claimed = 6;
+  string total = 7;
 }
 
 message HealthCheckRequest {}
@@ -351,4 +382,63 @@ message GetHistoricalPriceRequest {
 
 message GetHistoricalPriceReply {
   repeated MarketPrice prices = 1;
+}
+
+message GetKLineDataRequest {
+  string symbol = 1;
+  string interval = 2;
+  string limit = 3;
+  int64  step = 4;
+  string types = 5;
+  string collectionName = 6;
+}
+
+message GetKLineDataReply {
+  string result = 1;
+}
+
+message Kline {
+  int64  openTime                 = 1;  // 开盘时间
+  string openPrice                = 2;  // 开盘价
+  string highPrice                = 3;  // 最高价
+  string lowPrice                 = 4;  // 最低价
+  string closePrice               = 5;  // 收盘价
+  string volume                   = 6;  // 成交量
+  int64  closeTime                = 7;  // 收盘时间
+  string quoteAssetVolume         = 8;  // 成交额
+  int32  numberOfTrades           = 9;  // 交易笔数
+  string takerBuyBaseAssetVolume  = 10; // 主动买入成交量
+  string takerBuyQuoteAssetVolume = 11; // 主动买入成交额
+  string ignore                   = 12; // 保留字段
+  string dataType                 = 13; // 数据类型
+  string symbol                   = 14; // 币种
+}
+
+message QueryKLineDataRequest {
+  string symbol = 1;
+  string interval = 2;
+  int64  page = 3;
+  int64  size = 4;
+}
+
+message QueryKLineDataReply {
+  repeated Kline result = 1;
+}
+
+
+message ClaimsAirdropRequest {
+  string address = 1;
+}
+
+message ClaimsAirdropReply {
+  string  claimed = 1;
+  string  total = 2;
+}
+
+message IndexSwitchRequest {
+  int64 val = 1;
+}
+
+message IndexSwitchReply {
+  string  result = 1;
 }

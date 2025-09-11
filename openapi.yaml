@@ -103,6 +103,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.BindWalletReply'
+    /v1/claimsAirdrop:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_ClaimsAirdrop
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.ClaimsAirdropRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.ClaimsAirdropReply'
     /v1/closeOrder:
         post:
             tags:
@@ -211,6 +229,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.GetHistoricalPriceReply'
+    /v1/getKLineData:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_GetKLineData
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.GetKLineDataRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.GetKLineDataReply'
     /v1/getLoginMessage:
         post:
             tags:
@@ -229,6 +265,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.GetLoginMessageReply'
+    /v1/indexSwitch:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_IndexSwitch
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.IndexSwitchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.IndexSwitchReply'
     /v1/loginWithWallet:
         post:
             tags:
@@ -301,6 +355,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.OrderTradeReply'
+    /v1/queryKLineData:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_QueryKLineData
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.QueryKLineDataRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.QueryKLineDataReply'
     /v1/walletBalance:
         post:
             tags:
@@ -383,6 +455,18 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/helloworld.v1.DataDetails'
+        helloworld.v1.ClaimsAirdropReply:
+            type: object
+            properties:
+                claimed:
+                    type: string
+                total:
+                    type: string
+        helloworld.v1.ClaimsAirdropRequest:
+            type: object
+            properties:
+                address:
+                    type: string
         helloworld.v1.CloseOrderReply:
             type: object
             properties:
@@ -430,6 +514,12 @@ components:
                 txHash:
                     type: string
                 orderId:
+                    type: string
+                claims:
+                    type: string
+                claimed:
+                    type: string
+                total:
                     type: string
             description: The response message containing the greetings
         helloworld.v1.GetAirdropRequest:
@@ -493,6 +583,26 @@ components:
                     type: string
                 size:
                     type: string
+        helloworld.v1.GetKLineDataReply:
+            type: object
+            properties:
+                result:
+                    type: string
+        helloworld.v1.GetKLineDataRequest:
+            type: object
+            properties:
+                symbol:
+                    type: string
+                interval:
+                    type: string
+                limit:
+                    type: string
+                step:
+                    type: string
+                types:
+                    type: string
+                collectionName:
+                    type: string
         helloworld.v1.GetLoginMessageReply:
             type: object
             properties:
@@ -517,6 +627,48 @@ components:
                 message:
                     type: string
             description: The response message containing the greetings
+        helloworld.v1.IndexSwitchReply:
+            type: object
+            properties:
+                result:
+                    type: string
+        helloworld.v1.IndexSwitchRequest:
+            type: object
+            properties:
+                val:
+                    type: string
+        helloworld.v1.Kline:
+            type: object
+            properties:
+                openTime:
+                    type: string
+                openPrice:
+                    type: string
+                highPrice:
+                    type: string
+                lowPrice:
+                    type: string
+                closePrice:
+                    type: string
+                volume:
+                    type: string
+                closeTime:
+                    type: string
+                quoteAssetVolume:
+                    type: string
+                numberOfTrades:
+                    type: integer
+                    format: int32
+                takerBuyBaseAssetVolume:
+                    type: string
+                takerBuyQuoteAssetVolume:
+                    type: string
+                ignore:
+                    type: string
+                dataType:
+                    type: string
+                symbol:
+                    type: string
         helloworld.v1.LoginReply:
             type: object
             properties:
@@ -617,6 +769,24 @@ components:
                 page:
                     type: string
                 pageSize:
+                    type: string
+        helloworld.v1.QueryKLineDataReply:
+            type: object
+            properties:
+                result:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.Kline'
+        helloworld.v1.QueryKLineDataRequest:
+            type: object
+            properties:
+                symbol:
+                    type: string
+                interval:
+                    type: string
+                page:
+                    type: string
+                size:
                     type: string
         helloworld.v1.TokenBalance:
             type: object

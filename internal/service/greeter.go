@@ -20,6 +20,7 @@ import (
 	"valueguard/internal/bzt"
 	"valueguard/internal/conf"
 	"valueguard/internal/dailyAirdrop"
+	"valueguard/internal/marketCondition"
 	"valueguard/internal/mongo"
 )
 
@@ -235,6 +236,119 @@ func (s *GreeterService) GetHistoricalPrice(ctx context.Context, in *v1.GetHisto
 	}, nil
 }
 
+func (s *GreeterService) GetKLineData(ctx context.Context, in *v1.GetKLineDataRequest) (*v1.GetKLineDataReply, error) {
+	const (
+		dayMillis  = 24 * 60 * 60 * 1000
+		hourMillis = 60 * 60 * 1000
+	)
+	symbol := in.GetSymbol()
+	interval := in.GetInterval()
+	limit := in.GetLimit()
+	var step int64
+	switch in.GetTypes() {
+	case "dayMillis":
+		step = in.GetStep() * dayMillis * 1000
+	case "hourMillis":
+		step = in.GetStep() * hourMillis * 1000
+	default:
+		return nil, errors.New("invalid interval")
+	}
+
+	// 起点：8年前
+	start := time.Now().AddDate(-8, 0, 0).UnixMilli()
+	// 终点：现在
+	end := time.Now().UnixMilli()
+	intervals := marketCondition.SplitDailyIntervals(start, end, step)
+
+	fmt.Println("总共拆分:", len(intervals), "段")
+	var res []*v1.Kline
+	for i, p := range intervals {
+		fmt.Printf("第 %d 段: start=%d (%s), end=%d (%s)\n",
+			i+1,
+			p[0], time.UnixMilli(p[0]).UTC(),
+			p[1], time.UnixMilli(p[1]).UTC(),
+		)
+		resKline, err := marketCondition.GetKLines(symbol, interval, fmt.Sprint(p[0]), fmt.Sprint(p[1]), limit)
+		if err != nil {
+			log.Errorf("get kline data err: %v", err)
+			return &v1.GetKLineDataReply{}, err
+		}
+		err = marketCondition.AddKLineToMongoDB(resKline, in.GetCollectionName(), interval, in.GetSymbol())
+		if err != nil {
+			log.Errorf("add kline data err: %v", err)
+			return &v1.GetKLineDataReply{}, err
+		}
+		// 转换成 gRPC 返回类型
+		for _, k := range resKline {
+			res = append(res, &v1.Kline{
+				OpenTime:                 k.OpenTime,
+				OpenPrice:                k.OpenPrice,
+				HighPrice:                k.HighPrice,
+				LowPrice:                 k.LowPrice,
+				ClosePrice:               k.ClosePrice,
+				Volume:                   k.Volume,
+				CloseTime:                k.CloseTime,
+				QuoteAssetVolume:         k.QuoteAssetVolume,
+				NumberOfTrades:           int32(k.NumberOfTrades),
+				TakerBuyBaseAssetVolume:  k.TakerBuyBaseAssetVolume,
+				TakerBuyQuoteAssetVolume: k.TakerBuyQuoteAssetVolume,
+				Ignore:                   k.Ignore,
+				DataType:                 interval,
+				Symbol:                   symbol,
+			})
+		}
+
+	}
+
+	return &v1.GetKLineDataReply{
+		Result: "success",
+	}, nil
+}
+
+func (s *GreeterService) QueryKLineData(ctx context.Context, in *v1.QueryKLineDataRequest) (*v1.QueryKLineDataReply, error) {
+	var CollectionName string
+	switch in.GetInterval() {
+	case "1d":
+		CollectionName = "kLineByOneDay"
+	case "3d":
+		CollectionName = "kLineByThreeDay"
+	case "1h":
+		CollectionName = "kLineByOneHour"
+	case "4h":
+		CollectionName = "kLineByFourHour"
+	default:
+		return nil, errors.New("invalid interval:" + in.GetInterval())
+	}
+	log.Infof("QueryKLineData CollectionName:%s, %s", CollectionName, in.GetInterval())
+	resKline, err := mongo.GetKLineData(in.GetInterval(), in.GetSymbol(), CollectionName, in.GetPage(), in.GetSize())
+	if err != nil {
+		log.Warnf("query kline data err: %v", err)
+		return &v1.QueryKLineDataReply{}, err
+	}
+	var res []*v1.Kline
+	for _, k := range resKline {
+		res = append(res, &v1.Kline{
+			OpenTime:                 k.OpenTime,
+			OpenPrice:                k.OpenPrice,
+			HighPrice:                k.HighPrice,
+			LowPrice:                 k.LowPrice,
+			ClosePrice:               k.ClosePrice,
+			Volume:                   k.Volume,
+			CloseTime:                k.CloseTime,
+			QuoteAssetVolume:         k.QuoteAssetVolume,
+			NumberOfTrades:           int32(k.NumberOfTrades),
+			TakerBuyBaseAssetVolume:  k.TakerBuyBaseAssetVolume,
+			TakerBuyQuoteAssetVolume: k.TakerBuyQuoteAssetVolume,
+			Ignore:                   k.Ignore,
+			DataType:                 k.DataType,
+			Symbol:                   k.Symbol,
+		})
+	}
+	return &v1.QueryKLineDataReply{
+		Result: res,
+	}, nil
+}
+
 func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest) (*v1.OpenOrderReply, error) {
 	// 1. 参数校验
 	if in.GetAddress() == "" || in.GetTimestamp() == 0 || in.GetSymbol() == "" {
@@ -381,6 +495,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		log.Error("CloseOrder GetCloseOrderInput err: ", err)
 		return nil, err
 	}
+	//TODO 是否需要通过定义累加器函数对nonce进行维护
 	tx, nonce, err := bzt.UrlOwnerContractTransfer(input, api.Client)
 	if err != nil {
 		log.Error("CloseOrder UrlOwnerContractTransfer err: ", err)
@@ -437,12 +552,12 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 
 	// 判断领取资质
 	today := in.GetTimestamp()
-	claims, claimed, err := dailyAirdrop.UpdateLossAmount(strings.ToLower(addr), "DUSDT") // 用户今日可领，领后总额
+	claims, claimed, total, err := dailyAirdrop.UpdateLossAmount(strings.ToLower(addr)) // 用户今日可领，领后总额
 	if err != nil {
 		log.Error("GetAirdrop UpdateLossAmount:", err)
 		return nil, err
 	}
-	log.Info("claims:", claimed)
+	log.Infof("claims:%s -- claimed:%s --total:%s ", claims, claimed, total)
 
 	//通过 UID或者address + 时间 拿到一个唯一的红包订单
 	// 生成订单号
@@ -469,6 +584,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 				log.Error("GetAirdrop GetAirdropInput:", err)
 				return nil, err
 			}
+			//TODO 是否需要通过定义累加器函数对nonce进行维护
 			tx, nonce, err := bzt.UrlOwnerContractTransfer(input, api.Client)
 			if err != nil {
 				log.Error("GetAirdrop UrlOwnerContractTransfer err: ", err)
@@ -496,7 +612,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 				return nil, err
 			}
 
-			err = mongo.UpdateUserClaims("DUSDT", strings.ToLower(addr), claimed)
+			err = mongo.UpdateUserClaims(strings.ToLower(addr), claimed)
 			if err != nil {
 				log.Error("GetAirdrop UpdateUserClaims:", err)
 				return nil, err
@@ -512,6 +628,9 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 				Value:   claims.String(),
 				TxHash:  tx,
 				OrderId: OrderId,
+				Claims:  claims.String(),
+				Claimed: claimed,
+				Total:   total,
 			}, nil
 		} else {
 			log.Error("QueryAirdropByTimes:", err)
@@ -520,6 +639,33 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	}
 
 	return &v1.GetAirdropReply{Status: "address already claim"}, nil
+}
+
+func (s *GreeterService) ClaimsAirdrop(ctx context.Context, in *v1.ClaimsAirdropRequest) (*v1.ClaimsAirdropReply, error) {
+	// 提取 addr ， uid
+	if in.GetAddress() == "" {
+		return nil, errors.New("missing required parameters")
+	}
+	log.Info("ClaimsAirdrop:", in.GetAddress())
+	addr, _, err := GetAddrAndUidByToken(ctx)
+	if err != nil {
+		log.Error("GetAddrAndUidByToken err: ", err)
+		return nil, err
+	}
+	log.Info("OrderTrade GetAddrAndUidByToken:", addr)
+	if strings.ToLower(addr) != strings.ToLower(in.GetAddress()) {
+		log.Warnf("[OrderTrade]: token_addr=%s, req_addr=%s", addr, in.GetAddress())
+		return &v1.ClaimsAirdropReply{}, err
+	}
+	res, err := mongo.GetUserAmount(strings.ToLower(addr))
+	if err != nil {
+		log.Error("GetUserAmount:", err)
+		return &v1.ClaimsAirdropReply{}, err
+	}
+	return &v1.ClaimsAirdropReply{
+		Claimed: res.ClaimAirdrop,
+		Total:   res.LossAmount,
+	}, nil
 }
 
 func (s *GreeterService) OrderTrade(ctx context.Context, in *v1.OrderTradeRequest) (*v1.OrderTradeReply, error) {
@@ -708,6 +854,21 @@ func (s *GreeterService) GetConfigs(ctx context.Context, in *v1.GetConfigsReques
 		BztContractAddress:   conf.ContractBztAddr,
 		DusdtContractAddress: conf.ContractDusdtAddress,
 	}, nil
+}
+
+func (s *GreeterService) IndexSwitch(ctx context.Context, in *v1.IndexSwitchRequest) (*v1.IndexSwitchReply, error) {
+	if in.GetVal() != 1 {
+		return &v1.IndexSwitchReply{
+			Result: "fail",
+		}, nil
+	}
+	err := mongo.EnsureKlineIndexes()
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+	}
+	return &v1.IndexSwitchReply{
+		Result: "success",
+	}, err
 }
 
 func IsWalletBound(addr string) (bool, error) {

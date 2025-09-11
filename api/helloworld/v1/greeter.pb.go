@@ -992,6 +992,9 @@ type GetAirdropReply struct {
 	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 	TxHash        string                 `protobuf:"bytes,3,opt,name=txHash,proto3" json:"txHash,omitempty"`
 	OrderId       string                 `protobuf:"bytes,4,opt,name=orderId,proto3" json:"orderId,omitempty"`
+	Claims        string                 `protobuf:"bytes,5,opt,name=claims,proto3" json:"claims,omitempty"`
+	Claimed       string                 `protobuf:"bytes,6,opt,name=claimed,proto3" json:"claimed,omitempty"`
+	Total         string                 `protobuf:"bytes,7,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1050,6 +1053,27 @@ func (x *GetAirdropReply) GetTxHash() string {
 func (x *GetAirdropReply) GetOrderId() string {
 	if x != nil {
 		return x.OrderId
+	}
+	return ""
+}
+
+func (x *GetAirdropReply) GetClaims() string {
+	if x != nil {
+		return x.Claims
+	}
+	return ""
+}
+
+func (x *GetAirdropReply) GetClaimed() string {
+	if x != nil {
+		return x.Claimed
+	}
+	return ""
+}
+
+func (x *GetAirdropReply) GetTotal() string {
+	if x != nil {
+		return x.Total
 	}
 	return ""
 }
@@ -2248,6 +2272,578 @@ func (x *GetHistoricalPriceReply) GetPrices() []*MarketPrice {
 	return nil
 }
 
+type GetKLineDataRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Symbol         string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Interval       string                 `protobuf:"bytes,2,opt,name=interval,proto3" json:"interval,omitempty"`
+	Limit          string                 `protobuf:"bytes,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Step           int64                  `protobuf:"varint,4,opt,name=step,proto3" json:"step,omitempty"`
+	Types          string                 `protobuf:"bytes,5,opt,name=types,proto3" json:"types,omitempty"`
+	CollectionName string                 `protobuf:"bytes,6,opt,name=collectionName,proto3" json:"collectionName,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetKLineDataRequest) Reset() {
+	*x = GetKLineDataRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetKLineDataRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetKLineDataRequest) ProtoMessage() {}
+
+func (x *GetKLineDataRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetKLineDataRequest.ProtoReflect.Descriptor instead.
+func (*GetKLineDataRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *GetKLineDataRequest) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *GetKLineDataRequest) GetInterval() string {
+	if x != nil {
+		return x.Interval
+	}
+	return ""
+}
+
+func (x *GetKLineDataRequest) GetLimit() string {
+	if x != nil {
+		return x.Limit
+	}
+	return ""
+}
+
+func (x *GetKLineDataRequest) GetStep() int64 {
+	if x != nil {
+		return x.Step
+	}
+	return 0
+}
+
+func (x *GetKLineDataRequest) GetTypes() string {
+	if x != nil {
+		return x.Types
+	}
+	return ""
+}
+
+func (x *GetKLineDataRequest) GetCollectionName() string {
+	if x != nil {
+		return x.CollectionName
+	}
+	return ""
+}
+
+type GetKLineDataReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetKLineDataReply) Reset() {
+	*x = GetKLineDataReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetKLineDataReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetKLineDataReply) ProtoMessage() {}
+
+func (x *GetKLineDataReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetKLineDataReply.ProtoReflect.Descriptor instead.
+func (*GetKLineDataReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *GetKLineDataReply) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+type Kline struct {
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	OpenTime                 int64                  `protobuf:"varint,1,opt,name=openTime,proto3" json:"openTime,omitempty"`                                 // 开盘时间
+	OpenPrice                string                 `protobuf:"bytes,2,opt,name=openPrice,proto3" json:"openPrice,omitempty"`                                // 开盘价
+	HighPrice                string                 `protobuf:"bytes,3,opt,name=highPrice,proto3" json:"highPrice,omitempty"`                                // 最高价
+	LowPrice                 string                 `protobuf:"bytes,4,opt,name=lowPrice,proto3" json:"lowPrice,omitempty"`                                  // 最低价
+	ClosePrice               string                 `protobuf:"bytes,5,opt,name=closePrice,proto3" json:"closePrice,omitempty"`                              // 收盘价
+	Volume                   string                 `protobuf:"bytes,6,opt,name=volume,proto3" json:"volume,omitempty"`                                      // 成交量
+	CloseTime                int64                  `protobuf:"varint,7,opt,name=closeTime,proto3" json:"closeTime,omitempty"`                               // 收盘时间
+	QuoteAssetVolume         string                 `protobuf:"bytes,8,opt,name=quoteAssetVolume,proto3" json:"quoteAssetVolume,omitempty"`                  // 成交额
+	NumberOfTrades           int32                  `protobuf:"varint,9,opt,name=numberOfTrades,proto3" json:"numberOfTrades,omitempty"`                     // 交易笔数
+	TakerBuyBaseAssetVolume  string                 `protobuf:"bytes,10,opt,name=takerBuyBaseAssetVolume,proto3" json:"takerBuyBaseAssetVolume,omitempty"`   // 主动买入成交量
+	TakerBuyQuoteAssetVolume string                 `protobuf:"bytes,11,opt,name=takerBuyQuoteAssetVolume,proto3" json:"takerBuyQuoteAssetVolume,omitempty"` // 主动买入成交额
+	Ignore                   string                 `protobuf:"bytes,12,opt,name=ignore,proto3" json:"ignore,omitempty"`                                     // 保留字段
+	DataType                 string                 `protobuf:"bytes,13,opt,name=dataType,proto3" json:"dataType,omitempty"`                                 // 数据类型
+	Symbol                   string                 `protobuf:"bytes,14,opt,name=symbol,proto3" json:"symbol,omitempty"`                                     // 币种
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *Kline) Reset() {
+	*x = Kline{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Kline) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Kline) ProtoMessage() {}
+
+func (x *Kline) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Kline.ProtoReflect.Descriptor instead.
+func (*Kline) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *Kline) GetOpenTime() int64 {
+	if x != nil {
+		return x.OpenTime
+	}
+	return 0
+}
+
+func (x *Kline) GetOpenPrice() string {
+	if x != nil {
+		return x.OpenPrice
+	}
+	return ""
+}
+
+func (x *Kline) GetHighPrice() string {
+	if x != nil {
+		return x.HighPrice
+	}
+	return ""
+}
+
+func (x *Kline) GetLowPrice() string {
+	if x != nil {
+		return x.LowPrice
+	}
+	return ""
+}
+
+func (x *Kline) GetClosePrice() string {
+	if x != nil {
+		return x.ClosePrice
+	}
+	return ""
+}
+
+func (x *Kline) GetVolume() string {
+	if x != nil {
+		return x.Volume
+	}
+	return ""
+}
+
+func (x *Kline) GetCloseTime() int64 {
+	if x != nil {
+		return x.CloseTime
+	}
+	return 0
+}
+
+func (x *Kline) GetQuoteAssetVolume() string {
+	if x != nil {
+		return x.QuoteAssetVolume
+	}
+	return ""
+}
+
+func (x *Kline) GetNumberOfTrades() int32 {
+	if x != nil {
+		return x.NumberOfTrades
+	}
+	return 0
+}
+
+func (x *Kline) GetTakerBuyBaseAssetVolume() string {
+	if x != nil {
+		return x.TakerBuyBaseAssetVolume
+	}
+	return ""
+}
+
+func (x *Kline) GetTakerBuyQuoteAssetVolume() string {
+	if x != nil {
+		return x.TakerBuyQuoteAssetVolume
+	}
+	return ""
+}
+
+func (x *Kline) GetIgnore() string {
+	if x != nil {
+		return x.Ignore
+	}
+	return ""
+}
+
+func (x *Kline) GetDataType() string {
+	if x != nil {
+		return x.DataType
+	}
+	return ""
+}
+
+func (x *Kline) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+type QueryKLineDataRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Interval      string                 `protobuf:"bytes,2,opt,name=interval,proto3" json:"interval,omitempty"`
+	Page          int64                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
+	Size          int64                  `protobuf:"varint,4,opt,name=size,proto3" json:"size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QueryKLineDataRequest) Reset() {
+	*x = QueryKLineDataRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryKLineDataRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryKLineDataRequest) ProtoMessage() {}
+
+func (x *QueryKLineDataRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryKLineDataRequest.ProtoReflect.Descriptor instead.
+func (*QueryKLineDataRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *QueryKLineDataRequest) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *QueryKLineDataRequest) GetInterval() string {
+	if x != nil {
+		return x.Interval
+	}
+	return ""
+}
+
+func (x *QueryKLineDataRequest) GetPage() int64 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *QueryKLineDataRequest) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+type QueryKLineDataReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        []*Kline               `protobuf:"bytes,1,rep,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QueryKLineDataReply) Reset() {
+	*x = QueryKLineDataReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryKLineDataReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryKLineDataReply) ProtoMessage() {}
+
+func (x *QueryKLineDataReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryKLineDataReply.ProtoReflect.Descriptor instead.
+func (*QueryKLineDataReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *QueryKLineDataReply) GetResult() []*Kline {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+type ClaimsAirdropRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClaimsAirdropRequest) Reset() {
+	*x = ClaimsAirdropRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClaimsAirdropRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClaimsAirdropRequest) ProtoMessage() {}
+
+func (x *ClaimsAirdropRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClaimsAirdropRequest.ProtoReflect.Descriptor instead.
+func (*ClaimsAirdropRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *ClaimsAirdropRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+type ClaimsAirdropReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Claimed       string                 `protobuf:"bytes,1,opt,name=claimed,proto3" json:"claimed,omitempty"`
+	Total         string                 `protobuf:"bytes,2,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClaimsAirdropReply) Reset() {
+	*x = ClaimsAirdropReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClaimsAirdropReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClaimsAirdropReply) ProtoMessage() {}
+
+func (x *ClaimsAirdropReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClaimsAirdropReply.ProtoReflect.Descriptor instead.
+func (*ClaimsAirdropReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *ClaimsAirdropReply) GetClaimed() string {
+	if x != nil {
+		return x.Claimed
+	}
+	return ""
+}
+
+func (x *ClaimsAirdropReply) GetTotal() string {
+	if x != nil {
+		return x.Total
+	}
+	return ""
+}
+
+type IndexSwitchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Val           int64                  `protobuf:"varint,1,opt,name=val,proto3" json:"val,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IndexSwitchRequest) Reset() {
+	*x = IndexSwitchRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IndexSwitchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IndexSwitchRequest) ProtoMessage() {}
+
+func (x *IndexSwitchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IndexSwitchRequest.ProtoReflect.Descriptor instead.
+func (*IndexSwitchRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *IndexSwitchRequest) GetVal() int64 {
+	if x != nil {
+		return x.Val
+	}
+	return 0
+}
+
+type IndexSwitchReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IndexSwitchReply) Reset() {
+	*x = IndexSwitchReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IndexSwitchReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IndexSwitchReply) ProtoMessage() {}
+
+func (x *IndexSwitchReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IndexSwitchReply.ProtoReflect.Descriptor instead.
+func (*IndexSwitchReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *IndexSwitchReply) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_helloworld_v1_greeter_proto_rawDesc = "" +
@@ -2308,12 +2904,15 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x0fCloseOrderReply\x12\x0e\n" +
 	"\x02tx\x18\x01 \x01(\tR\x02tx\"1\n" +
 	"\x11GetAirdropRequest\x12\x1c\n" +
-	"\ttimestamp\x18\x01 \x01(\tR\ttimestamp\"q\n" +
+	"\ttimestamp\x18\x01 \x01(\tR\ttimestamp\"\xb9\x01\n" +
 	"\x0fGetAirdropReply\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x12\x16\n" +
 	"\x06txHash\x18\x03 \x01(\tR\x06txHash\x12\x18\n" +
-	"\aorderId\x18\x04 \x01(\tR\aorderId\"\x14\n" +
+	"\aorderId\x18\x04 \x01(\tR\aorderId\x12\x16\n" +
+	"\x06claims\x18\x05 \x01(\tR\x06claims\x12\x18\n" +
+	"\aclaimed\x18\x06 \x01(\tR\aclaimed\x12\x14\n" +
+	"\x05total\x18\a \x01(\tR\x05total\"\x14\n" +
 	"\x12HealthCheckRequest\"*\n" +
 	"\x10HealthCheckReply\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\"]\n" +
@@ -2399,7 +2998,50 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x04page\x18\x04 \x01(\x03R\x04page\x12\x12\n" +
 	"\x04size\x18\x05 \x01(\x03R\x04size\"M\n" +
 	"\x17GetHistoricalPriceReply\x122\n" +
-	"\x06prices\x18\x01 \x03(\v2\x1a.helloworld.v1.MarketPriceR\x06prices2\xe8\x0f\n" +
+	"\x06prices\x18\x01 \x03(\v2\x1a.helloworld.v1.MarketPriceR\x06prices\"\xb1\x01\n" +
+	"\x13GetKLineDataRequest\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x1a\n" +
+	"\binterval\x18\x02 \x01(\tR\binterval\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\tR\x05limit\x12\x12\n" +
+	"\x04step\x18\x04 \x01(\x03R\x04step\x12\x14\n" +
+	"\x05types\x18\x05 \x01(\tR\x05types\x12&\n" +
+	"\x0ecollectionName\x18\x06 \x01(\tR\x0ecollectionName\"+\n" +
+	"\x11GetKLineDataReply\x12\x16\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result\"\xe7\x03\n" +
+	"\x05Kline\x12\x1a\n" +
+	"\bopenTime\x18\x01 \x01(\x03R\bopenTime\x12\x1c\n" +
+	"\topenPrice\x18\x02 \x01(\tR\topenPrice\x12\x1c\n" +
+	"\thighPrice\x18\x03 \x01(\tR\thighPrice\x12\x1a\n" +
+	"\blowPrice\x18\x04 \x01(\tR\blowPrice\x12\x1e\n" +
+	"\n" +
+	"closePrice\x18\x05 \x01(\tR\n" +
+	"closePrice\x12\x16\n" +
+	"\x06volume\x18\x06 \x01(\tR\x06volume\x12\x1c\n" +
+	"\tcloseTime\x18\a \x01(\x03R\tcloseTime\x12*\n" +
+	"\x10quoteAssetVolume\x18\b \x01(\tR\x10quoteAssetVolume\x12&\n" +
+	"\x0enumberOfTrades\x18\t \x01(\x05R\x0enumberOfTrades\x128\n" +
+	"\x17takerBuyBaseAssetVolume\x18\n" +
+	" \x01(\tR\x17takerBuyBaseAssetVolume\x12:\n" +
+	"\x18takerBuyQuoteAssetVolume\x18\v \x01(\tR\x18takerBuyQuoteAssetVolume\x12\x16\n" +
+	"\x06ignore\x18\f \x01(\tR\x06ignore\x12\x1a\n" +
+	"\bdataType\x18\r \x01(\tR\bdataType\x12\x16\n" +
+	"\x06symbol\x18\x0e \x01(\tR\x06symbol\"s\n" +
+	"\x15QueryKLineDataRequest\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x1a\n" +
+	"\binterval\x18\x02 \x01(\tR\binterval\x12\x12\n" +
+	"\x04page\x18\x03 \x01(\x03R\x04page\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\x03R\x04size\"C\n" +
+	"\x13QueryKLineDataReply\x12,\n" +
+	"\x06result\x18\x01 \x03(\v2\x14.helloworld.v1.KlineR\x06result\"0\n" +
+	"\x14ClaimsAirdropRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\"D\n" +
+	"\x12ClaimsAirdropReply\x12\x18\n" +
+	"\aclaimed\x18\x01 \x01(\tR\aclaimed\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\tR\x05total\"&\n" +
+	"\x12IndexSwitchRequest\x12\x10\n" +
+	"\x03val\x18\x01 \x01(\x03R\x03val\"*\n" +
+	"\x10IndexSwitchReply\x12\x16\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result2\xbc\x13\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +
@@ -2423,7 +3065,11 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\rGetBztVersion\x12#.helloworld.v1.GetBztVersionRequest\x1a!.helloworld.v1.GetBztVersionReply\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/bzt/version\x12i\n" +
 	"\n" +
 	"GetConfigs\x12 .helloworld.v1.GetConfigsRequest\x1a\x1e.helloworld.v1.GetConfigsReply\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/getConfigs\x12\x89\x01\n" +
-	"\x12GetHistoricalPrice\x12(.helloworld.v1.GetHistoricalPriceRequest\x1a&.helloworld.v1.GetHistoricalPriceReply\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/getHistoricalPriceBT\n" +
+	"\x12GetHistoricalPrice\x12(.helloworld.v1.GetHistoricalPriceRequest\x1a&.helloworld.v1.GetHistoricalPriceReply\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/getHistoricalPrice\x12q\n" +
+	"\fGetKLineData\x12\".helloworld.v1.GetKLineDataRequest\x1a .helloworld.v1.GetKLineDataReply\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/getKLineData\x12y\n" +
+	"\x0eQueryKLineData\x12$.helloworld.v1.QueryKLineDataRequest\x1a\".helloworld.v1.QueryKLineDataReply\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/queryKLineData\x12u\n" +
+	"\rClaimsAirdrop\x12#.helloworld.v1.ClaimsAirdropRequest\x1a!.helloworld.v1.ClaimsAirdropReply\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/claimsAirdrop\x12m\n" +
+	"\vIndexSwitch\x12!.helloworld.v1.IndexSwitchRequest\x1a\x1f.helloworld.v1.IndexSwitchReply\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/indexSwitchBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -2438,7 +3084,7 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*HelloRequest)(nil),              // 0: helloworld.v1.HelloRequest
 	(*HelloReply)(nil),                // 1: helloworld.v1.HelloReply
@@ -2481,6 +3127,15 @@ var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*GetConfigsReply)(nil),           // 38: helloworld.v1.GetConfigsReply
 	(*GetHistoricalPriceRequest)(nil), // 39: helloworld.v1.GetHistoricalPriceRequest
 	(*GetHistoricalPriceReply)(nil),   // 40: helloworld.v1.GetHistoricalPriceReply
+	(*GetKLineDataRequest)(nil),       // 41: helloworld.v1.GetKLineDataRequest
+	(*GetKLineDataReply)(nil),         // 42: helloworld.v1.GetKLineDataReply
+	(*Kline)(nil),                     // 43: helloworld.v1.Kline
+	(*QueryKLineDataRequest)(nil),     // 44: helloworld.v1.QueryKLineDataRequest
+	(*QueryKLineDataReply)(nil),       // 45: helloworld.v1.QueryKLineDataReply
+	(*ClaimsAirdropRequest)(nil),      // 46: helloworld.v1.ClaimsAirdropRequest
+	(*ClaimsAirdropReply)(nil),        // 47: helloworld.v1.ClaimsAirdropReply
+	(*IndexSwitchRequest)(nil),        // 48: helloworld.v1.IndexSwitchRequest
+	(*IndexSwitchReply)(nil),          // 49: helloworld.v1.IndexSwitchReply
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	9,  // 0: helloworld.v1.WalletBalanceReply.tokens:type_name -> helloworld.v1.TokenBalance
@@ -2489,47 +3144,56 @@ var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	27, // 3: helloworld.v1.AirdropTradeReply.result:type_name -> helloworld.v1.AirdropDetails
 	30, // 4: helloworld.v1.BztDappReply.data:type_name -> helloworld.v1.DataDetails
 	12, // 5: helloworld.v1.GetHistoricalPriceReply.prices:type_name -> helloworld.v1.MarketPrice
-	0,  // 6: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
-	4,  // 7: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
-	2,  // 8: helloworld.v1.Greeter.GetLoginMessage:input_type -> helloworld.v1.GetLoginMessageRequest
-	6,  // 9: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
-	8,  // 10: helloworld.v1.Greeter.WalletBalance:input_type -> helloworld.v1.WalletBalanceRequest
-	11, // 11: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
-	14, // 12: helloworld.v1.Greeter.OpenOrder:input_type -> helloworld.v1.OpenOrderRequest
-	16, // 13: helloworld.v1.Greeter.CloseOrder:input_type -> helloworld.v1.CloseOrderRequest
-	18, // 14: helloworld.v1.Greeter.GetAirdrop:input_type -> helloworld.v1.GetAirdropRequest
-	20, // 15: helloworld.v1.Greeter.Health:input_type -> helloworld.v1.HealthCheckRequest
-	22, // 16: helloworld.v1.Greeter.OrderTrade:input_type -> helloworld.v1.OrderTradeRequest
-	25, // 17: helloworld.v1.Greeter.AirdropTrade:input_type -> helloworld.v1.AirdropTradeRequest
-	28, // 18: helloworld.v1.Greeter.BztDapp:input_type -> helloworld.v1.BztDappRequest
-	31, // 19: helloworld.v1.Greeter.DeployContract:input_type -> helloworld.v1.DeployContractRequest
-	33, // 20: helloworld.v1.Greeter.GetBztDetails:input_type -> helloworld.v1.GetBztDetailsRequest
-	35, // 21: helloworld.v1.Greeter.GetBztVersion:input_type -> helloworld.v1.GetBztVersionRequest
-	37, // 22: helloworld.v1.Greeter.GetConfigs:input_type -> helloworld.v1.GetConfigsRequest
-	39, // 23: helloworld.v1.Greeter.GetHistoricalPrice:input_type -> helloworld.v1.GetHistoricalPriceRequest
-	1,  // 24: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	5,  // 25: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
-	3,  // 26: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
-	7,  // 27: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
-	10, // 28: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
-	13, // 29: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	15, // 30: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
-	17, // 31: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
-	19, // 32: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
-	21, // 33: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
-	23, // 34: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
-	26, // 35: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
-	29, // 36: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
-	32, // 37: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
-	34, // 38: helloworld.v1.Greeter.GetBztDetails:output_type -> helloworld.v1.GetBztDetailsReply
-	36, // 39: helloworld.v1.Greeter.GetBztVersion:output_type -> helloworld.v1.GetBztVersionReply
-	38, // 40: helloworld.v1.Greeter.GetConfigs:output_type -> helloworld.v1.GetConfigsReply
-	40, // 41: helloworld.v1.Greeter.GetHistoricalPrice:output_type -> helloworld.v1.GetHistoricalPriceReply
-	24, // [24:42] is the sub-list for method output_type
-	6,  // [6:24] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	43, // 6: helloworld.v1.QueryKLineDataReply.result:type_name -> helloworld.v1.Kline
+	0,  // 7: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
+	4,  // 8: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
+	2,  // 9: helloworld.v1.Greeter.GetLoginMessage:input_type -> helloworld.v1.GetLoginMessageRequest
+	6,  // 10: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
+	8,  // 11: helloworld.v1.Greeter.WalletBalance:input_type -> helloworld.v1.WalletBalanceRequest
+	11, // 12: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
+	14, // 13: helloworld.v1.Greeter.OpenOrder:input_type -> helloworld.v1.OpenOrderRequest
+	16, // 14: helloworld.v1.Greeter.CloseOrder:input_type -> helloworld.v1.CloseOrderRequest
+	18, // 15: helloworld.v1.Greeter.GetAirdrop:input_type -> helloworld.v1.GetAirdropRequest
+	20, // 16: helloworld.v1.Greeter.Health:input_type -> helloworld.v1.HealthCheckRequest
+	22, // 17: helloworld.v1.Greeter.OrderTrade:input_type -> helloworld.v1.OrderTradeRequest
+	25, // 18: helloworld.v1.Greeter.AirdropTrade:input_type -> helloworld.v1.AirdropTradeRequest
+	28, // 19: helloworld.v1.Greeter.BztDapp:input_type -> helloworld.v1.BztDappRequest
+	31, // 20: helloworld.v1.Greeter.DeployContract:input_type -> helloworld.v1.DeployContractRequest
+	33, // 21: helloworld.v1.Greeter.GetBztDetails:input_type -> helloworld.v1.GetBztDetailsRequest
+	35, // 22: helloworld.v1.Greeter.GetBztVersion:input_type -> helloworld.v1.GetBztVersionRequest
+	37, // 23: helloworld.v1.Greeter.GetConfigs:input_type -> helloworld.v1.GetConfigsRequest
+	39, // 24: helloworld.v1.Greeter.GetHistoricalPrice:input_type -> helloworld.v1.GetHistoricalPriceRequest
+	41, // 25: helloworld.v1.Greeter.GetKLineData:input_type -> helloworld.v1.GetKLineDataRequest
+	44, // 26: helloworld.v1.Greeter.QueryKLineData:input_type -> helloworld.v1.QueryKLineDataRequest
+	46, // 27: helloworld.v1.Greeter.ClaimsAirdrop:input_type -> helloworld.v1.ClaimsAirdropRequest
+	48, // 28: helloworld.v1.Greeter.IndexSwitch:input_type -> helloworld.v1.IndexSwitchRequest
+	1,  // 29: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	5,  // 30: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	3,  // 31: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
+	7,  // 32: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	10, // 33: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
+	13, // 34: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	15, // 35: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
+	17, // 36: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
+	19, // 37: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
+	21, // 38: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
+	23, // 39: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
+	26, // 40: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
+	29, // 41: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
+	32, // 42: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
+	34, // 43: helloworld.v1.Greeter.GetBztDetails:output_type -> helloworld.v1.GetBztDetailsReply
+	36, // 44: helloworld.v1.Greeter.GetBztVersion:output_type -> helloworld.v1.GetBztVersionReply
+	38, // 45: helloworld.v1.Greeter.GetConfigs:output_type -> helloworld.v1.GetConfigsReply
+	40, // 46: helloworld.v1.Greeter.GetHistoricalPrice:output_type -> helloworld.v1.GetHistoricalPriceReply
+	42, // 47: helloworld.v1.Greeter.GetKLineData:output_type -> helloworld.v1.GetKLineDataReply
+	45, // 48: helloworld.v1.Greeter.QueryKLineData:output_type -> helloworld.v1.QueryKLineDataReply
+	47, // 49: helloworld.v1.Greeter.ClaimsAirdrop:output_type -> helloworld.v1.ClaimsAirdropReply
+	49, // 50: helloworld.v1.Greeter.IndexSwitch:output_type -> helloworld.v1.IndexSwitchReply
+	29, // [29:51] is the sub-list for method output_type
+	7,  // [7:29] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_helloworld_v1_greeter_proto_init() }
@@ -2543,7 +3207,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   41,
+			NumMessages:   50,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

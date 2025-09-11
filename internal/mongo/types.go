@@ -130,3 +130,20 @@ type OrderSwitch struct {
 	ChainId uint64 `bson:"chain_id" json:"chain_id"`
 	Types   string `bson:"types" json:"types"`
 }
+
+type Kline struct {
+	OpenTime                 int64  `bson:"open_time" json:"open_time"`
+	OpenPrice                string `bson:"open_price" json:"open_price"`
+	HighPrice                string `bson:"high_price" json:"high_price"`
+	LowPrice                 string `bson:"low_price" json:"low_price"`
+	ClosePrice               string `bson:"close_price" json:"close_price"`
+	Volume                   string `bson:"volume" json:"volume"`
+	CloseTime                int64  `bson:"close_time" json:"close_time"`
+	QuoteAssetVolume         string `bson:"quote_asset_volume" json:"quote_asset_volume"`
+	NumberOfTrades           int    `bson:"number_of_trades" json:"number_of_trades"`
+	TakerBuyBaseAssetVolume  string `bson:"taker_buy_base_asset_volume" json:"taker_buy_base_asset_volume"`
+	TakerBuyQuoteAssetVolume string `bson:"taker_buy_quote_asset_volume" json:"taker_buy_quote_asset_volume"`
+	Ignore                   string `bson:"ignore" json:"ignore"`
+	DataType                 string `bson:"data_type" json:"data_type"` //k线类别，日k或时k
+	Symbol                   string `bson:"symbol" json:"symbol"`
+}

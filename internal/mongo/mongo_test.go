@@ -96,7 +96,7 @@ func TestUpdateUserLossAmount(t *testing.T) {
 	defer cli.Close()
 	MonCli = cli
 	addr := strings.ToLower("0x331e865f47fd1b197d04fe60e45def0c3a1eba24")
-	err = UpdateUserAmount("DUSDT", addr, "98")
+	err = UpdateUserAmount(addr, "98")
 	if err != nil {
 		t.Error(err)
 		return
@@ -284,4 +284,20 @@ func TestUpdateDailyAirdrop(t *testing.T) {
 	if err != nil {
 		return
 	}
+}
+
+func TestGetKLineData(t *testing.T) {
+	cli, err := NewMongoClient(dbUrl)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer cli.Close()
+	MonCli = cli
+	res, err := GetKLineData("1d", "BTCUSDT", "kLineByOneDay", 0, 20)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(res)
 }

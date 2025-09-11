@@ -380,7 +380,7 @@ func RewardPool(value *big.Int, blTime uint64) error {
 func UserLossAmount(user string, value *big.Int, blTime uint64) error {
 	log.Infof("UserLossAmount start user=%s value=%s blockTime=%d", user, value.String(), blTime)
 
-	res, err := mongo.GetUserAmount(user, "DUSDT")
+	res, err := mongo.GetUserAmount(strings.ToLower(user))
 	if err != nil {
 		log.Infof("GetUserAmount err: %v", err)
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -408,7 +408,7 @@ func UserLossAmount(user string, value *big.Int, blTime uint64) error {
 		return err
 	}
 	log.Infof("lossAmount:= %s addvalue:= %s  newValue:= %s", res.LossAmount, value, newValue.String())
-	err = mongo.UpdateUserAmount("DUSDT", user, newValue.String())
+	err = mongo.UpdateUserAmount(user, newValue.String())
 	if err != nil {
 		log.Errorf("UpdateUserAmount failed: %v", err)
 		return err
@@ -420,7 +420,7 @@ func UserLossAmount(user string, value *big.Int, blTime uint64) error {
 func UserProfitAmount(user string, value *big.Int, blTime uint64) error {
 	log.Infof("UserProfitAmount start user=%s value=%s blockTime=%d", user, value.String(), blTime)
 
-	res, err := mongo.GetUserAmount(user, "DUSDT")
+	res, err := mongo.GetUserAmount(user)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			var amount mongo.UserAmount
@@ -448,7 +448,7 @@ func UserProfitAmount(user string, value *big.Int, blTime uint64) error {
 		return err
 	}
 	log.Infof("UserProfitAmount:= %s addvalue:= %s  newValue:=%s", res.Profit, value, newValue.String())
-	err = mongo.UpdateUserProfit("DUSDT", user, newValue.String())
+	err = mongo.UpdateUserProfit(user, newValue.String())
 	if err != nil {
 		log.Errorf("UpdateUserLossAmount err: %v", err)
 		return err

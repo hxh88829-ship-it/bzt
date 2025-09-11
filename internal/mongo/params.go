@@ -19,4 +19,8 @@ const (
 	bztDapp              = "bztDapp"
 	deployContract       = "deployContract"
 	orderSwitch          = "orderSwitch"
+	kLineByOneDay        = "kLineByOneDay"
+	kLineByThreeDay      = "kLineByThreeDay"
+	kLineByOneHour       = "kLineByOneHour"
+	kLineByFourHour      = "kLineByFourHour"
 )

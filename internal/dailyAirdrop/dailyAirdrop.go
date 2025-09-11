@@ -148,38 +148,38 @@ func CalculateAirdrop(userLoss, totalLoss, totalReward string) (*big.Int, error)
 }
 
 // 判断是否领取超额并更新数据
-func UpdateLossAmount(addr, symbol string) (*big.Int, string, error) {
+func UpdateLossAmount(addr string) (*big.Int, string, string, error) {
 	reward, err := mongo.GetDailyAirdropBySymbol("DUSDT")
 	if err != nil {
 		log.Errorf("UpdateLossAmount GetDailyAirdropBySymbol error: %v", err)
-		return nil, "", err
+		return nil, "", "", err
 	}
-	users, err := mongo.GetUserAmount(strings.ToLower(addr), symbol) //用户当前
+	users, err := mongo.GetUserAmount(strings.ToLower(addr)) //用户当前
 	if err != nil {
 		log.Errorf("UpdateLossAmount GetUserLossAmount error: %v", err)
-		return nil, "", err
+		return nil, "", "", err
 	}
 	log.Infof("UpdateLossAmount, users: %s", users.LossAmount)
 	claims, err := CalculateAirdrop(users.LossAmount, reward.PoolTotal, reward.Reward) // 今日可领
 	if err != nil {
 		log.Errorf("UpdateLossAmount CalculateAirdrop error: %v", err)
-		return nil, "", err
+		return nil, "", "", err
 	}
 	Claimed, err := api.StringToBigIntSum(users.ClaimAirdrop, claims.String()) // 目前已领加今日可领
 	if err != nil {
 		log.Errorf("UpdateLossAmount api.StringToBigIntSum error: %v", err)
-		return nil, "", err
+		return nil, "", "", err
 	}
 	compareRes, err := CompareBigInt(users.LossAmount, Claimed.String()) //领取是否超出以损
 	if err != nil {
 		log.Errorf("UpdateLossAmount CompareBigInt error: %v", err)
-		return nil, "", err
+		return nil, "", "", err
 	}
 	if compareRes == -1 {
-		return nil, "", errors.New("no airdrop claimed")
+		return nil, "", "", errors.New("no airdrop claimed")
 	}
 
-	return claims, Claimed.String(), nil
+	return claims, Claimed.String(), users.LossAmount, nil
 }
 
 // 返回值：-1 表示 a < b，0 表示 a == b，1 表示 a > b

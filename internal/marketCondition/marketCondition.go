@@ -13,6 +13,21 @@ import (
 	"valueguard/internal/mongo"
 )
 
+type KLine struct {
+	OpenTime                 int64  `json:"openTime"`
+	OpenPrice                string `json:"openPrice"`
+	HighPrice                string `json:"highPrice"`
+	LowPrice                 string `json:"lowPrice"`
+	ClosePrice               string `json:"closePrice"`
+	Volume                   string `json:"volume"`
+	CloseTime                int64  `json:"closeTime"`
+	QuoteAssetVolume         string `json:"quoteAssetVolume"`
+	NumberOfTrades           int    `json:"numberOfTrades"`
+	TakerBuyBaseAssetVolume  string `json:"takerBuyBaseAssetVolume"`
+	TakerBuyQuoteAssetVolume string `json:"takerBuyQuoteAssetVolume"`
+	Ignore                   string `json:"ignore"`
+}
+
 func GetMarketCondition(symbol string, ind uint64) error {
 	apiURL := "https://api.binance.com/api/v3/ticker/price?symbol=" + symbol
 
@@ -82,6 +97,7 @@ func GetMarketCondition(symbol string, ind uint64) error {
 
 	return nil
 }
+
 func UpdateNewPrice(symbol, newPrice string, ind, times uint64) error {
 	_, err := mongo.GetPriceForIndex(symbol, ind)
 	if err != nil {
@@ -128,4 +144,126 @@ func ConvertPriceToBigIntString(priceStr string, precision int64) (string, error
 
 	// 返回整数字符串形式
 	return priceInt.String(), nil
+}
+
+func GetKLines(symbol, interval, start, end, limit string) ([]KLine, error) {
+	apiURL := "https://api.binance.com/api/v3/klines?symbol=" + symbol +
+		"&interval=" + interval +
+		"&startTime=" + start +
+		"&endTime=" + end +
+		"&limit=" + limit
+
+	// 创建带超时的上下文（总请求控制在 10 秒内）
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// 构造请求
+	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
+	if err != nil {
+		log.Errorf("🔧 [%s] NewRequest error: %v", symbol, err)
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; GoFetcher/1.0)")
+
+	// 设置本地代理
+	//proxyStr := "http://127.0.0.1:7890"
+	//proxyURL, err := url.Parse(proxyStr)
+	//if err != nil {
+	//	log.Errorf("🔧 [%s] Proxy parse error: %v", symbol, err)
+	//	return nil, err
+	//}
+	//
+	//client := &http.Client{
+	//	Transport: &http.Transport{
+	//		Proxy: http.ProxyURL(proxyURL),
+	//	},
+	//}
+	client := http.DefaultClient //默认代理
+	// 发起请求
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Errorf("🔧 [%s] HTTP request error: %v", symbol, err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// 检查状态码
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		log.Errorf("🔧 [%s] Unexpected status %d: %s", symbol, resp.StatusCode, string(bodyBytes))
+		return nil, fmt.Errorf("status code: %d", resp.StatusCode)
+	}
+
+	// 解析响应 JSON 为二维数组
+	var rawKLines [][]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&rawKLines); err != nil {
+		log.Errorf("🔧 [%s] JSON decode error: %v", symbol, err)
+		return nil, err
+	}
+
+	// 定义结构体来存储每根 K 线的数据
+
+	// 将解析后的数据转换为结构体切片
+	var kLines []KLine
+	for _, raw := range rawKLines {
+		kline := KLine{
+			OpenTime:                 int64(raw[0].(float64)),
+			OpenPrice:                raw[1].(string),
+			HighPrice:                raw[2].(string),
+			LowPrice:                 raw[3].(string),
+			ClosePrice:               raw[4].(string),
+			Volume:                   raw[5].(string),
+			CloseTime:                int64(raw[6].(float64)),
+			QuoteAssetVolume:         raw[7].(string),
+			NumberOfTrades:           int(raw[8].(float64)),
+			TakerBuyBaseAssetVolume:  raw[9].(string),
+			TakerBuyQuoteAssetVolume: raw[10].(string),
+			Ignore:                   raw[11].(string),
+		}
+		kLines = append(kLines, kline)
+	}
+
+	return kLines, nil
+}
+
+// SplitDailyIntervals 取到间隔时间段
+func SplitDailyIntervals(start, end, step int64) [][2]int64 {
+	var result [][2]int64
+
+	for s := start; s < end; s += step {
+		e := s + step - 1
+		if e > end {
+			e = end
+		}
+		result = append(result, [2]int64{s, e})
+	}
+	return result
+}
+
+func AddKLineToMongoDB(res []KLine, CollectionName, DataTypes, symbol string) error {
+	var docs []interface{}
+	for _, kline := range res {
+		docs = append(docs, mongo.Kline{
+			OpenTime:                 kline.OpenTime,
+			OpenPrice:                kline.OpenPrice,
+			HighPrice:                kline.HighPrice,
+			LowPrice:                 kline.LowPrice,
+			ClosePrice:               kline.ClosePrice,
+			Volume:                   kline.Volume,
+			CloseTime:                kline.CloseTime,
+			QuoteAssetVolume:         kline.QuoteAssetVolume,
+			NumberOfTrades:           kline.NumberOfTrades,
+			TakerBuyBaseAssetVolume:  kline.TakerBuyBaseAssetVolume,
+			TakerBuyQuoteAssetVolume: kline.TakerBuyQuoteAssetVolume,
+			Ignore:                   kline.Ignore,
+			DataType:                 DataTypes,
+			Symbol:                   symbol,
+		})
+	}
+	err := mongo.AddKLineDataMany(docs, CollectionName)
+	if err != nil {
+		log.Errorf("<AddKLineToMongoDB> [%s]  error: %v", CollectionName, err)
+		return err
+	}
+	return nil
 }
