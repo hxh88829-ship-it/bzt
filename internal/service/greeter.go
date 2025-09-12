@@ -557,6 +557,9 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 		log.Error("GetAirdrop UpdateLossAmount:", err)
 		return nil, err
 	}
+	if claims.Uint64() == 0 {
+		return &v1.GetAirdropReply{}, errors.New("暂无空投可领")
+	}
 	log.Infof("claims:%s -- claimed:%s --total:%s ", claims, claimed, total)
 
 	//通过 UID或者address + 时间 拿到一个唯一的红包订单
