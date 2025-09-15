@@ -41,6 +41,7 @@ const (
 	Greeter_QueryKLineData_FullMethodName     = "/helloworld.v1.Greeter/QueryKLineData"
 	Greeter_ClaimsAirdrop_FullMethodName      = "/helloworld.v1.Greeter/ClaimsAirdrop"
 	Greeter_IndexSwitch_FullMethodName        = "/helloworld.v1.Greeter/IndexSwitch"
+	Greeter_DeleteIndexSwitch_FullMethodName  = "/helloworld.v1.Greeter/DeleteIndexSwitch"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -72,6 +73,7 @@ type GreeterClient interface {
 	QueryKLineData(ctx context.Context, in *QueryKLineDataRequest, opts ...grpc.CallOption) (*QueryKLineDataReply, error)
 	ClaimsAirdrop(ctx context.Context, in *ClaimsAirdropRequest, opts ...grpc.CallOption) (*ClaimsAirdropReply, error)
 	IndexSwitch(ctx context.Context, in *IndexSwitchRequest, opts ...grpc.CallOption) (*IndexSwitchReply, error)
+	DeleteIndexSwitch(ctx context.Context, in *DeleteIndexSwitchRequest, opts ...grpc.CallOption) (*DeleteIndexSwitchReply, error)
 }
 
 type greeterClient struct {
@@ -302,6 +304,16 @@ func (c *greeterClient) IndexSwitch(ctx context.Context, in *IndexSwitchRequest,
 	return out, nil
 }
 
+func (c *greeterClient) DeleteIndexSwitch(ctx context.Context, in *DeleteIndexSwitchRequest, opts ...grpc.CallOption) (*DeleteIndexSwitchReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteIndexSwitchReply)
+	err := c.cc.Invoke(ctx, Greeter_DeleteIndexSwitch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -331,6 +343,7 @@ type GreeterServer interface {
 	QueryKLineData(context.Context, *QueryKLineDataRequest) (*QueryKLineDataReply, error)
 	ClaimsAirdrop(context.Context, *ClaimsAirdropRequest) (*ClaimsAirdropReply, error)
 	IndexSwitch(context.Context, *IndexSwitchRequest) (*IndexSwitchReply, error)
+	DeleteIndexSwitch(context.Context, *DeleteIndexSwitchRequest) (*DeleteIndexSwitchReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -406,6 +419,9 @@ func (UnimplementedGreeterServer) ClaimsAirdrop(context.Context, *ClaimsAirdropR
 }
 func (UnimplementedGreeterServer) IndexSwitch(context.Context, *IndexSwitchRequest) (*IndexSwitchReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IndexSwitch not implemented")
+}
+func (UnimplementedGreeterServer) DeleteIndexSwitch(context.Context, *DeleteIndexSwitchRequest) (*DeleteIndexSwitchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteIndexSwitch not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -824,6 +840,24 @@ func _Greeter_IndexSwitch_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_DeleteIndexSwitch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteIndexSwitchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).DeleteIndexSwitch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_DeleteIndexSwitch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).DeleteIndexSwitch(ctx, req.(*DeleteIndexSwitchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -918,6 +952,10 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "IndexSwitch",
 			Handler:    _Greeter_IndexSwitch_Handler,
+		},
+		{
+			MethodName: "DeleteIndexSwitch",
+			Handler:    _Greeter_DeleteIndexSwitch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

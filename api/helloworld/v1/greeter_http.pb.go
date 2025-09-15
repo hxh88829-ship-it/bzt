@@ -24,6 +24,7 @@ const OperationGreeterBindWallet = "/helloworld.v1.Greeter/BindWallet"
 const OperationGreeterBztDapp = "/helloworld.v1.Greeter/BztDapp"
 const OperationGreeterClaimsAirdrop = "/helloworld.v1.Greeter/ClaimsAirdrop"
 const OperationGreeterCloseOrder = "/helloworld.v1.Greeter/CloseOrder"
+const OperationGreeterDeleteIndexSwitch = "/helloworld.v1.Greeter/DeleteIndexSwitch"
 const OperationGreeterDeployContract = "/helloworld.v1.Greeter/DeployContract"
 const OperationGreeterGetAirdrop = "/helloworld.v1.Greeter/GetAirdrop"
 const OperationGreeterGetBztDetails = "/helloworld.v1.Greeter/GetBztDetails"
@@ -48,6 +49,7 @@ type GreeterHTTPServer interface {
 	BztDapp(context.Context, *BztDappRequest) (*BztDappReply, error)
 	ClaimsAirdrop(context.Context, *ClaimsAirdropRequest) (*ClaimsAirdropReply, error)
 	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderReply, error)
+	DeleteIndexSwitch(context.Context, *DeleteIndexSwitchRequest) (*DeleteIndexSwitchReply, error)
 	DeployContract(context.Context, *DeployContractRequest) (*DeployContractReply, error)
 	GetAirdrop(context.Context, *GetAirdropRequest) (*GetAirdropReply, error)
 	GetBztDetails(context.Context, *GetBztDetailsRequest) (*GetBztDetailsReply, error)
@@ -92,6 +94,7 @@ func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r.POST("/v1/queryKLineData", _Greeter_QueryKLineData0_HTTP_Handler(srv))
 	r.POST("/v1/claimsAirdrop", _Greeter_ClaimsAirdrop0_HTTP_Handler(srv))
 	r.POST("/v1/indexSwitch", _Greeter_IndexSwitch0_HTTP_Handler(srv))
+	r.POST("/v1/deleteIndexSwitch", _Greeter_DeleteIndexSwitch0_HTTP_Handler(srv))
 }
 
 func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -569,12 +572,35 @@ func _Greeter_IndexSwitch0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Con
 	}
 }
 
+func _Greeter_DeleteIndexSwitch0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteIndexSwitchRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterDeleteIndexSwitch)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteIndexSwitch(ctx, req.(*DeleteIndexSwitchRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeleteIndexSwitchReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GreeterHTTPClient interface {
 	AirdropTrade(ctx context.Context, req *AirdropTradeRequest, opts ...http.CallOption) (rsp *AirdropTradeReply, err error)
 	BindWallet(ctx context.Context, req *BindWalletRequest, opts ...http.CallOption) (rsp *BindWalletReply, err error)
 	BztDapp(ctx context.Context, req *BztDappRequest, opts ...http.CallOption) (rsp *BztDappReply, err error)
 	ClaimsAirdrop(ctx context.Context, req *ClaimsAirdropRequest, opts ...http.CallOption) (rsp *ClaimsAirdropReply, err error)
 	CloseOrder(ctx context.Context, req *CloseOrderRequest, opts ...http.CallOption) (rsp *CloseOrderReply, err error)
+	DeleteIndexSwitch(ctx context.Context, req *DeleteIndexSwitchRequest, opts ...http.CallOption) (rsp *DeleteIndexSwitchReply, err error)
 	DeployContract(ctx context.Context, req *DeployContractRequest, opts ...http.CallOption) (rsp *DeployContractReply, err error)
 	GetAirdrop(ctx context.Context, req *GetAirdropRequest, opts ...http.CallOption) (rsp *GetAirdropReply, err error)
 	GetBztDetails(ctx context.Context, req *GetBztDetailsRequest, opts ...http.CallOption) (rsp *GetBztDetailsReply, err error)
@@ -659,6 +685,19 @@ func (c *GreeterHTTPClientImpl) CloseOrder(ctx context.Context, in *CloseOrderRe
 	pattern := "/v1/closeOrder"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationGreeterCloseOrder))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *GreeterHTTPClientImpl) DeleteIndexSwitch(ctx context.Context, in *DeleteIndexSwitchRequest, opts ...http.CallOption) (*DeleteIndexSwitchReply, error) {
+	var out DeleteIndexSwitchReply
+	pattern := "/v1/deleteIndexSwitch"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationGreeterDeleteIndexSwitch))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

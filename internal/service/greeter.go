@@ -243,19 +243,18 @@ func (s *GreeterService) GetKLineData(ctx context.Context, in *v1.GetKLineDataRe
 	)
 	symbol := in.GetSymbol()
 	interval := in.GetInterval()
-	limit := in.GetLimit()
 	var step int64
 	switch in.GetTypes() {
 	case "dayMillis":
-		step = in.GetStep() * dayMillis * 1000
+		step = in.GetStep() * dayMillis * 3 //3天一个阶段
 	case "hourMillis":
-		step = in.GetStep() * hourMillis * 1000
+		step = in.GetStep() * hourMillis * 72 //3天一个阶段
 	default:
 		return nil, errors.New("invalid interval")
 	}
 
-	// 起点：8年前
-	start := time.Now().AddDate(-8, 0, 0).UnixMilli()
+	// 起点：4day前
+	start := time.Now().AddDate(0, 0, -4).UnixMilli()
 	// 终点：现在
 	end := time.Now().UnixMilli()
 	intervals := marketCondition.SplitDailyIntervals(start, end, step)
@@ -268,12 +267,12 @@ func (s *GreeterService) GetKLineData(ctx context.Context, in *v1.GetKLineDataRe
 			p[0], time.UnixMilli(p[0]).UTC(),
 			p[1], time.UnixMilli(p[1]).UTC(),
 		)
-		resKline, err := marketCondition.GetKLines(symbol, interval, fmt.Sprint(p[0]), fmt.Sprint(p[1]), limit)
+		resKline, err := marketCondition.GetKLines(symbol, interval, fmt.Sprint(p[0]), fmt.Sprint(p[1]), "1000")
 		if err != nil {
 			log.Errorf("get kline data err: %v", err)
 			return &v1.GetKLineDataReply{}, err
 		}
-		err = marketCondition.AddKLineToMongoDB(resKline, in.GetCollectionName(), interval, in.GetSymbol())
+		err = marketCondition.AddKLineToMongoDB(resKline, interval, symbol)
 		if err != nil {
 			log.Errorf("add kline data err: %v", err)
 			return &v1.GetKLineDataReply{}, err
@@ -868,8 +867,26 @@ func (s *GreeterService) IndexSwitch(ctx context.Context, in *v1.IndexSwitchRequ
 	err := mongo.EnsureKlineIndexes()
 	if err != nil {
 		log.Error("EnsureKlineIndexes err: ", err)
+		return nil, err
 	}
 	return &v1.IndexSwitchReply{
+		Result: "success",
+	}, err
+}
+
+func (s *GreeterService) DeleteIndexSwitch(ctx context.Context, in *v1.DeleteIndexSwitchRequest) (*v1.DeleteIndexSwitchReply, error) {
+	if in.GetVal() != 1 || in.GetCollection() == "" {
+		return &v1.DeleteIndexSwitchReply{
+			Result: "fail",
+		}, nil
+	}
+	log.Info("DeleteIndexSwitch:", in.GetCollection())
+	err := mongo.DropIndexIfExists(in.GetCollection(), "symbol_dataType_closeTime_idx")
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return nil, err
+	}
+	return &v1.DeleteIndexSwitchReply{
 		Result: "success",
 	}, err
 }

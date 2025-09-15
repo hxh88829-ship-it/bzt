@@ -2273,15 +2273,13 @@ func (x *GetHistoricalPriceReply) GetPrices() []*MarketPrice {
 }
 
 type GetKLineDataRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Symbol         string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Interval       string                 `protobuf:"bytes,2,opt,name=interval,proto3" json:"interval,omitempty"`
-	Limit          string                 `protobuf:"bytes,3,opt,name=limit,proto3" json:"limit,omitempty"`
-	Step           int64                  `protobuf:"varint,4,opt,name=step,proto3" json:"step,omitempty"`
-	Types          string                 `protobuf:"bytes,5,opt,name=types,proto3" json:"types,omitempty"`
-	CollectionName string                 `protobuf:"bytes,6,opt,name=collectionName,proto3" json:"collectionName,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Interval      string                 `protobuf:"bytes,2,opt,name=interval,proto3" json:"interval,omitempty"`
+	Step          int64                  `protobuf:"varint,3,opt,name=step,proto3" json:"step,omitempty"`
+	Types         string                 `protobuf:"bytes,4,opt,name=types,proto3" json:"types,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetKLineDataRequest) Reset() {
@@ -2328,13 +2326,6 @@ func (x *GetKLineDataRequest) GetInterval() string {
 	return ""
 }
 
-func (x *GetKLineDataRequest) GetLimit() string {
-	if x != nil {
-		return x.Limit
-	}
-	return ""
-}
-
 func (x *GetKLineDataRequest) GetStep() int64 {
 	if x != nil {
 		return x.Step
@@ -2345,13 +2336,6 @@ func (x *GetKLineDataRequest) GetStep() int64 {
 func (x *GetKLineDataRequest) GetTypes() string {
 	if x != nil {
 		return x.Types
-	}
-	return ""
-}
-
-func (x *GetKLineDataRequest) GetCollectionName() string {
-	if x != nil {
-		return x.CollectionName
 	}
 	return ""
 }
@@ -2844,6 +2828,102 @@ func (x *IndexSwitchReply) GetResult() string {
 	return ""
 }
 
+type DeleteIndexSwitchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Val           int64                  `protobuf:"varint,1,opt,name=val,proto3" json:"val,omitempty"`
+	Collection    string                 `protobuf:"bytes,2,opt,name=collection,proto3" json:"collection,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteIndexSwitchRequest) Reset() {
+	*x = DeleteIndexSwitchRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteIndexSwitchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteIndexSwitchRequest) ProtoMessage() {}
+
+func (x *DeleteIndexSwitchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteIndexSwitchRequest.ProtoReflect.Descriptor instead.
+func (*DeleteIndexSwitchRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *DeleteIndexSwitchRequest) GetVal() int64 {
+	if x != nil {
+		return x.Val
+	}
+	return 0
+}
+
+func (x *DeleteIndexSwitchRequest) GetCollection() string {
+	if x != nil {
+		return x.Collection
+	}
+	return ""
+}
+
+type DeleteIndexSwitchReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteIndexSwitchReply) Reset() {
+	*x = DeleteIndexSwitchReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteIndexSwitchReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteIndexSwitchReply) ProtoMessage() {}
+
+func (x *DeleteIndexSwitchReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteIndexSwitchReply.ProtoReflect.Descriptor instead.
+func (*DeleteIndexSwitchReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *DeleteIndexSwitchReply) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_helloworld_v1_greeter_proto_rawDesc = "" +
@@ -2998,14 +3078,12 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x04page\x18\x04 \x01(\x03R\x04page\x12\x12\n" +
 	"\x04size\x18\x05 \x01(\x03R\x04size\"M\n" +
 	"\x17GetHistoricalPriceReply\x122\n" +
-	"\x06prices\x18\x01 \x03(\v2\x1a.helloworld.v1.MarketPriceR\x06prices\"\xb1\x01\n" +
+	"\x06prices\x18\x01 \x03(\v2\x1a.helloworld.v1.MarketPriceR\x06prices\"s\n" +
 	"\x13GetKLineDataRequest\x12\x16\n" +
 	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x1a\n" +
-	"\binterval\x18\x02 \x01(\tR\binterval\x12\x14\n" +
-	"\x05limit\x18\x03 \x01(\tR\x05limit\x12\x12\n" +
-	"\x04step\x18\x04 \x01(\x03R\x04step\x12\x14\n" +
-	"\x05types\x18\x05 \x01(\tR\x05types\x12&\n" +
-	"\x0ecollectionName\x18\x06 \x01(\tR\x0ecollectionName\"+\n" +
+	"\binterval\x18\x02 \x01(\tR\binterval\x12\x12\n" +
+	"\x04step\x18\x03 \x01(\x03R\x04step\x12\x14\n" +
+	"\x05types\x18\x04 \x01(\tR\x05types\"+\n" +
 	"\x11GetKLineDataReply\x12\x16\n" +
 	"\x06result\x18\x01 \x01(\tR\x06result\"\xe7\x03\n" +
 	"\x05Kline\x12\x1a\n" +
@@ -3041,7 +3119,14 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x12IndexSwitchRequest\x12\x10\n" +
 	"\x03val\x18\x01 \x01(\x03R\x03val\"*\n" +
 	"\x10IndexSwitchReply\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\tR\x06result2\xbc\x13\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result\"L\n" +
+	"\x18DeleteIndexSwitchRequest\x12\x10\n" +
+	"\x03val\x18\x01 \x01(\x03R\x03val\x12\x1e\n" +
+	"\n" +
+	"collection\x18\x02 \x01(\tR\n" +
+	"collection\"0\n" +
+	"\x16DeleteIndexSwitchReply\x12\x16\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result2\xc4\x14\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +
@@ -3069,7 +3154,8 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\fGetKLineData\x12\".helloworld.v1.GetKLineDataRequest\x1a .helloworld.v1.GetKLineDataReply\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/getKLineData\x12y\n" +
 	"\x0eQueryKLineData\x12$.helloworld.v1.QueryKLineDataRequest\x1a\".helloworld.v1.QueryKLineDataReply\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/queryKLineData\x12u\n" +
 	"\rClaimsAirdrop\x12#.helloworld.v1.ClaimsAirdropRequest\x1a!.helloworld.v1.ClaimsAirdropReply\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/claimsAirdrop\x12m\n" +
-	"\vIndexSwitch\x12!.helloworld.v1.IndexSwitchRequest\x1a\x1f.helloworld.v1.IndexSwitchReply\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/indexSwitchBT\n" +
+	"\vIndexSwitch\x12!.helloworld.v1.IndexSwitchRequest\x1a\x1f.helloworld.v1.IndexSwitchReply\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/indexSwitch\x12\x85\x01\n" +
+	"\x11DeleteIndexSwitch\x12'.helloworld.v1.DeleteIndexSwitchRequest\x1a%.helloworld.v1.DeleteIndexSwitchReply\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/deleteIndexSwitchBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -3084,7 +3170,7 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*HelloRequest)(nil),              // 0: helloworld.v1.HelloRequest
 	(*HelloReply)(nil),                // 1: helloworld.v1.HelloReply
@@ -3136,6 +3222,8 @@ var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*ClaimsAirdropReply)(nil),        // 47: helloworld.v1.ClaimsAirdropReply
 	(*IndexSwitchRequest)(nil),        // 48: helloworld.v1.IndexSwitchRequest
 	(*IndexSwitchReply)(nil),          // 49: helloworld.v1.IndexSwitchReply
+	(*DeleteIndexSwitchRequest)(nil),  // 50: helloworld.v1.DeleteIndexSwitchRequest
+	(*DeleteIndexSwitchReply)(nil),    // 51: helloworld.v1.DeleteIndexSwitchReply
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	9,  // 0: helloworld.v1.WalletBalanceReply.tokens:type_name -> helloworld.v1.TokenBalance
@@ -3167,30 +3255,32 @@ var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	44, // 26: helloworld.v1.Greeter.QueryKLineData:input_type -> helloworld.v1.QueryKLineDataRequest
 	46, // 27: helloworld.v1.Greeter.ClaimsAirdrop:input_type -> helloworld.v1.ClaimsAirdropRequest
 	48, // 28: helloworld.v1.Greeter.IndexSwitch:input_type -> helloworld.v1.IndexSwitchRequest
-	1,  // 29: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	5,  // 30: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
-	3,  // 31: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
-	7,  // 32: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
-	10, // 33: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
-	13, // 34: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	15, // 35: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
-	17, // 36: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
-	19, // 37: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
-	21, // 38: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
-	23, // 39: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
-	26, // 40: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
-	29, // 41: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
-	32, // 42: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
-	34, // 43: helloworld.v1.Greeter.GetBztDetails:output_type -> helloworld.v1.GetBztDetailsReply
-	36, // 44: helloworld.v1.Greeter.GetBztVersion:output_type -> helloworld.v1.GetBztVersionReply
-	38, // 45: helloworld.v1.Greeter.GetConfigs:output_type -> helloworld.v1.GetConfigsReply
-	40, // 46: helloworld.v1.Greeter.GetHistoricalPrice:output_type -> helloworld.v1.GetHistoricalPriceReply
-	42, // 47: helloworld.v1.Greeter.GetKLineData:output_type -> helloworld.v1.GetKLineDataReply
-	45, // 48: helloworld.v1.Greeter.QueryKLineData:output_type -> helloworld.v1.QueryKLineDataReply
-	47, // 49: helloworld.v1.Greeter.ClaimsAirdrop:output_type -> helloworld.v1.ClaimsAirdropReply
-	49, // 50: helloworld.v1.Greeter.IndexSwitch:output_type -> helloworld.v1.IndexSwitchReply
-	29, // [29:51] is the sub-list for method output_type
-	7,  // [7:29] is the sub-list for method input_type
+	50, // 29: helloworld.v1.Greeter.DeleteIndexSwitch:input_type -> helloworld.v1.DeleteIndexSwitchRequest
+	1,  // 30: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	5,  // 31: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	3,  // 32: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
+	7,  // 33: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	10, // 34: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
+	13, // 35: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	15, // 36: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
+	17, // 37: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
+	19, // 38: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
+	21, // 39: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
+	23, // 40: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
+	26, // 41: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
+	29, // 42: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
+	32, // 43: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
+	34, // 44: helloworld.v1.Greeter.GetBztDetails:output_type -> helloworld.v1.GetBztDetailsReply
+	36, // 45: helloworld.v1.Greeter.GetBztVersion:output_type -> helloworld.v1.GetBztVersionReply
+	38, // 46: helloworld.v1.Greeter.GetConfigs:output_type -> helloworld.v1.GetConfigsReply
+	40, // 47: helloworld.v1.Greeter.GetHistoricalPrice:output_type -> helloworld.v1.GetHistoricalPriceReply
+	42, // 48: helloworld.v1.Greeter.GetKLineData:output_type -> helloworld.v1.GetKLineDataReply
+	45, // 49: helloworld.v1.Greeter.QueryKLineData:output_type -> helloworld.v1.QueryKLineDataReply
+	47, // 50: helloworld.v1.Greeter.ClaimsAirdrop:output_type -> helloworld.v1.ClaimsAirdropReply
+	49, // 51: helloworld.v1.Greeter.IndexSwitch:output_type -> helloworld.v1.IndexSwitchReply
+	51, // 52: helloworld.v1.Greeter.DeleteIndexSwitch:output_type -> helloworld.v1.DeleteIndexSwitchReply
+	30, // [30:53] is the sub-list for method output_type
+	7,  // [7:30] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
 	7,  // [7:7] is the sub-list for extension extendee
 	0,  // [0:7] is the sub-list for field type_name
@@ -3207,7 +3297,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   50,
+			NumMessages:   52,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -950,17 +950,60 @@ func GetOrderSwitch(i uint64, types string) (OrderSwitch, error) {
 	return o, nil
 }
 
-func AddKLineData(i Kline, CollectionName string) error {
-	if MonCli == nil {
-		return errors.New("error:mongo.Client is nil" + "AddKLineData")
+func AddKLineData(res []Kline, symbol, dataType string) error {
+	var CollectionName string
+	switch dataType {
+	case "1h":
+		CollectionName = kLineByOneHour //3天一个阶段
+	case "4h":
+
+		CollectionName = kLineByFourHour
+	case "1d":
+		CollectionName = kLineByOneDay
+	case "3d":
+		CollectionName = kLineByThreeDay
+		//3天一个阶段
+	default:
+		return errors.New("invalid interval")
 	}
-	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(CollectionName).InsertOne(context.Background(), i)
-	if err != nil {
-		log.Error("AddKLineData InsertOne err: ", err)
-		return err
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(CollectionName)
+
+	for _, kline := range res {
+		doc := Kline{
+			OpenTime:                 kline.OpenTime,
+			OpenPrice:                kline.OpenPrice,
+			HighPrice:                kline.HighPrice,
+			LowPrice:                 kline.LowPrice,
+			ClosePrice:               kline.ClosePrice,
+			Volume:                   kline.Volume,
+			CloseTime:                kline.CloseTime,
+			QuoteAssetVolume:         kline.QuoteAssetVolume,
+			NumberOfTrades:           kline.NumberOfTrades,
+			TakerBuyBaseAssetVolume:  kline.TakerBuyBaseAssetVolume,
+			TakerBuyQuoteAssetVolume: kline.TakerBuyQuoteAssetVolume,
+			Ignore:                   kline.Ignore,
+			DataType:                 dataType,
+			Symbol:                   symbol,
+		}
+
+		_, err := coll.InsertOne(context.Background(), doc)
+		if err != nil {
+			// 检查是否是 duplicate key error
+			if isDuplicateKeyError(err) {
+				// 跳过这一条
+				log.Infof("跳过重复的 KLine: symbol=%s dataType=%s closeTime=%v", symbol, dataType, kline.CloseTime)
+				continue
+			}
+			// 如果是别的错误，就返回
+			log.Errorf("插入失败: %v", err)
+			return err
+		}
+		log.Infof("addKLineData success :%s--%d", symbol, kline.CloseTime)
 	}
+
 	return nil
 }
+
 func AddKLineDataMany(docs []interface{}, collectionName string) error {
 	if MonCli == nil {
 		return errors.New("mongo.Client is nil: AddKLineData")
@@ -1091,6 +1134,50 @@ func EnsureKlineIndexes() error {
 	}
 	return nil
 }
+func DropIndexIfExists(collectionName, indexName string) error {
+	if MonCli == nil {
+		return errors.New("error:mongo.Client is nil: DropIndexIfExists")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// 获取集合引用
+	collection := MonCli.Client.Database(DatabaseNameForChain).Collection(collectionName)
+
+	// 获取所有索引
+	cursor, err := collection.Indexes().List(ctx)
+	if err != nil {
+		return fmt.Errorf("获取索引列表失败: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	// 检查目标索引是否存在
+	var indexFound bool
+	for cursor.Next(ctx) {
+		var index map[string]interface{}
+		if err := cursor.Decode(&index); err != nil {
+			return fmt.Errorf("解析索引信息失败: %v", err)
+		}
+
+		if name, ok := index["name"].(string); ok && name == indexName {
+			indexFound = true
+			break
+		}
+	}
+
+	// 如果索引存在，则删除
+	if indexFound {
+		result, err := collection.Indexes().DropOne(ctx, indexName)
+		if err != nil {
+			return fmt.Errorf("删除索引失败: %v", err)
+		}
+		log.Infof("成功删除索引: %s, 结果: %s", indexName, result)
+	} else {
+		log.Infof("索引 '%s' 不存在，无需删除", indexName)
+	}
+
+	return nil
+}
 
 func KlineOneDayIndex(ctx context.Context) error {
 	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(kLineByOneDay)
@@ -1103,7 +1190,7 @@ func KlineOneDayIndex(ctx context.Context) error {
 				{"data_type", 1},
 				{"close_time", -1},
 			},
-			Options: options.Index().SetName("symbol_dataType_closeTime_idx"),
+			Options: options.Index().SetUnique(true).SetName("symbol_dataType_closeTime_idx"),
 		},
 	}
 	// 创建索引（已存在的不会重复建）
@@ -1126,7 +1213,7 @@ func KlineThreeDayIndex(ctx context.Context) error {
 				{"data_type", 1},
 				{"close_time", -1},
 			},
-			Options: options.Index().SetName("symbol_dataType_closeTime_idx"),
+			Options: options.Index().SetUnique(true).SetName("symbol_dataType_closeTime_idx"),
 		},
 	}
 	// 创建索引（已存在的不会重复建）
@@ -1149,7 +1236,7 @@ func KlineOneHourIndex(ctx context.Context) error {
 				{"data_type", 1},
 				{"close_time", -1},
 			},
-			Options: options.Index().SetName("symbol_dataType_closeTime_idx"),
+			Options: options.Index().SetUnique(true).SetName("symbol_dataType_closeTime_idx"),
 		},
 	}
 	// 创建索引（已存在的不会重复建）
@@ -1172,7 +1259,7 @@ func KlineFourHourIndex(ctx context.Context) error {
 				{"data_type", 1},
 				{"close_time", -1},
 			},
-			Options: options.Index().SetName("symbol_dataType_closeTime_idx"),
+			Options: options.Index().SetUnique(true).SetName("symbol_dataType_closeTime_idx"),
 		},
 	}
 	// 创建索引（已存在的不会重复建）
@@ -1184,6 +1271,7 @@ func KlineFourHourIndex(ctx context.Context) error {
 	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, kLineByFourHour)
 	return nil
 }
+
 func TxHashIndex(ctx context.Context) error {
 	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction)
 
@@ -1332,4 +1420,16 @@ func DailyAirdropIndex(ctx context.Context) error {
 	}
 	log.Infof("✅ 单个索引已确保存在: %s.%s", DatabaseNameForChain, dailyAirdrops)
 	return nil
+}
+
+func isDuplicateKeyError(err error) bool {
+	var writeExc mongo.WriteException
+	if errors.As(err, &writeExc) {
+		for _, we := range writeExc.WriteErrors {
+			if we.Code == 11000 { // E11000 是 duplicate key 的 code
+				return true
+			}
+		}
+	}
+	return false
 }

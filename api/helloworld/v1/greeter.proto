@@ -154,6 +154,13 @@ service Greeter {
     };
   }
 
+  rpc DeleteIndexSwitch(DeleteIndexSwitchRequest) returns (DeleteIndexSwitchReply) {
+    option (google.api.http) = {
+      post: "/v1/deleteIndexSwitch"
+      body: "*"
+    };
+  }
+
 }
 
 // The request message containing the user's name.
@@ -387,10 +394,8 @@ message GetHistoricalPriceReply {
 message GetKLineDataRequest {
   string symbol = 1;
   string interval = 2;
-  string limit = 3;
-  int64  step = 4;
-  string types = 5;
-  string collectionName = 6;
+  int64  step = 3;
+  string types = 4;
 }
 
 message GetKLineDataReply {
@@ -440,5 +445,14 @@ message IndexSwitchRequest {
 }
 
 message IndexSwitchReply {
+  string  result = 1;
+}
+
+message DeleteIndexSwitchRequest {
+  int64 val = 1;
+  string collection = 2;
+}
+
+message DeleteIndexSwitchReply {
   string  result = 1;
 }

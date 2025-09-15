@@ -139,6 +139,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.CloseOrderReply'
+    /v1/deleteIndexSwitch:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_DeleteIndexSwitch
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.DeleteIndexSwitchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.DeleteIndexSwitchReply'
     /v1/deployContract:
         post:
             tags:
@@ -495,6 +513,18 @@ components:
                     type: string
                 dappUrl:
                     type: string
+        helloworld.v1.DeleteIndexSwitchReply:
+            type: object
+            properties:
+                result:
+                    type: string
+        helloworld.v1.DeleteIndexSwitchRequest:
+            type: object
+            properties:
+                val:
+                    type: string
+                collection:
+                    type: string
         helloworld.v1.DeployContractReply:
             type: object
             properties:
@@ -595,13 +625,9 @@ components:
                     type: string
                 interval:
                     type: string
-                limit:
-                    type: string
                 step:
                     type: string
                 types:
-                    type: string
-                collectionName:
                     type: string
         helloworld.v1.GetLoginMessageReply:
             type: object

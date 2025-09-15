@@ -240,10 +240,10 @@ func SplitDailyIntervals(start, end, step int64) [][2]int64 {
 	return result
 }
 
-func AddKLineToMongoDB(res []KLine, CollectionName, DataTypes, symbol string) error {
-	var docs []interface{}
+func AddKLineToMongoDB(res []KLine, DataTypes, symbol string) error {
+	var rel []mongo.Kline
 	for _, kline := range res {
-		docs = append(docs, mongo.Kline{
+		rel = append(rel, mongo.Kline{
 			OpenTime:                 kline.OpenTime,
 			OpenPrice:                kline.OpenPrice,
 			HighPrice:                kline.HighPrice,
@@ -260,9 +260,9 @@ func AddKLineToMongoDB(res []KLine, CollectionName, DataTypes, symbol string) er
 			Symbol:                   symbol,
 		})
 	}
-	err := mongo.AddKLineDataMany(docs, CollectionName)
+	err := mongo.AddKLineData(rel, symbol, DataTypes)
 	if err != nil {
-		log.Errorf("<AddKLineToMongoDB> [%s]  error: %v", CollectionName, err)
+		log.Errorf("<AddKLineToMongoDB> [%s]  error: %v", DataTypes, err)
 		return err
 	}
 	return nil
