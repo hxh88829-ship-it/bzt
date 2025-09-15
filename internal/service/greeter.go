@@ -844,8 +844,8 @@ func (s *GreeterService) GetBztDetails(ctx context.Context, in *v1.GetBztDetails
 
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
-		Version:   "v0.0.27",
-		BuildTime: "2025-09-12T10:50:00Z",
+		Version:   "v0.0.28",
+		BuildTime: "2025-09-15T10:50:00Z",
 	}, nil
 }
 
