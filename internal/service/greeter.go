@@ -260,13 +260,13 @@ func (s *GreeterService) GetKLineData(ctx context.Context, in *v1.GetKLineDataRe
 	intervals := marketCondition.SplitDailyIntervals(start, end, step)
 
 	fmt.Println("总共拆分:", len(intervals), "段")
-	var res []*v1.Kline
 	for i, p := range intervals {
 		fmt.Printf("第 %d 段: start=%d (%s), end=%d (%s)\n",
 			i+1,
 			p[0], time.UnixMilli(p[0]).UTC(),
 			p[1], time.UnixMilli(p[1]).UTC(),
 		)
+
 		resKline, err := marketCondition.GetKLines(symbol, interval, fmt.Sprint(p[0]), fmt.Sprint(p[1]), "1000")
 		if err != nil {
 			log.Errorf("get kline data err: %v", err)
@@ -277,26 +277,6 @@ func (s *GreeterService) GetKLineData(ctx context.Context, in *v1.GetKLineDataRe
 			log.Errorf("add kline data err: %v", err)
 			return &v1.GetKLineDataReply{}, err
 		}
-		// 转换成 gRPC 返回类型
-		for _, k := range resKline {
-			res = append(res, &v1.Kline{
-				OpenTime:                 k.OpenTime,
-				OpenPrice:                k.OpenPrice,
-				HighPrice:                k.HighPrice,
-				LowPrice:                 k.LowPrice,
-				ClosePrice:               k.ClosePrice,
-				Volume:                   k.Volume,
-				CloseTime:                k.CloseTime,
-				QuoteAssetVolume:         k.QuoteAssetVolume,
-				NumberOfTrades:           int32(k.NumberOfTrades),
-				TakerBuyBaseAssetVolume:  k.TakerBuyBaseAssetVolume,
-				TakerBuyQuoteAssetVolume: k.TakerBuyQuoteAssetVolume,
-				Ignore:                   k.Ignore,
-				DataType:                 interval,
-				Symbol:                   symbol,
-			})
-		}
-
 	}
 
 	return &v1.GetKLineDataReply{
@@ -494,7 +474,7 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		log.Error("CloseOrder GetCloseOrderInput err: ", err)
 		return nil, err
 	}
-	//TODO 是否需要通过定义累加器函数对nonce进行维护
+	//TODO 可以对nonce进行维护
 	tx, nonce, err := bzt.UrlOwnerContractTransfer(input, api.Client)
 	if err != nil {
 		log.Error("CloseOrder UrlOwnerContractTransfer err: ", err)
@@ -506,7 +486,6 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 		return &v1.CloseOrderReply{}, errors.New("交易未生成")
 	}
 
-	//TODO 是否需要判断返回hash回执是0或1
 	err = mongo.UpdateOrderClose(orderId.String(), ClosePrice.String(), strings.ToLower(tx), in.GetTimestamp())
 	if err != nil {
 		log.Error("CloseOrder UpdateOrderClose err: ", err)
@@ -586,7 +565,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 				log.Error("GetAirdrop GetAirdropInput:", err)
 				return nil, err
 			}
-			//TODO 是否需要通过定义累加器函数对nonce进行维护
+			//TODO 可以对nonce进行维护
 			tx, nonce, err := bzt.UrlOwnerContractTransfer(input, api.Client)
 			if err != nil {
 				log.Error("GetAirdrop UrlOwnerContractTransfer err: ", err)

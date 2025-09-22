@@ -203,12 +203,12 @@ func ParseEvents(tx *types.Transaction, receipt *types.Receipt, blTime uint64, f
 				isNewRecord, err := AddTransactionTrade(tx, receipt, from, blTime, "Airdrop")
 				if err != nil {
 					log.Errorf("AddTransactionTrade err: %v", err)
-					return "", fmt.Errorf("<UNK> Airdrop <UNK>: %w", err)
+					return "", fmt.Errorf(" AirdropTopic AddTransactionTrade : %w", err)
 				}
 				err = AirdropTrade(airdrop, blTime, isNewRecord)
 				if err != nil {
 					log.Errorf("Airdrop : %v", err)
-					return "", fmt.Errorf("<UNK> Airdrop <UNK>: %w", err)
+					return "", fmt.Errorf(" AirdropTopic AirdropTrade : %w", err)
 				}
 				return "airdrop", nil
 			}
@@ -252,53 +252,70 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 	if !status {
 		return nil
 	}
-	err := mongo.UpdateOrderClosedStatus(event.OrderId.String(), event.ProfitLoss.String(), uint64(2))
-	if err != nil {
+
+	// 更新订单状态
+	if err := mongo.UpdateOrderClosedStatus(event.OrderId.String(), event.ProfitLoss.String(), 2); err != nil {
 		log.Errorf("UpdateOrderClosedStatus err: %v", err)
 		return err
 	}
-	user := strings.ToLower(event.User.String())
-	// 使用 event.ProfitLoss 进行判断和计算
-	profitLoss := event.ProfitLoss
-	var value *big.Int
 
+	// 获取订单
+	userOrder, err := mongo.GetOrder(event.OrderId.String())
+	if err != nil {
+		log.Errorf("GetOrder : %v", err)
+		return err
+	}
+
+	user := strings.ToLower(event.User.String())
+	profitLoss := event.ProfitLoss
+
+	// 计算 value
+	var value *big.Int
 	if profitLoss.Sign() >= 0 {
-		// 除以2，整数除法
 		value = new(big.Int).Div(profitLoss, big.NewInt(2))
 	} else {
-		// 取绝对值，相当于乘以-1，但使用Abs方法更安全
 		value = new(big.Int).Abs(profitLoss)
 	}
 	if value.Sign() < 0 {
-		return errors.New(" value must be non-negative")
+		return errors.New("value must be non-negative")
 	}
 
-	// 现在根据正负执行不同的逻辑
+	// 正收益
 	if profitLoss.Sign() >= 0 {
-		err = RewardPool(value, blTime)
-		if err != nil {
+		if err := RewardPool(value, blTime); err != nil {
 			log.Errorf("ProfitLoss >= 0 RewardPool : %v", err)
 			return err
 		}
-		err = UserProfitAmount(user, value, blTime)
-		if err != nil {
+		if err := UserProfitAmount(user, value, blTime); err != nil {
 			log.Errorf("ProfitLoss >= 0 UserProfitAmount : %v", err)
 			return err
 		}
-	} else {
-		err = RewardPool(value, blTime)
-		if err != nil {
-			log.Errorf("ProfitLoss < 0 RewardPool : %v", err)
-			return err
-		}
-		err = UserLossAmount(user, value, blTime)
-		if err != nil {
+		return nil
+	}
+
+	// 负收益
+	if err := RewardPool(value, blTime); err != nil {
+		log.Errorf("ProfitLoss < 0 RewardPool : %v", err)
+		return err
+	}
+
+	// 用户亏损 50% 以上才记入
+	orderAmount := new(big.Int)
+	if _, ok := orderAmount.SetString(userOrder.Amount, 10); !ok {
+		return errors.New("invalid order amount")
+	}
+	halfAmount := new(big.Int).Div(orderAmount, big.NewInt(2))
+
+	if value.Cmp(halfAmount) > 0 {
+		if err := UserLossAmount(user, value, blTime); err != nil {
 			log.Errorf("ProfitLoss < 0 UserLossAmount : %v", err)
 			return err
 		}
 	}
+
 	return nil
 }
+
 func AirdropTrade(event *bzt.BztAirdrop, blTime uint64, status bool) error {
 	if !status {
 		return nil
