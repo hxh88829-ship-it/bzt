@@ -205,7 +205,16 @@ func GetKLines(symbol, interval, start, end, limit string) ([]KLine, error) {
 
 	// 将解析后的数据转换为结构体切片
 	var kLines []KLine
+	now := time.Now().UnixMilli()
 	for _, raw := range rawKLines {
+		closeTimeFloat, ok := raw[6].(float64)
+		if !ok {
+			continue
+		}
+		closeTime := int64(closeTimeFloat)
+		if closeTime > now { // 跳过未闭合 K 线
+			continue
+		}
 		kline := KLine{
 			OpenTime:                 int64(raw[0].(float64)),
 			OpenPrice:                raw[1].(string),
@@ -213,7 +222,7 @@ func GetKLines(symbol, interval, start, end, limit string) ([]KLine, error) {
 			LowPrice:                 raw[3].(string),
 			ClosePrice:               raw[4].(string),
 			Volume:                   raw[5].(string),
-			CloseTime:                int64(raw[6].(float64)),
+			CloseTime:                closeTime,
 			QuoteAssetVolume:         raw[7].(string),
 			NumberOfTrades:           int(raw[8].(float64)),
 			TakerBuyBaseAssetVolume:  raw[9].(string),

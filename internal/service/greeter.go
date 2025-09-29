@@ -246,15 +246,15 @@ func (s *GreeterService) GetKLineData(ctx context.Context, in *v1.GetKLineDataRe
 	var step int64
 	switch in.GetTypes() {
 	case "dayMillis":
-		step = in.GetStep() * dayMillis * 3 //3天一个阶段
+		step = in.GetStep() * dayMillis * 20
 	case "hourMillis":
-		step = in.GetStep() * hourMillis * 72 //3天一个阶段
+		step = in.GetStep() * hourMillis * 480
 	default:
 		return nil, errors.New("invalid interval")
 	}
 
 	// 起点：4day前
-	start := time.Now().AddDate(0, 0, -4).UnixMilli()
+	start := time.Now().AddDate(0, 0, -20).UnixMilli()
 	// 终点：现在
 	end := time.Now().UnixMilli()
 	intervals := marketCondition.SplitDailyIntervals(start, end, step)
