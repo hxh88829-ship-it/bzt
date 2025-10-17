@@ -16,6 +16,8 @@ import (
 	"time"
 	v1 "valueguard/api/helloworld/v1"
 	"valueguard/internal/api"
+	"valueguard/internal/binance"
+	"valueguard/internal/binanceClient"
 	"valueguard/internal/biz"
 	"valueguard/internal/bzt"
 	"valueguard/internal/conf"
@@ -823,8 +825,8 @@ func (s *GreeterService) GetBztDetails(ctx context.Context, in *v1.GetBztDetails
 
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
-		Version:   "v1.0.1",
-		BuildTime: "2025-09-22T15:50:00Z",
+		Version:   "v1.0.2",
+		BuildTime: "2025-10-17T15:50:00Z",
 	}, nil
 }
 
@@ -868,6 +870,126 @@ func (s *GreeterService) DeleteIndexSwitch(ctx context.Context, in *v1.DeleteInd
 	return &v1.DeleteIndexSwitchReply{
 		Result: "success",
 	}, err
+}
+
+func (s *GreeterService) TradeSwitch(ctx context.Context, in *v1.TradeSwitchRequest) (*v1.TradeSwitchReply, error) {
+	// 提取 addr ， uid
+	addr, _, err := GetAddrAndUidByToken(ctx)
+	if err != nil {
+		log.Error("TradeSwitch GetAddrAndUidByToken err: ", err)
+		return nil, err
+	}
+	log.Info("TradeSwitch GetAddrAndUidByToken:", addr)
+	if strings.ToLower(addr) != strings.ToLower("0x331e865f47fd1b197d04fe60e45def0c3a1eba24") {
+		log.Warnf("[TradeSwitch]: token_addr=%s", addr)
+		return &v1.TradeSwitchReply{
+			Result: "fail",
+		}, err
+	}
+	err = mongo.UpdateOrderSwitch(in.GetTypes(), in.GetStatus())
+	if err != nil {
+		log.Error("UpdateOrderSwitch err: ", err)
+		return nil, err
+	}
+	return &v1.TradeSwitchReply{
+		Result: "success",
+	}, nil
+}
+
+func (s *GreeterService) BinanceBalance(ctx context.Context, in *v1.BinanceBalanceRequest) (*v1.BinanceBalanceReply, error) {
+	// 1 校验 token
+	addr, _, err := GetAddrAndUidByToken(ctx)
+	if err != nil {
+		log.Error("BinanceBalance GetAddrAndUidByToken err: ", err)
+		return nil, err
+	}
+	log.Info("BinanceBalance GetAddrAndUidByToken:", addr)
+
+	// 2 校验 addr 一致性
+	if strings.ToLower(addr) != strings.ToLower("0x331e865f47fd1b197d04fe60e45def0c3a1eba24") {
+		log.Warnf("[BinanceBalance]: token_addr=%s", addr)
+		return &v1.BinanceBalanceReply{
+			Result: nil,
+		}, fmt.Errorf("unauthorized address")
+	}
+
+	// 获取账户余额（测试网）
+	balances, err := binanceClient.BinanceClient.GetAccountBalances(in.GetSymbol(), true)
+	if err != nil {
+		log.Error("GetAccountBalances err: ", err)
+		return nil, err
+	}
+
+	// 转换为 protobuf 定义格式
+	var result []*v1.Binance
+	for _, b := range balances {
+		if b.Asset == "BTC" || b.Asset == "ETH" {
+			result = append(result, &v1.Binance{
+				Symbol:  b.Asset,
+				Balance: b.Free,
+			})
+		}
+	}
+
+	//  返回结果
+	return &v1.BinanceBalanceReply{
+		Result: result,
+	}, nil
+}
+
+func (s *GreeterService) CreateBinanceOrder(ctx context.Context, in *v1.CreateBinanceOrderRequest) (*v1.CreateBinanceOrderReply, error) {
+	addr, _, err := GetAddrAndUidByToken(ctx)
+	if err != nil {
+		log.Error("BinanceOrder GetAddrAndUidByToken err: ", err)
+		return nil, err
+	}
+	log.Info("BinanceOrder GetAddrAndUidByToken:", addr)
+
+	// 2 校验 addr 一致性
+	if strings.ToLower(addr) != strings.ToLower("0x331e865f47fd1b197d04fe60e45def0c3a1eba24") {
+		log.Warnf("[BinanceOrder]: unauthorized address=%s", addr)
+		return nil, fmt.Errorf("unauthorized address")
+	}
+
+	// 3. 调用币安下单接口 (MARKET 市价单)
+	res, err := binanceClient.BinanceClient.CreateOrder(in.GetSymbol(), in.GetSide(), "MARKET", in.GetQuantity())
+	if err != nil {
+		log.Error("CreateOrder err: ", err)
+		return nil, fmt.Errorf("币安下单失败: %v", err)
+	}
+	// 4. 解析返回的币安订单 JSON
+	order, err := binance.ParseBinanceOrder(res)
+	if err != nil {
+		log.Error("ParseBinanceOrder err: ", err)
+		return nil, fmt.Errorf("解析币安订单失败: %v", err)
+	}
+	result := []*v1.BinanceOrderDetail{
+		{
+			Symbol:                  order.Symbol,
+			OrderId:                 order.OrderId,
+			OrderListId:             order.OrderListId,
+			ClientOrderId:           order.ClientOrderId,
+			Price:                   order.Price,
+			OrigQty:                 order.OrigQty,
+			ExecutedQty:             order.ExecutedQty,
+			CumulativeQuoteQty:      order.CumulativeQuoteQty,
+			Status:                  order.Status,
+			TimeInForce:             order.TimeInForce,
+			Type:                    order.Type,
+			Side:                    order.Side,
+			StopPrice:               order.StopPrice,
+			IcebergQty:              order.IcebergQty,
+			Time:                    order.Time,
+			UpdateTime:              order.UpdateTime,
+			IsWorking:               order.IsWorking,
+			WorkingTime:             order.WorkingTime,
+			OrigQuoteOrderQty:       order.OrigQuoteOrderQty,
+			SelfTradePreventionMode: order.SelfTradePreventionMode,
+		},
+	}
+	return &v1.CreateBinanceOrderReply{
+		Result: result,
+	}, nil
 }
 
 func IsWalletBound(addr string) (bool, error) {

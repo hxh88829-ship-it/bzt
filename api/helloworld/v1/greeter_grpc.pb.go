@@ -42,6 +42,9 @@ const (
 	Greeter_ClaimsAirdrop_FullMethodName      = "/helloworld.v1.Greeter/ClaimsAirdrop"
 	Greeter_IndexSwitch_FullMethodName        = "/helloworld.v1.Greeter/IndexSwitch"
 	Greeter_DeleteIndexSwitch_FullMethodName  = "/helloworld.v1.Greeter/DeleteIndexSwitch"
+	Greeter_TradeSwitch_FullMethodName        = "/helloworld.v1.Greeter/TradeSwitch"
+	Greeter_BinanceBalance_FullMethodName     = "/helloworld.v1.Greeter/BinanceBalance"
+	Greeter_CreateBinanceOrder_FullMethodName = "/helloworld.v1.Greeter/CreateBinanceOrder"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -74,6 +77,9 @@ type GreeterClient interface {
 	ClaimsAirdrop(ctx context.Context, in *ClaimsAirdropRequest, opts ...grpc.CallOption) (*ClaimsAirdropReply, error)
 	IndexSwitch(ctx context.Context, in *IndexSwitchRequest, opts ...grpc.CallOption) (*IndexSwitchReply, error)
 	DeleteIndexSwitch(ctx context.Context, in *DeleteIndexSwitchRequest, opts ...grpc.CallOption) (*DeleteIndexSwitchReply, error)
+	TradeSwitch(ctx context.Context, in *TradeSwitchRequest, opts ...grpc.CallOption) (*TradeSwitchReply, error)
+	BinanceBalance(ctx context.Context, in *BinanceBalanceRequest, opts ...grpc.CallOption) (*BinanceBalanceReply, error)
+	CreateBinanceOrder(ctx context.Context, in *CreateBinanceOrderRequest, opts ...grpc.CallOption) (*CreateBinanceOrderReply, error)
 }
 
 type greeterClient struct {
@@ -314,6 +320,36 @@ func (c *greeterClient) DeleteIndexSwitch(ctx context.Context, in *DeleteIndexSw
 	return out, nil
 }
 
+func (c *greeterClient) TradeSwitch(ctx context.Context, in *TradeSwitchRequest, opts ...grpc.CallOption) (*TradeSwitchReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TradeSwitchReply)
+	err := c.cc.Invoke(ctx, Greeter_TradeSwitch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) BinanceBalance(ctx context.Context, in *BinanceBalanceRequest, opts ...grpc.CallOption) (*BinanceBalanceReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BinanceBalanceReply)
+	err := c.cc.Invoke(ctx, Greeter_BinanceBalance_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) CreateBinanceOrder(ctx context.Context, in *CreateBinanceOrderRequest, opts ...grpc.CallOption) (*CreateBinanceOrderReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateBinanceOrderReply)
+	err := c.cc.Invoke(ctx, Greeter_CreateBinanceOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
@@ -344,6 +380,9 @@ type GreeterServer interface {
 	ClaimsAirdrop(context.Context, *ClaimsAirdropRequest) (*ClaimsAirdropReply, error)
 	IndexSwitch(context.Context, *IndexSwitchRequest) (*IndexSwitchReply, error)
 	DeleteIndexSwitch(context.Context, *DeleteIndexSwitchRequest) (*DeleteIndexSwitchReply, error)
+	TradeSwitch(context.Context, *TradeSwitchRequest) (*TradeSwitchReply, error)
+	BinanceBalance(context.Context, *BinanceBalanceRequest) (*BinanceBalanceReply, error)
+	CreateBinanceOrder(context.Context, *CreateBinanceOrderRequest) (*CreateBinanceOrderReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -422,6 +461,15 @@ func (UnimplementedGreeterServer) IndexSwitch(context.Context, *IndexSwitchReque
 }
 func (UnimplementedGreeterServer) DeleteIndexSwitch(context.Context, *DeleteIndexSwitchRequest) (*DeleteIndexSwitchReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteIndexSwitch not implemented")
+}
+func (UnimplementedGreeterServer) TradeSwitch(context.Context, *TradeSwitchRequest) (*TradeSwitchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TradeSwitch not implemented")
+}
+func (UnimplementedGreeterServer) BinanceBalance(context.Context, *BinanceBalanceRequest) (*BinanceBalanceReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BinanceBalance not implemented")
+}
+func (UnimplementedGreeterServer) CreateBinanceOrder(context.Context, *CreateBinanceOrderRequest) (*CreateBinanceOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBinanceOrder not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -858,6 +906,60 @@ func _Greeter_DeleteIndexSwitch_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_TradeSwitch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TradeSwitchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).TradeSwitch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_TradeSwitch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).TradeSwitch(ctx, req.(*TradeSwitchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_BinanceBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BinanceBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).BinanceBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_BinanceBalance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).BinanceBalance(ctx, req.(*BinanceBalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_CreateBinanceOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBinanceOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).CreateBinanceOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_CreateBinanceOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).CreateBinanceOrder(ctx, req.(*CreateBinanceOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -956,6 +1058,18 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteIndexSwitch",
 			Handler:    _Greeter_DeleteIndexSwitch_Handler,
+		},
+		{
+			MethodName: "TradeSwitch",
+			Handler:    _Greeter_TradeSwitch_Handler,
+		},
+		{
+			MethodName: "BinanceBalance",
+			Handler:    _Greeter_BinanceBalance_Handler,
+		},
+		{
+			MethodName: "CreateBinanceOrder",
+			Handler:    _Greeter_CreateBinanceOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

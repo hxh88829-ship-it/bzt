@@ -23,4 +23,5 @@ const (
 	kLineByThreeDay      = "kLineByThreeDay"
 	kLineByOneHour       = "kLineByOneHour"
 	kLineByFourHour      = "kLineByFourHour"
+	binanceOrders        = "binanceOrders"
 )

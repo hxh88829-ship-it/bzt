@@ -147,3 +147,29 @@ type Kline struct {
 	DataType                 string `bson:"data_type" json:"data_type"` //k线类别，日k或时k
 	Symbol                   string `bson:"symbol" json:"symbol"`
 }
+
+type BinanceOrder struct {
+	Symbol                  string `bson:"symbol" json:"symbol"`
+	Address                 string `bson:"address" json:"address"`
+	TxHash                  string `bson:"tx_hash" json:"tx_hash"`
+	BztOrderId              string `bson:"bzt_order_id" json:"bzt_order_id"`
+	OrderId                 int64  `bson:"order_id" json:"order_id"`
+	OrderListId             int64  `bson:"order_list_id" json:"order_list_id"`
+	ClientOrderId           string `bson:"client_order_id" json:"client_order_id"`
+	Price                   string `bson:"price" json:"price"`
+	OrigQty                 string `bson:"orig_qty" json:"orig_qty"`
+	ExecutedQty             string `bson:"executed_qty" json:"executed_qty"`
+	CumulativeQuoteQty      string `bson:"cumulative_quote_qty" json:"cumulative_quote_qty"`
+	Status                  string `bson:"status" json:"status"`
+	TimeInForce             string `bson:"time_in_force" json:"time_in_force"`
+	Type                    string `bson:"type" json:"type"`
+	Side                    string `bson:"side" json:"side"`
+	StopPrice               string `bson:"stop_price" json:"stop_price"`
+	IcebergQty              string `bson:"iceberg_qty" json:"iceberg_qty"`
+	Time                    int64  `bson:"time" json:"time"`
+	UpdateTime              int64  `bson:"update_time" json:"update_time"`
+	IsWorking               bool   `bson:"is_working" json:"is_working"`
+	WorkingTime             int64  `bson:"working_time" json:"working_time"`
+	OrigQuoteOrderQty       string `bson:"orig_quote_order_qty" json:"orig_quote_order_qty"`
+	SelfTradePreventionMode string `bson:"self_trade_prevention_mode" json:"self_trade_prevention_mode"`
+}

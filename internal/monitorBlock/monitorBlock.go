@@ -244,6 +244,8 @@ func OrderOpenedTrade(tx *types.Transaction, receipt *types.Receipt, blTime uint
 			log.Errorf("UpdateOrderOpenStatus err: %v", err)
 			return err
 		}
+		//TODO binance trade
+
 	}
 	return nil
 }
@@ -265,6 +267,8 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 		log.Errorf("GetOrder : %v", err)
 		return err
 	}
+
+	//TODO binance trade
 
 	user := strings.ToLower(event.User.String())
 	profitLoss := event.ProfitLoss

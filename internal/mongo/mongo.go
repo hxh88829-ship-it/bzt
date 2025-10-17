@@ -950,6 +950,34 @@ func GetOrderSwitch(i uint64, types string) (OrderSwitch, error) {
 	return o, nil
 }
 
+func UpdateOrderSwitch(switchType string, status uint64) error {
+	if MonCli == nil {
+		return fmt.Errorf("UpdateOrderSwitch failed: mongo.Client is nil")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.D{{"types", switchType}}
+	update := bson.D{
+		{"$set", bson.D{
+			{"status", status},
+		}},
+	}
+
+	result, err := MonCli.Client.Database(DatabaseNameForChain).Collection(orderSwitch).UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Errorf("UpdateOrderSwitch UpdateOne failed: %v", err)
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		log.Warnf("UpdateOrderSwitch: no document matched for types=%s", switchType)
+	}
+
+	return nil
+}
+
 func AddKLineData(res []Kline, symbol, dataType string) error {
 	var CollectionName string
 	switch dataType {
@@ -1064,6 +1092,62 @@ func GetKLineData(types, symbol, CollectionName string, page, size int64) ([]Kli
 	}
 	return res, nil
 }
+func GetOneDataBySymbol(symbol string, times int64) (Kline, error) {
+	if MonCli == nil {
+		return Kline{}, errors.New("error:mongo.Client is nil" + "GetOneDataBySymbol")
+	}
+	filter := bson.M{
+		"symbol":     symbol,
+		"close_time": times,
+	}
+	var res Kline
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(kLineByOneDay).FindOne(context.Background(), filter).Decode(&res)
+	if err != nil {
+		log.Error("GetOneDataBySymbol FindOne err: ", err)
+		return Kline{}, err
+	}
+	return res, nil
+
+}
+
+// 添加币安交易
+func AddBinanceOrder(binanceOrder BinanceOrder) error {
+	if MonCli == nil {
+		return fmt.Errorf("AddBinanceOrder failed: mongo.Client is nil")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(binanceOrders).InsertOne(ctx, binanceOrder)
+	if err != nil {
+		log.Errorf("AddBinanceOrder InsertOne failed: %v", err)
+		return err
+	}
+
+	return nil
+}
+func GetBinanceOrder(tx, addr string) (BinanceOrder, error) {
+	if MonCli == nil {
+		return BinanceOrder{}, fmt.Errorf("GetBinanceOrder failed: mongo.Client is nil")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	var res BinanceOrder
+	filter := bson.M{
+		"tx_hash": tx,
+		"address": addr,
+	}
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(binanceOrders).FindOne(ctx, filter).Decode(&res)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return BinanceOrder{}, nil // 或者返回自定义 NotFound 错误
+		}
+		log.Errorf("GetBinanceOrder FindOne failed: %v", err)
+		return BinanceOrder{}, err
+	}
+	return res, nil
+}
 
 // EnsureKlineIndexes TODO 编写接口创建索引，提升效率
 func EnsureKlineIndexes() error {
@@ -1072,64 +1156,69 @@ func EnsureKlineIndexes() error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err := KlineOneDayIndex(ctx)
+	//err := KlineOneDayIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = KlineThreeDayIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = KlineOneHourIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = KlineFourHourIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = TxHashIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = AirdropOneIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = UserAmountIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = OrderIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = OrderAddrIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = PriceIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = PriceAndTimeIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	//err = UserIndex(ctx)
+	//if err != nil {
+	//	log.Error("EnsureKlineIndexes err: ", err)
+	//	return err
+	//}
+	err := BinanceOrderIndex(ctx)
 	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = KlineThreeDayIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = KlineOneHourIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = KlineFourHourIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = TxHashIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = AirdropOneIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = UserAmountIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = OrderIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = OrderAddrIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = PriceIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = PriceAndTimeIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
-		return err
-	}
-	err = UserIndex(ctx)
-	if err != nil {
-		log.Error("EnsureKlineIndexes err: ", err)
+		log.Errorf("EnsureKlineIndexes BinanceOrderIndex err: %v", err)
 		return err
 	}
 	return nil
@@ -1404,7 +1493,22 @@ func UserIndex(ctx context.Context) error {
 	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, user)
 	return nil
 }
-
+func BinanceOrderIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(binanceOrders)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"tx_hash", 1},
+		},
+		Options: options.Index().SetUnique(true).SetName("tx_hash_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 tx_hash_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, binanceOrders)
+	return nil
+}
 func DailyAirdropIndex(ctx context.Context) error {
 	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops)
 	index := mongo.IndexModel{

@@ -161,6 +161,27 @@ service Greeter {
     };
   }
 
+  rpc TradeSwitch(TradeSwitchRequest) returns (TradeSwitchReply) {
+    option (google.api.http) = {
+      post: "/v1/tradeSwitch"
+      body: "*"
+    };
+  }
+
+  rpc BinanceBalance(BinanceBalanceRequest) returns (BinanceBalanceReply) {
+    option (google.api.http) = {
+      post: "/v1/binanceBalance"
+      body: "*"
+    };
+  }
+
+  rpc CreateBinanceOrder(CreateBinanceOrderRequest) returns (CreateBinanceOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/createBinanceOrder"
+      body: "*"
+    };
+  }
+
 }
 
 // The request message containing the user's name.
@@ -455,4 +476,58 @@ message DeleteIndexSwitchRequest {
 
 message DeleteIndexSwitchReply {
   string  result = 1;
+}
+
+
+message TradeSwitchRequest {
+  string types = 1;
+  uint64 status = 2;
+}
+
+message TradeSwitchReply {
+  string  result = 1;
+}
+
+message BinanceBalanceRequest {
+  string symbol = 1;
+}
+
+message BinanceBalanceReply {
+  repeated  Binance result = 1;
+}
+message Binance {
+  string symbol =1;
+  string balance =2;
+}
+
+message CreateBinanceOrderRequest {
+  string symbol = 1;
+  string side = 2;
+  string quantity = 3;
+}
+
+message CreateBinanceOrderReply {
+  repeated  BinanceOrderDetail result = 1;
+}
+message BinanceOrderDetail {
+  string symbol = 1;                        // 交易对，例如 "BTCUSDT"。表示买卖 BTC / USDT
+  int64 order_id = 2;                       // 币安生成的订单唯一 ID
+  int64 order_list_id = 3;                  // OCO（一次取消另一单）订单组 ID，普通订单为 -1
+  string client_order_id = 4;               // 客户端自定义订单 ID（用户在下单时传入）
+  string price = 5;                         // 下单价格（限价单有效）。字符串格式避免精度丢失
+  string orig_qty = 6;                      // 原始下单数量（基础币种数量，如 BTC）。单位：base asset
+  string executed_qty = 7;                  // 已成交数量（基础币种数量）。单位：base asset
+  string cumulative_quote_qty = 8;          // 累计成交金额（报价币种金额，如 USDT）。单位：quote asset
+  string status = 9;                        // 订单状态：NEW（新订单）、PARTIALLY_FILLED（部分成交）、FILLED（全部成交）、CANCELED（已撤销）、REJECTED（被拒绝）等
+  string time_in_force = 10;                // 有效方式：GTC（Good Till Cancelled，一直有效，默认）、IOC（Immediate or Cancel，立即成交否则取消）、FOK（Fill or Kill，全部成交否则取消）
+  string type = 11;                         // 订单类型：// LIMIT（限价单）、MARKET（市价单）
+  string side = 12;                         // 买卖方向：BUY（买入）或 SELL（卖出）
+  string stop_price = 13;                   // 触发价格（用于止盈/止损单）
+  string iceberg_qty = 14;                  // 冰山订单数量（隐藏部分的数量，用于大额分批挂单）
+  int64 time = 15;                          // 下单时间（毫秒时间戳）
+  int64 update_time = 16;                   // 订单最后更新时间（毫秒时间戳）
+  bool is_working = 17;                     // 当前订单是否在撮合引擎中活动（true 表示在订单簿中）
+  int64 working_time = 18;                  // 订单开始生效时间（毫秒时间戳）
+  string orig_quote_order_qty = 19;         // 原始下单总额（以报价币计，如下市价单时指定 USDT 金额）
+  string self_trade_prevention_mode = 20;   // 自成交防止模式（防止自己的挂单互相成交）：NONE（无防护）、EXPIRE_TAKER、EXPIRE_MAKER、EXPIRE_BOTH 等
 }

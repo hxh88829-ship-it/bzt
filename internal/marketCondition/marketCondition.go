@@ -8,9 +8,26 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"io"
 	"math/big"
+	"net"
 	"net/http"
 	"time"
 	"valueguard/internal/mongo"
+)
+
+var (
+	httpClient = &http.Client{
+		Timeout: 10 * time.Second, // 整体超时控制
+		Transport: &http.Transport{
+			MaxIdleConns:       200,
+			MaxConnsPerHost:    100,
+			IdleConnTimeout:    90 * time.Second,
+			DisableCompression: false,
+			DialContext: (&net.Dialer{
+				Timeout:   5 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+		},
+	}
 )
 
 type KLine struct {
@@ -36,7 +53,7 @@ func GetMarketCondition(symbol string, ind uint64) error {
 	defer cancel()
 
 	// 构造请求
-	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL, nil)
 	if err != nil {
 		log.Errorf("🔧 [%s] NewRequest error: %v", symbol, err)
 		return err
@@ -56,9 +73,9 @@ func GetMarketCondition(symbol string, ind uint64) error {
 	//		Proxy: http.ProxyURL(proxyURL),
 	//	},
 	//}
-	client := http.DefaultClient //默认代理
+	//client := http.DefaultClient //默认代理
 	//发起请求
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		log.Errorf("🔧 [%s] HTTP request error: %v", symbol, err)
 		return err
@@ -85,13 +102,13 @@ func GetMarketCondition(symbol string, ind uint64) error {
 	//log.Infof("✅ [%s] Latest price: %s", result.Symbol, result.Price)
 	value, err := ConvertPriceToBigIntString(result.Price, 100)
 	if err != nil {
-		log.Errorf(" [%s] convert error: %v", symbol, err)
+		log.Errorf(" [%s] --[%d] convert error: %v", symbol, ind, err)
 		return err
 	}
 	// 更新数据库/缓存
 	times := uint64(time.Now().Unix())
-	if err := UpdateNewPrice(symbol, value, ind, times); err != nil {
-		log.Errorf("🔧 [%s] Update price error: %v", symbol, err)
+	if err = UpdateNewPrice(symbol, value, ind, times); err != nil {
+		log.Errorf("🔧 [%s]--[%d] Update price error: %v", symbol, ind, err)
 		return err
 	}
 
@@ -178,9 +195,9 @@ func GetKLines(symbol, interval, start, end, limit string) ([]KLine, error) {
 	//		Proxy: http.ProxyURL(proxyURL),
 	//	},
 	//}
-	client := http.DefaultClient //默认代理
+	//client := http.DefaultClient //默认代理
 	// 发起请求
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		log.Errorf("🔧 [%s] HTTP request error: %v", symbol, err)
 		return nil, err

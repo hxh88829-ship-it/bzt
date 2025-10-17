@@ -273,17 +273,18 @@ func TestGetOrderSwitch(t *testing.T) {
 	t.Log(res)
 }
 func TestUpdateDailyAirdrop(t *testing.T) {
-	cli, err := NewMongoClient("mongodb://admin:admin@localhost:27017/?directConnection=true")
+	cli, err := NewMongoClient("mongodb://admin:admin@13.212.58.194:9097")
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	defer cli.Close()
 	MonCli = cli
-	err = UpdateDailyAirdrop("2025-08-29", "USDT", "30871")
+	res, err := GetOneDataBySymbol("BTCUSDT", 1505260800000)
 	if err != nil {
 		return
 	}
+	t.Log(res)
 }
 
 func TestGetKLineData(t *testing.T) {

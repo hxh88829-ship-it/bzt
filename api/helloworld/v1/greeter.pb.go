@@ -2924,6 +2924,542 @@ func (x *DeleteIndexSwitchReply) GetResult() string {
 	return ""
 }
 
+type TradeSwitchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Types         string                 `protobuf:"bytes,1,opt,name=types,proto3" json:"types,omitempty"`
+	Status        uint64                 `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TradeSwitchRequest) Reset() {
+	*x = TradeSwitchRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TradeSwitchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TradeSwitchRequest) ProtoMessage() {}
+
+func (x *TradeSwitchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TradeSwitchRequest.ProtoReflect.Descriptor instead.
+func (*TradeSwitchRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *TradeSwitchRequest) GetTypes() string {
+	if x != nil {
+		return x.Types
+	}
+	return ""
+}
+
+func (x *TradeSwitchRequest) GetStatus() uint64 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+type TradeSwitchReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TradeSwitchReply) Reset() {
+	*x = TradeSwitchReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TradeSwitchReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TradeSwitchReply) ProtoMessage() {}
+
+func (x *TradeSwitchReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TradeSwitchReply.ProtoReflect.Descriptor instead.
+func (*TradeSwitchReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{53}
+}
+
+func (x *TradeSwitchReply) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+type BinanceBalanceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BinanceBalanceRequest) Reset() {
+	*x = BinanceBalanceRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BinanceBalanceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BinanceBalanceRequest) ProtoMessage() {}
+
+func (x *BinanceBalanceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BinanceBalanceRequest.ProtoReflect.Descriptor instead.
+func (*BinanceBalanceRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *BinanceBalanceRequest) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+type BinanceBalanceReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        []*Binance             `protobuf:"bytes,1,rep,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BinanceBalanceReply) Reset() {
+	*x = BinanceBalanceReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BinanceBalanceReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BinanceBalanceReply) ProtoMessage() {}
+
+func (x *BinanceBalanceReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BinanceBalanceReply.ProtoReflect.Descriptor instead.
+func (*BinanceBalanceReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *BinanceBalanceReply) GetResult() []*Binance {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+type Binance struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Balance       string                 `protobuf:"bytes,2,opt,name=balance,proto3" json:"balance,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Binance) Reset() {
+	*x = Binance{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Binance) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Binance) ProtoMessage() {}
+
+func (x *Binance) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Binance.ProtoReflect.Descriptor instead.
+func (*Binance) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *Binance) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *Binance) GetBalance() string {
+	if x != nil {
+		return x.Balance
+	}
+	return ""
+}
+
+type CreateBinanceOrderRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Side          string                 `protobuf:"bytes,2,opt,name=side,proto3" json:"side,omitempty"`
+	Quantity      string                 `protobuf:"bytes,3,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBinanceOrderRequest) Reset() {
+	*x = CreateBinanceOrderRequest{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBinanceOrderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBinanceOrderRequest) ProtoMessage() {}
+
+func (x *CreateBinanceOrderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBinanceOrderRequest.ProtoReflect.Descriptor instead.
+func (*CreateBinanceOrderRequest) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *CreateBinanceOrderRequest) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *CreateBinanceOrderRequest) GetSide() string {
+	if x != nil {
+		return x.Side
+	}
+	return ""
+}
+
+func (x *CreateBinanceOrderRequest) GetQuantity() string {
+	if x != nil {
+		return x.Quantity
+	}
+	return ""
+}
+
+type CreateBinanceOrderReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        []*BinanceOrderDetail  `protobuf:"bytes,1,rep,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBinanceOrderReply) Reset() {
+	*x = CreateBinanceOrderReply{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBinanceOrderReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBinanceOrderReply) ProtoMessage() {}
+
+func (x *CreateBinanceOrderReply) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBinanceOrderReply.ProtoReflect.Descriptor instead.
+func (*CreateBinanceOrderReply) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{58}
+}
+
+func (x *CreateBinanceOrderReply) GetResult() []*BinanceOrderDetail {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+type BinanceOrderDetail struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	Symbol                  string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`                                                                       // 交易对，例如 "BTCUSDT"。表示买卖 BTC / USDT
+	OrderId                 int64                  `protobuf:"varint,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                                                     // 币安生成的订单唯一 ID
+	OrderListId             int64                  `protobuf:"varint,3,opt,name=order_list_id,json=orderListId,proto3" json:"order_list_id,omitempty"`                                       // OCO（一次取消另一单）订单组 ID，普通订单为 -1
+	ClientOrderId           string                 `protobuf:"bytes,4,opt,name=client_order_id,json=clientOrderId,proto3" json:"client_order_id,omitempty"`                                  // 客户端自定义订单 ID（用户在下单时传入）
+	Price                   string                 `protobuf:"bytes,5,opt,name=price,proto3" json:"price,omitempty"`                                                                         // 下单价格（限价单有效）。字符串格式避免精度丢失
+	OrigQty                 string                 `protobuf:"bytes,6,opt,name=orig_qty,json=origQty,proto3" json:"orig_qty,omitempty"`                                                      // 原始下单数量（基础币种数量，如 BTC）。单位：base asset
+	ExecutedQty             string                 `protobuf:"bytes,7,opt,name=executed_qty,json=executedQty,proto3" json:"executed_qty,omitempty"`                                          // 已成交数量（基础币种数量）。单位：base asset
+	CumulativeQuoteQty      string                 `protobuf:"bytes,8,opt,name=cumulative_quote_qty,json=cumulativeQuoteQty,proto3" json:"cumulative_quote_qty,omitempty"`                   // 累计成交金额（报价币种金额，如 USDT）。单位：quote asset
+	Status                  string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`                                                                       // 订单状态：NEW（新订单）、PARTIALLY_FILLED（部分成交）、FILLED（全部成交）、CANCELED（已撤销）、REJECTED（被拒绝）等
+	TimeInForce             string                 `protobuf:"bytes,10,opt,name=time_in_force,json=timeInForce,proto3" json:"time_in_force,omitempty"`                                       // 有效方式：GTC（Good Till Cancelled，一直有效，默认）、IOC（Immediate or Cancel，立即成交否则取消）、FOK（Fill or Kill，全部成交否则取消）
+	Type                    string                 `protobuf:"bytes,11,opt,name=type,proto3" json:"type,omitempty"`                                                                          // 订单类型：// LIMIT（限价单）、MARKET（市价单）
+	Side                    string                 `protobuf:"bytes,12,opt,name=side,proto3" json:"side,omitempty"`                                                                          // 买卖方向：BUY（买入）或 SELL（卖出）
+	StopPrice               string                 `protobuf:"bytes,13,opt,name=stop_price,json=stopPrice,proto3" json:"stop_price,omitempty"`                                               // 触发价格（用于止盈/止损单）
+	IcebergQty              string                 `protobuf:"bytes,14,opt,name=iceberg_qty,json=icebergQty,proto3" json:"iceberg_qty,omitempty"`                                            // 冰山订单数量（隐藏部分的数量，用于大额分批挂单）
+	Time                    int64                  `protobuf:"varint,15,opt,name=time,proto3" json:"time,omitempty"`                                                                         // 下单时间（毫秒时间戳）
+	UpdateTime              int64                  `protobuf:"varint,16,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`                                           // 订单最后更新时间（毫秒时间戳）
+	IsWorking               bool                   `protobuf:"varint,17,opt,name=is_working,json=isWorking,proto3" json:"is_working,omitempty"`                                              // 当前订单是否在撮合引擎中活动（true 表示在订单簿中）
+	WorkingTime             int64                  `protobuf:"varint,18,opt,name=working_time,json=workingTime,proto3" json:"working_time,omitempty"`                                        // 订单开始生效时间（毫秒时间戳）
+	OrigQuoteOrderQty       string                 `protobuf:"bytes,19,opt,name=orig_quote_order_qty,json=origQuoteOrderQty,proto3" json:"orig_quote_order_qty,omitempty"`                   // 原始下单总额（以报价币计，如下市价单时指定 USDT 金额）
+	SelfTradePreventionMode string                 `protobuf:"bytes,20,opt,name=self_trade_prevention_mode,json=selfTradePreventionMode,proto3" json:"self_trade_prevention_mode,omitempty"` // 自成交防止模式（防止自己的挂单互相成交）：NONE（无防护）、EXPIRE_TAKER、EXPIRE_MAKER、EXPIRE_BOTH 等
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *BinanceOrderDetail) Reset() {
+	*x = BinanceOrderDetail{}
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BinanceOrderDetail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BinanceOrderDetail) ProtoMessage() {}
+
+func (x *BinanceOrderDetail) ProtoReflect() protoreflect.Message {
+	mi := &file_helloworld_v1_greeter_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BinanceOrderDetail.ProtoReflect.Descriptor instead.
+func (*BinanceOrderDetail) Descriptor() ([]byte, []int) {
+	return file_helloworld_v1_greeter_proto_rawDescGZIP(), []int{59}
+}
+
+func (x *BinanceOrderDetail) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+func (x *BinanceOrderDetail) GetOrderListId() int64 {
+	if x != nil {
+		return x.OrderListId
+	}
+	return 0
+}
+
+func (x *BinanceOrderDetail) GetClientOrderId() string {
+	if x != nil {
+		return x.ClientOrderId
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetPrice() string {
+	if x != nil {
+		return x.Price
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetOrigQty() string {
+	if x != nil {
+		return x.OrigQty
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetExecutedQty() string {
+	if x != nil {
+		return x.ExecutedQty
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetCumulativeQuoteQty() string {
+	if x != nil {
+		return x.CumulativeQuoteQty
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetTimeInForce() string {
+	if x != nil {
+		return x.TimeInForce
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetSide() string {
+	if x != nil {
+		return x.Side
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetStopPrice() string {
+	if x != nil {
+		return x.StopPrice
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetIcebergQty() string {
+	if x != nil {
+		return x.IcebergQty
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetTime() int64 {
+	if x != nil {
+		return x.Time
+	}
+	return 0
+}
+
+func (x *BinanceOrderDetail) GetUpdateTime() int64 {
+	if x != nil {
+		return x.UpdateTime
+	}
+	return 0
+}
+
+func (x *BinanceOrderDetail) GetIsWorking() bool {
+	if x != nil {
+		return x.IsWorking
+	}
+	return false
+}
+
+func (x *BinanceOrderDetail) GetWorkingTime() int64 {
+	if x != nil {
+		return x.WorkingTime
+	}
+	return 0
+}
+
+func (x *BinanceOrderDetail) GetOrigQuoteOrderQty() string {
+	if x != nil {
+		return x.OrigQuoteOrderQty
+	}
+	return ""
+}
+
+func (x *BinanceOrderDetail) GetSelfTradePreventionMode() string {
+	if x != nil {
+		return x.SelfTradePreventionMode
+	}
+	return ""
+}
+
 var File_helloworld_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_helloworld_v1_greeter_proto_rawDesc = "" +
@@ -3126,7 +3662,51 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"collection\x18\x02 \x01(\tR\n" +
 	"collection\"0\n" +
 	"\x16DeleteIndexSwitchReply\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\tR\x06result2\xc4\x14\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result\"B\n" +
+	"\x12TradeSwitchRequest\x12\x14\n" +
+	"\x05types\x18\x01 \x01(\tR\x05types\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\x04R\x06status\"*\n" +
+	"\x10TradeSwitchReply\x12\x16\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result\"/\n" +
+	"\x15BinanceBalanceRequest\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\"E\n" +
+	"\x13BinanceBalanceReply\x12.\n" +
+	"\x06result\x18\x01 \x03(\v2\x16.helloworld.v1.BinanceR\x06result\";\n" +
+	"\aBinance\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x18\n" +
+	"\abalance\x18\x02 \x01(\tR\abalance\"c\n" +
+	"\x19CreateBinanceOrderRequest\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x12\n" +
+	"\x04side\x18\x02 \x01(\tR\x04side\x12\x1a\n" +
+	"\bquantity\x18\x03 \x01(\tR\bquantity\"T\n" +
+	"\x17CreateBinanceOrderReply\x129\n" +
+	"\x06result\x18\x01 \x03(\v2!.helloworld.v1.BinanceOrderDetailR\x06result\"\xa2\x05\n" +
+	"\x12BinanceOrderDetail\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x19\n" +
+	"\border_id\x18\x02 \x01(\x03R\aorderId\x12\"\n" +
+	"\rorder_list_id\x18\x03 \x01(\x03R\vorderListId\x12&\n" +
+	"\x0fclient_order_id\x18\x04 \x01(\tR\rclientOrderId\x12\x14\n" +
+	"\x05price\x18\x05 \x01(\tR\x05price\x12\x19\n" +
+	"\borig_qty\x18\x06 \x01(\tR\aorigQty\x12!\n" +
+	"\fexecuted_qty\x18\a \x01(\tR\vexecutedQty\x120\n" +
+	"\x14cumulative_quote_qty\x18\b \x01(\tR\x12cumulativeQuoteQty\x12\x16\n" +
+	"\x06status\x18\t \x01(\tR\x06status\x12\"\n" +
+	"\rtime_in_force\x18\n" +
+	" \x01(\tR\vtimeInForce\x12\x12\n" +
+	"\x04type\x18\v \x01(\tR\x04type\x12\x12\n" +
+	"\x04side\x18\f \x01(\tR\x04side\x12\x1d\n" +
+	"\n" +
+	"stop_price\x18\r \x01(\tR\tstopPrice\x12\x1f\n" +
+	"\viceberg_qty\x18\x0e \x01(\tR\n" +
+	"icebergQty\x12\x12\n" +
+	"\x04time\x18\x0f \x01(\x03R\x04time\x12\x1f\n" +
+	"\vupdate_time\x18\x10 \x01(\x03R\n" +
+	"updateTime\x12\x1d\n" +
+	"\n" +
+	"is_working\x18\x11 \x01(\bR\tisWorking\x12!\n" +
+	"\fworking_time\x18\x12 \x01(\x03R\vworkingTime\x12/\n" +
+	"\x14orig_quote_order_qty\x18\x13 \x01(\tR\x11origQuoteOrderQty\x12;\n" +
+	"\x1aself_trade_prevention_mode\x18\x14 \x01(\tR\x17selfTradePreventionMode2\xba\x17\n" +
 	"\aGreeter\x12f\n" +
 	"\bSayHello\x12\x1b.helloworld.v1.HelloRequest\x1a\x19.helloworld.v1.HelloReply\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/helloworld/{name}/{value}\x12i\n" +
 	"\n" +
@@ -3155,7 +3735,10 @@ const file_helloworld_v1_greeter_proto_rawDesc = "" +
 	"\x0eQueryKLineData\x12$.helloworld.v1.QueryKLineDataRequest\x1a\".helloworld.v1.QueryKLineDataReply\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/queryKLineData\x12u\n" +
 	"\rClaimsAirdrop\x12#.helloworld.v1.ClaimsAirdropRequest\x1a!.helloworld.v1.ClaimsAirdropReply\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/claimsAirdrop\x12m\n" +
 	"\vIndexSwitch\x12!.helloworld.v1.IndexSwitchRequest\x1a\x1f.helloworld.v1.IndexSwitchReply\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/indexSwitch\x12\x85\x01\n" +
-	"\x11DeleteIndexSwitch\x12'.helloworld.v1.DeleteIndexSwitchRequest\x1a%.helloworld.v1.DeleteIndexSwitchReply\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/deleteIndexSwitchBT\n" +
+	"\x11DeleteIndexSwitch\x12'.helloworld.v1.DeleteIndexSwitchRequest\x1a%.helloworld.v1.DeleteIndexSwitchReply\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/deleteIndexSwitch\x12m\n" +
+	"\vTradeSwitch\x12!.helloworld.v1.TradeSwitchRequest\x1a\x1f.helloworld.v1.TradeSwitchReply\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/tradeSwitch\x12y\n" +
+	"\x0eBinanceBalance\x12$.helloworld.v1.BinanceBalanceRequest\x1a\".helloworld.v1.BinanceBalanceReply\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/binanceBalance\x12\x89\x01\n" +
+	"\x12CreateBinanceOrder\x12(.helloworld.v1.CreateBinanceOrderRequest\x1a&.helloworld.v1.CreateBinanceOrderReply\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/createBinanceOrderBT\n" +
 	"\x1cdev.kratos.api.helloworld.v1B\x11HelloworldProtoV1P\x01Z\x1fvalueguard/api/helloworld/v1;v1b\x06proto3"
 
 var (
@@ -3170,7 +3753,7 @@ func file_helloworld_v1_greeter_proto_rawDescGZIP() []byte {
 	return file_helloworld_v1_greeter_proto_rawDescData
 }
 
-var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
+var file_helloworld_v1_greeter_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
 var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*HelloRequest)(nil),              // 0: helloworld.v1.HelloRequest
 	(*HelloReply)(nil),                // 1: helloworld.v1.HelloReply
@@ -3224,6 +3807,14 @@ var file_helloworld_v1_greeter_proto_goTypes = []any{
 	(*IndexSwitchReply)(nil),          // 49: helloworld.v1.IndexSwitchReply
 	(*DeleteIndexSwitchRequest)(nil),  // 50: helloworld.v1.DeleteIndexSwitchRequest
 	(*DeleteIndexSwitchReply)(nil),    // 51: helloworld.v1.DeleteIndexSwitchReply
+	(*TradeSwitchRequest)(nil),        // 52: helloworld.v1.TradeSwitchRequest
+	(*TradeSwitchReply)(nil),          // 53: helloworld.v1.TradeSwitchReply
+	(*BinanceBalanceRequest)(nil),     // 54: helloworld.v1.BinanceBalanceRequest
+	(*BinanceBalanceReply)(nil),       // 55: helloworld.v1.BinanceBalanceReply
+	(*Binance)(nil),                   // 56: helloworld.v1.Binance
+	(*CreateBinanceOrderRequest)(nil), // 57: helloworld.v1.CreateBinanceOrderRequest
+	(*CreateBinanceOrderReply)(nil),   // 58: helloworld.v1.CreateBinanceOrderReply
+	(*BinanceOrderDetail)(nil),        // 59: helloworld.v1.BinanceOrderDetail
 }
 var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	9,  // 0: helloworld.v1.WalletBalanceReply.tokens:type_name -> helloworld.v1.TokenBalance
@@ -3233,57 +3824,65 @@ var file_helloworld_v1_greeter_proto_depIdxs = []int32{
 	30, // 4: helloworld.v1.BztDappReply.data:type_name -> helloworld.v1.DataDetails
 	12, // 5: helloworld.v1.GetHistoricalPriceReply.prices:type_name -> helloworld.v1.MarketPrice
 	43, // 6: helloworld.v1.QueryKLineDataReply.result:type_name -> helloworld.v1.Kline
-	0,  // 7: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
-	4,  // 8: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
-	2,  // 9: helloworld.v1.Greeter.GetLoginMessage:input_type -> helloworld.v1.GetLoginMessageRequest
-	6,  // 10: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
-	8,  // 11: helloworld.v1.Greeter.WalletBalance:input_type -> helloworld.v1.WalletBalanceRequest
-	11, // 12: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
-	14, // 13: helloworld.v1.Greeter.OpenOrder:input_type -> helloworld.v1.OpenOrderRequest
-	16, // 14: helloworld.v1.Greeter.CloseOrder:input_type -> helloworld.v1.CloseOrderRequest
-	18, // 15: helloworld.v1.Greeter.GetAirdrop:input_type -> helloworld.v1.GetAirdropRequest
-	20, // 16: helloworld.v1.Greeter.Health:input_type -> helloworld.v1.HealthCheckRequest
-	22, // 17: helloworld.v1.Greeter.OrderTrade:input_type -> helloworld.v1.OrderTradeRequest
-	25, // 18: helloworld.v1.Greeter.AirdropTrade:input_type -> helloworld.v1.AirdropTradeRequest
-	28, // 19: helloworld.v1.Greeter.BztDapp:input_type -> helloworld.v1.BztDappRequest
-	31, // 20: helloworld.v1.Greeter.DeployContract:input_type -> helloworld.v1.DeployContractRequest
-	33, // 21: helloworld.v1.Greeter.GetBztDetails:input_type -> helloworld.v1.GetBztDetailsRequest
-	35, // 22: helloworld.v1.Greeter.GetBztVersion:input_type -> helloworld.v1.GetBztVersionRequest
-	37, // 23: helloworld.v1.Greeter.GetConfigs:input_type -> helloworld.v1.GetConfigsRequest
-	39, // 24: helloworld.v1.Greeter.GetHistoricalPrice:input_type -> helloworld.v1.GetHistoricalPriceRequest
-	41, // 25: helloworld.v1.Greeter.GetKLineData:input_type -> helloworld.v1.GetKLineDataRequest
-	44, // 26: helloworld.v1.Greeter.QueryKLineData:input_type -> helloworld.v1.QueryKLineDataRequest
-	46, // 27: helloworld.v1.Greeter.ClaimsAirdrop:input_type -> helloworld.v1.ClaimsAirdropRequest
-	48, // 28: helloworld.v1.Greeter.IndexSwitch:input_type -> helloworld.v1.IndexSwitchRequest
-	50, // 29: helloworld.v1.Greeter.DeleteIndexSwitch:input_type -> helloworld.v1.DeleteIndexSwitchRequest
-	1,  // 30: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
-	5,  // 31: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
-	3,  // 32: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
-	7,  // 33: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
-	10, // 34: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
-	13, // 35: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
-	15, // 36: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
-	17, // 37: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
-	19, // 38: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
-	21, // 39: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
-	23, // 40: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
-	26, // 41: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
-	29, // 42: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
-	32, // 43: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
-	34, // 44: helloworld.v1.Greeter.GetBztDetails:output_type -> helloworld.v1.GetBztDetailsReply
-	36, // 45: helloworld.v1.Greeter.GetBztVersion:output_type -> helloworld.v1.GetBztVersionReply
-	38, // 46: helloworld.v1.Greeter.GetConfigs:output_type -> helloworld.v1.GetConfigsReply
-	40, // 47: helloworld.v1.Greeter.GetHistoricalPrice:output_type -> helloworld.v1.GetHistoricalPriceReply
-	42, // 48: helloworld.v1.Greeter.GetKLineData:output_type -> helloworld.v1.GetKLineDataReply
-	45, // 49: helloworld.v1.Greeter.QueryKLineData:output_type -> helloworld.v1.QueryKLineDataReply
-	47, // 50: helloworld.v1.Greeter.ClaimsAirdrop:output_type -> helloworld.v1.ClaimsAirdropReply
-	49, // 51: helloworld.v1.Greeter.IndexSwitch:output_type -> helloworld.v1.IndexSwitchReply
-	51, // 52: helloworld.v1.Greeter.DeleteIndexSwitch:output_type -> helloworld.v1.DeleteIndexSwitchReply
-	30, // [30:53] is the sub-list for method output_type
-	7,  // [7:30] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	56, // 7: helloworld.v1.BinanceBalanceReply.result:type_name -> helloworld.v1.Binance
+	59, // 8: helloworld.v1.CreateBinanceOrderReply.result:type_name -> helloworld.v1.BinanceOrderDetail
+	0,  // 9: helloworld.v1.Greeter.SayHello:input_type -> helloworld.v1.HelloRequest
+	4,  // 10: helloworld.v1.Greeter.BindWallet:input_type -> helloworld.v1.BindWalletRequest
+	2,  // 11: helloworld.v1.Greeter.GetLoginMessage:input_type -> helloworld.v1.GetLoginMessageRequest
+	6,  // 12: helloworld.v1.Greeter.LoginWithWallet:input_type -> helloworld.v1.LoginRequest
+	8,  // 13: helloworld.v1.Greeter.WalletBalance:input_type -> helloworld.v1.WalletBalanceRequest
+	11, // 14: helloworld.v1.Greeter.MarketCondition:input_type -> helloworld.v1.MarketConditionRequest
+	14, // 15: helloworld.v1.Greeter.OpenOrder:input_type -> helloworld.v1.OpenOrderRequest
+	16, // 16: helloworld.v1.Greeter.CloseOrder:input_type -> helloworld.v1.CloseOrderRequest
+	18, // 17: helloworld.v1.Greeter.GetAirdrop:input_type -> helloworld.v1.GetAirdropRequest
+	20, // 18: helloworld.v1.Greeter.Health:input_type -> helloworld.v1.HealthCheckRequest
+	22, // 19: helloworld.v1.Greeter.OrderTrade:input_type -> helloworld.v1.OrderTradeRequest
+	25, // 20: helloworld.v1.Greeter.AirdropTrade:input_type -> helloworld.v1.AirdropTradeRequest
+	28, // 21: helloworld.v1.Greeter.BztDapp:input_type -> helloworld.v1.BztDappRequest
+	31, // 22: helloworld.v1.Greeter.DeployContract:input_type -> helloworld.v1.DeployContractRequest
+	33, // 23: helloworld.v1.Greeter.GetBztDetails:input_type -> helloworld.v1.GetBztDetailsRequest
+	35, // 24: helloworld.v1.Greeter.GetBztVersion:input_type -> helloworld.v1.GetBztVersionRequest
+	37, // 25: helloworld.v1.Greeter.GetConfigs:input_type -> helloworld.v1.GetConfigsRequest
+	39, // 26: helloworld.v1.Greeter.GetHistoricalPrice:input_type -> helloworld.v1.GetHistoricalPriceRequest
+	41, // 27: helloworld.v1.Greeter.GetKLineData:input_type -> helloworld.v1.GetKLineDataRequest
+	44, // 28: helloworld.v1.Greeter.QueryKLineData:input_type -> helloworld.v1.QueryKLineDataRequest
+	46, // 29: helloworld.v1.Greeter.ClaimsAirdrop:input_type -> helloworld.v1.ClaimsAirdropRequest
+	48, // 30: helloworld.v1.Greeter.IndexSwitch:input_type -> helloworld.v1.IndexSwitchRequest
+	50, // 31: helloworld.v1.Greeter.DeleteIndexSwitch:input_type -> helloworld.v1.DeleteIndexSwitchRequest
+	52, // 32: helloworld.v1.Greeter.TradeSwitch:input_type -> helloworld.v1.TradeSwitchRequest
+	54, // 33: helloworld.v1.Greeter.BinanceBalance:input_type -> helloworld.v1.BinanceBalanceRequest
+	57, // 34: helloworld.v1.Greeter.CreateBinanceOrder:input_type -> helloworld.v1.CreateBinanceOrderRequest
+	1,  // 35: helloworld.v1.Greeter.SayHello:output_type -> helloworld.v1.HelloReply
+	5,  // 36: helloworld.v1.Greeter.BindWallet:output_type -> helloworld.v1.BindWalletReply
+	3,  // 37: helloworld.v1.Greeter.GetLoginMessage:output_type -> helloworld.v1.GetLoginMessageReply
+	7,  // 38: helloworld.v1.Greeter.LoginWithWallet:output_type -> helloworld.v1.LoginReply
+	10, // 39: helloworld.v1.Greeter.WalletBalance:output_type -> helloworld.v1.WalletBalanceReply
+	13, // 40: helloworld.v1.Greeter.MarketCondition:output_type -> helloworld.v1.MarketConditionReply
+	15, // 41: helloworld.v1.Greeter.OpenOrder:output_type -> helloworld.v1.OpenOrderReply
+	17, // 42: helloworld.v1.Greeter.CloseOrder:output_type -> helloworld.v1.CloseOrderReply
+	19, // 43: helloworld.v1.Greeter.GetAirdrop:output_type -> helloworld.v1.GetAirdropReply
+	21, // 44: helloworld.v1.Greeter.Health:output_type -> helloworld.v1.HealthCheckReply
+	23, // 45: helloworld.v1.Greeter.OrderTrade:output_type -> helloworld.v1.OrderTradeReply
+	26, // 46: helloworld.v1.Greeter.AirdropTrade:output_type -> helloworld.v1.AirdropTradeReply
+	29, // 47: helloworld.v1.Greeter.BztDapp:output_type -> helloworld.v1.BztDappReply
+	32, // 48: helloworld.v1.Greeter.DeployContract:output_type -> helloworld.v1.DeployContractReply
+	34, // 49: helloworld.v1.Greeter.GetBztDetails:output_type -> helloworld.v1.GetBztDetailsReply
+	36, // 50: helloworld.v1.Greeter.GetBztVersion:output_type -> helloworld.v1.GetBztVersionReply
+	38, // 51: helloworld.v1.Greeter.GetConfigs:output_type -> helloworld.v1.GetConfigsReply
+	40, // 52: helloworld.v1.Greeter.GetHistoricalPrice:output_type -> helloworld.v1.GetHistoricalPriceReply
+	42, // 53: helloworld.v1.Greeter.GetKLineData:output_type -> helloworld.v1.GetKLineDataReply
+	45, // 54: helloworld.v1.Greeter.QueryKLineData:output_type -> helloworld.v1.QueryKLineDataReply
+	47, // 55: helloworld.v1.Greeter.ClaimsAirdrop:output_type -> helloworld.v1.ClaimsAirdropReply
+	49, // 56: helloworld.v1.Greeter.IndexSwitch:output_type -> helloworld.v1.IndexSwitchReply
+	51, // 57: helloworld.v1.Greeter.DeleteIndexSwitch:output_type -> helloworld.v1.DeleteIndexSwitchReply
+	53, // 58: helloworld.v1.Greeter.TradeSwitch:output_type -> helloworld.v1.TradeSwitchReply
+	55, // 59: helloworld.v1.Greeter.BinanceBalance:output_type -> helloworld.v1.BinanceBalanceReply
+	58, // 60: helloworld.v1.Greeter.CreateBinanceOrder:output_type -> helloworld.v1.CreateBinanceOrderReply
+	35, // [35:61] is the sub-list for method output_type
+	9,  // [9:35] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_helloworld_v1_greeter_proto_init() }
@@ -3297,7 +3896,7 @@ func file_helloworld_v1_greeter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_helloworld_v1_greeter_proto_rawDesc), len(file_helloworld_v1_greeter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   52,
+			NumMessages:   60,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

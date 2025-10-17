@@ -85,6 +85,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.AirdropTradeReply'
+    /v1/binanceBalance:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_BinanceBalance
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.BinanceBalanceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.BinanceBalanceReply'
     /v1/bindWallet:
         post:
             tags:
@@ -139,6 +157,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.CloseOrderReply'
+    /v1/createBinanceOrder:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_CreateBinanceOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.CreateBinanceOrderRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.CreateBinanceOrderReply'
     /v1/deleteIndexSwitch:
         post:
             tags:
@@ -391,6 +427,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.QueryKLineDataReply'
+    /v1/tradeSwitch:
+        post:
+            tags:
+                - Greeter
+            operationId: Greeter_TradeSwitch
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/helloworld.v1.TradeSwitchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.TradeSwitchReply'
     /v1/walletBalance:
         post:
             tags:
@@ -447,6 +501,68 @@ components:
                     type: string
                 size:
                     type: string
+        helloworld.v1.Binance:
+            type: object
+            properties:
+                symbol:
+                    type: string
+                balance:
+                    type: string
+        helloworld.v1.BinanceBalanceReply:
+            type: object
+            properties:
+                result:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.Binance'
+        helloworld.v1.BinanceBalanceRequest:
+            type: object
+            properties:
+                symbol:
+                    type: string
+        helloworld.v1.BinanceOrderDetail:
+            type: object
+            properties:
+                symbol:
+                    type: string
+                orderId:
+                    type: string
+                orderListId:
+                    type: string
+                clientOrderId:
+                    type: string
+                price:
+                    type: string
+                origQty:
+                    type: string
+                executedQty:
+                    type: string
+                cumulativeQuoteQty:
+                    type: string
+                status:
+                    type: string
+                timeInForce:
+                    type: string
+                type:
+                    type: string
+                side:
+                    type: string
+                stopPrice:
+                    type: string
+                icebergQty:
+                    type: string
+                time:
+                    type: string
+                updateTime:
+                    type: string
+                isWorking:
+                    type: boolean
+                workingTime:
+                    type: string
+                origQuoteOrderQty:
+                    type: string
+                selfTradePreventionMode:
+                    type: string
         helloworld.v1.BindWalletReply:
             type: object
             properties:
@@ -499,6 +615,22 @@ components:
                 timestamp:
                     type: string
                 orderId:
+                    type: string
+        helloworld.v1.CreateBinanceOrderReply:
+            type: object
+            properties:
+                result:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/helloworld.v1.BinanceOrderDetail'
+        helloworld.v1.CreateBinanceOrderRequest:
+            type: object
+            properties:
+                symbol:
+                    type: string
+                side:
+                    type: string
+                quantity:
                     type: string
         helloworld.v1.DataDetails:
             type: object
@@ -820,6 +952,18 @@ components:
                 symbol:
                     type: string
                 balance:
+                    type: string
+        helloworld.v1.TradeSwitchReply:
+            type: object
+            properties:
+                result:
+                    type: string
+        helloworld.v1.TradeSwitchRequest:
+            type: object
+            properties:
+                types:
+                    type: string
+                status:
                     type: string
         helloworld.v1.WalletBalanceReply:
             type: object

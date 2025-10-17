@@ -21,6 +21,8 @@ var (
 	ContractDusdtAddress string
 	X_Api_Key            string
 	Secret               string
+	BinanceApikey        string
+	BinanceSecretKey     string
 )
 
 // XApiKey      string
