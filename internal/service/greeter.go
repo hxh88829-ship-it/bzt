@@ -499,7 +499,6 @@ func (s *GreeterService) CloseOrder(ctx context.Context, in *v1.CloseOrderReques
 }
 
 func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropRequest) (*v1.GetAirdropReply, error) {
-	//TODO
 	/*
 			1. 加密校验
 		    2. 流水号来做后面的维护
@@ -913,8 +912,8 @@ func (s *GreeterService) BinanceBalance(ctx context.Context, in *v1.BinanceBalan
 		}, fmt.Errorf("unauthorized address")
 	}
 
-	// 获取账户余额（测试网）
-	balances, err := binanceClient.BinanceClient.GetAccountBalances(in.GetSymbol(), true)
+	// TODO 获取账户余额（测试网）test在测试时需要进行修改对应main包
+	balances, err := binanceClient.BinanceClient.GetAccountBalances(in.GetSymbol(), false)
 	if err != nil {
 		log.Error("GetAccountBalances err: ", err)
 		return nil, err
