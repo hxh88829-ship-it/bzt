@@ -19,6 +19,7 @@ import (
 	"math"
 	"math/big"
 	"strings"
+	"sync"
 	"time"
 	"valueguard/internal/conf"
 	"valueguard/internal/erc20"
@@ -455,15 +456,26 @@ func GenerateUID() string {
 }
 
 // 不同实例不同节点
-func GetSnowflakeID(i int64) string {
-	node, err := snowflake.NewNode(i)
-	if err != nil {
-		panic(err)
-	}
+var (
+	snowflakeNode *snowflake.Node
+	once          sync.Once
+)
 
-	// 生成一个唯一的 Snowflake ID (int64)
-	id := node.Generate().String()
-	return id
+func InitSnowflake(nodeID int64) {
+	once.Do(func() {
+		node, err := snowflake.NewNode(nodeID)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to create Snowflake node: %v", err))
+		}
+		snowflakeNode = node
+	})
+}
+
+func GetSnowflakeID() string {
+	if snowflakeNode == nil {
+		panic("Snowflake node not initialized. Call InitSnowflake() first.")
+	}
+	return snowflakeNode.Generate().String()
 }
 func GetJwtKey(uid, addr, secret string) (string, error) {
 	claims := jwt.MapClaims{

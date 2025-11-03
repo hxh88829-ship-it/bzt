@@ -352,8 +352,8 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 			in.GetSymbol(), strings.ToLower(addr), strings.ToLower(in.GetAddress()))
 		return &v1.OpenOrderReply{}, err
 	}
-	// 不同实例不同节点（0～1023）
-	orderId := api.GetSnowflakeID(0)
+
+	orderId := api.GetSnowflakeID()
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
 	if err != nil {
 		log.Error("OpenOrder GetPriceByTimestamp err: ", err)
@@ -546,7 +546,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	err = mongo.QueryAirdrop(strings.ToLower(addr), today)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			OrderId := api.GetSnowflakeID(1)
+			OrderId := api.GetSnowflakeID()
 			daily, err := mongo.GetDailyAirdrop(today, "DUSDT") // 今日空投总额
 			if err != nil {
 				log.Error("GetAirdrop GetDailyAirdrop:", err)
@@ -824,8 +824,8 @@ func (s *GreeterService) GetBztDetails(ctx context.Context, in *v1.GetBztDetails
 
 func (s *GreeterService) GetBztVersion(ctx context.Context, _ *v1.GetBztVersionRequest) (*v1.GetBztVersionReply, error) {
 	return &v1.GetBztVersionReply{
-		Version:   "v1.0.2",
-		BuildTime: "2025-10-17T15:50:00Z",
+		Version:   "v1.0.3",
+		BuildTime: "2025-11-03T15:50:00Z",
 	}, nil
 }
 
@@ -839,12 +839,25 @@ func (s *GreeterService) GetConfigs(ctx context.Context, in *v1.GetConfigsReques
 }
 
 func (s *GreeterService) IndexSwitch(ctx context.Context, in *v1.IndexSwitchRequest) (*v1.IndexSwitchReply, error) {
+	// 提取 addr ， uid
+	addr, _, err := GetAddrAndUidByToken(ctx)
+	if err != nil {
+		log.Error("GetAddrAndUidByToken err: ", err)
+		return nil, err
+	}
+	log.Info("GetAddrAndUidByToken:", addr)
+	if strings.ToLower(addr) != "0x331e865f47fd1b197d04fe60e45def0c3a1eba24" {
+		return &v1.IndexSwitchReply{
+			Result: "异常访问",
+		}, nil
+	}
 	if in.GetVal() != 1 {
 		return &v1.IndexSwitchReply{
 			Result: "fail",
 		}, nil
 	}
-	err := mongo.EnsureKlineIndexes()
+
+	err = mongo.EnsureKlineIndexes()
 	if err != nil {
 		log.Error("EnsureKlineIndexes err: ", err)
 		return nil, err
@@ -951,7 +964,7 @@ func (s *GreeterService) CreateBinanceOrder(ctx context.Context, in *v1.CreateBi
 	}
 
 	// 3. 调用币安下单接口 (MARKET 市价单)
-	res, err := binanceClient.BinanceClient.CreateOrder(in.GetSymbol(), in.GetSide(), "MARKET", in.GetQuantity())
+	res, err := binanceClient.BinanceClient.CreateMarketOrderByAmount(in.GetSymbol(), in.GetSide(), in.GetQuantity())
 	if err != nil {
 		log.Error("CreateOrder err: ", err)
 		return nil, fmt.Errorf("币安下单失败: %v", err)
@@ -971,7 +984,7 @@ func (s *GreeterService) CreateBinanceOrder(ctx context.Context, in *v1.CreateBi
 			Price:                   order.Price,
 			OrigQty:                 order.OrigQty,
 			ExecutedQty:             order.ExecutedQty,
-			CumulativeQuoteQty:      order.CumulativeQuoteQty,
+			CumulativeQuoteQty:      order.CummulativeQuoteQty,
 			Status:                  order.Status,
 			TimeInForce:             order.TimeInForce,
 			Type:                    order.Type,

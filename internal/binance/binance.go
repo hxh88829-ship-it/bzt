@@ -90,17 +90,17 @@ func (c *Client) request(method, endpoint string, params url.Values, signed bool
 // 上面属于定义client连接池复用，
 
 // 下单（支持 LIMIT / MARKET）
-func (c *Client) CreateOrder(symbol, side, orderType, quantity string) ([]byte, error) {
+func (c *Client) CreateMarketOrderByAmount(symbol, side, amount string) ([]byte, error) {
+	if symbol == "" || side == "" || amount == "" {
+		return nil, fmt.Errorf("symbol, side, and amount are required")
+	}
+
 	params := url.Values{}
 	params.Set("symbol", symbol)
 	params.Set("side", side)
-	params.Set("type", orderType)
-	params.Set("quantity", quantity)
-	// 限价单需 price + timeInForce
-	if orderType == "LIMIT" {
-		//params.Set("price", price)
-		params.Set("timeInForce", "GTC")
-	}
+	params.Set("type", "MARKET")
+	params.Set("quoteOrderQty", amount)
+
 	return c.request("POST", "/api/v3/order", params, true)
 }
 
@@ -148,12 +148,13 @@ func (c *Client) GetAccountBalances(asset string, test bool) ([]BinanceBalance, 
 	var raw []byte
 	var err error
 	if test {
-		raw, err = c.request("GET", "/api/v3/account", params, true)
+		raw, err = c.request("GET", "/api/v3/account", params, true) //全部资产信息
 	} else {
 		if asset != "" {
 			params.Set("asset", asset)
 		}
-		raw, err = c.request("POST", "/sapi/v3/asset/getUserAsset", params, true)
+		//只适用于主网
+		raw, err = c.request("POST", "/sapi/v3/asset/getUserAsset", params, true) //单个或指定资产详细信息
 	}
 	if err != nil {
 		return nil, err
@@ -166,6 +167,21 @@ func (c *Client) GetAccountBalances(asset string, test bool) ([]BinanceBalance, 
 		return nil, err
 	}
 	return balances, nil
+}
+func ParseAccountInfo(data []byte) ([]BinanceBalance, error) {
+	// 尝试解析为测试网格式（带 balances）
+	var acc BinanceAccount
+	if err := json.Unmarshal(data, &acc); err == nil && len(acc.Balances) > 0 {
+		return acc.Balances, nil
+	}
+
+	// 尝试解析为主网格式（直接是数组）
+	var balances []BinanceBalance
+	if err := json.Unmarshal(data, &balances); err == nil && len(balances) > 0 {
+		return balances, nil
+	}
+
+	return nil, fmt.Errorf("未能识别账户返回格式: %s", string(data))
 }
 
 // ParseBinanceOrder 将币安返回的 JSON 解析为结构体
@@ -192,18 +208,49 @@ type BinanceAccount struct {
 	Balances         []BinanceBalance `json:"balances"`
 }
 
-func ParseAccountInfo(data []byte) ([]BinanceBalance, error) {
-	// 尝试解析为测试网格式（带 balances）
-	var acc BinanceAccount
-	if err := json.Unmarshal(data, &acc); err == nil && len(acc.Balances) > 0 {
-		return acc.Balances, nil
+func (c *Client) SellByBuyOrder(symbol string, buyOrderID int64) ([]byte, error) {
+	if symbol == "" || buyOrderID == 0 {
+		return nil, fmt.Errorf("symbol and buyOrderID are required")
 	}
 
-	// 尝试解析为主网格式（直接是数组）
-	var balances []BinanceBalance
-	if err := json.Unmarshal(data, &balances); err == nil && len(balances) > 0 {
-		return balances, nil
+	// Step 1. 查询买单详情
+	res, err := c.request("GET", "/api/v3/order", url.Values{
+		"symbol":  {symbol},
+		"orderId": {fmt.Sprintf("%d", buyOrderID)},
+	}, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get order detail: %v", err)
 	}
 
-	return nil, fmt.Errorf("未能识别账户返回格式: %s", string(data))
+	var order struct {
+		OrderID     int64  `json:"orderId"`
+		ExecutedQty string `json:"executedQty"` // 实际成交数量
+		Status      string `json:"status"`
+		Side        string `json:"side"`
+	}
+	if err := json.Unmarshal(res, &order); err != nil {
+		return nil, fmt.Errorf("parse order response failed: %v", err)
+	}
+
+	if order.Side != "BUY" {
+		return nil, fmt.Errorf("order is not a BUY order")
+	}
+	if order.Status != "FILLED" {
+		return nil, fmt.Errorf("order is not filled yet (status=%s)", order.Status)
+	}
+
+	// Step 2. 构造卖出请求
+	params := url.Values{}
+	params.Set("symbol", symbol)
+	params.Set("side", "SELL")
+	params.Set("type", "MARKET")
+	params.Set("quantity", order.ExecutedQty) // 按成交数量卖出
+
+	// Step 3. 发起卖单
+	resp, err := c.request("POST", "/api/v3/order", params, true)
+	if err != nil {
+		return nil, fmt.Errorf("sell order failed: %v", err)
+	}
+
+	return resp, nil
 }

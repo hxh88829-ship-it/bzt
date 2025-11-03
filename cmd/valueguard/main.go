@@ -142,7 +142,8 @@ func LoadConfigInit() error {
 		return errors.New("BINANCE_SECRET_KEY is empty")
 	}
 	conf.BinanceSecretKey = BinanceSecretKey
-	// true 测试网
+
+	// TODO true 测试网
 	binanceClient.InitBinanceClient(conf.BinanceApikey, conf.BinanceSecretKey, false)
 
 	headerKey := os.Getenv("Apikey")
@@ -210,6 +211,7 @@ func LoadConfigInit() error {
 	api.ChainId = id.Uint64()
 	log.Info("chain id is:  ", id)
 
+	api.InitSnowflake(1)
 	//TODO 测试需要修改链归属
 	if id.Uint64() == 9798 {
 		symbols := []string{"BTCUSDT", "ETHUSDT"}

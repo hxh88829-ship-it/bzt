@@ -88,7 +88,7 @@ func AddUser(a Users) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).InsertOne(context.Background(), a)
 	if err != nil {
 		log.Error("AddUser InsertOne err: ", err)
-		return errors.New("add user fail")
+		return err
 	}
 	return nil
 }
@@ -114,7 +114,7 @@ func UpdateUser(addr, OriginalMessage string) error {
 		{"original_message", OriginalMessage},
 	},
 	}}
-	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).UpdateMany(context.Background(), filter, update)
+	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(user).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateUser fail ", err)
 		return err
@@ -130,7 +130,7 @@ func AddPrice(v CoinPrice) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).InsertOne(context.Background(), v)
 	if err != nil {
 		log.Error("AddPrice InsertOne err: ", err)
-		return errors.New("add price fail")
+		return err
 	}
 	return nil
 }
@@ -159,7 +159,7 @@ func SavePrice(symbol, price string, ind, times uint64) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(newPrice).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("SavePrice UpdateLogin err: ", err)
-		return errors.New("save price fail")
+		return err
 	}
 	return nil
 }
@@ -258,7 +258,7 @@ func AddOrder(a Order) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).InsertOne(context.Background(), a)
 	if err != nil {
 		log.Error("AddOrder InsertOne err: ", err)
-		return errors.New("add order fail")
+		return err
 	}
 	return nil
 }
@@ -330,7 +330,7 @@ func UpdateOrderClose(OrderId, ClosePri, txHash string, timestamp uint64) error 
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateOrderClose  err: ", err)
-		return errors.New("UpdateOrderClose fail")
+		return err
 	}
 	return nil
 }
@@ -347,7 +347,7 @@ func UpdateOrderOpenStatus(OrderId, OpenTx, Amount string, IsClosed uint64) erro
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateOrderOpenStatus err: ", err)
-		return errors.New("UpdateOrderOpenStatus fail")
+		return err
 	}
 	return nil
 }
@@ -363,7 +363,7 @@ func UpdateOrderClosedStatus(OrderId, Profit string, IsClosed uint64) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(order).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateOrderClosedStatus err: ", err)
-		return errors.New("UpdateOrderClosedStatus fail")
+		return err
 	}
 	return nil
 }
@@ -393,7 +393,7 @@ func AddRewardAmount(a RewardAmount) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).InsertOne(context.Background(), a)
 	if err != nil {
 		log.Error("AddRewardAmount InsertOne err: ", err)
-		return errors.New("add loss amount fail")
+		return err
 	}
 	return nil
 }
@@ -428,7 +428,7 @@ func UpdateRewardPool(tokenName, total string) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(rewardPool).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateRewardPool err: ", err)
-		return errors.New("update amount fail")
+		return err
 	}
 	return nil
 }
@@ -441,7 +441,7 @@ func AddUserAmount(a UserAmount) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).InsertOne(context.Background(), a)
 	if err != nil {
 		log.Error("AddUserAmount InsertOne err: ", err)
-		return errors.New("add user  amount fail")
+		return err
 	}
 	return nil
 }
@@ -475,7 +475,7 @@ func UpdateUserAmount(addr, Amount string) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateUserAmount err: ", err)
-		return errors.New("update loss amount fail")
+		return err
 	}
 	return nil
 }
@@ -494,7 +494,7 @@ func UpdateUserProfit(addr, Amount string) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateUserAmount err: ", err)
-		return errors.New("update profit amount fail")
+		return err
 	}
 	return nil
 }
@@ -513,7 +513,7 @@ func UpdateUserClaims(addr, Amount string) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(lossAmount).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateUserClaims err: ", err)
-		return errors.New("UpdateUserClaims fail")
+		return err
 	}
 	return nil
 }
@@ -526,7 +526,7 @@ func AddAirdrop(air Airdrop) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).InsertOne(context.Background(), air)
 	if err != nil {
 		log.Error("AddAirdrop InsertOne err: ", err)
-		return errors.New("add airdrop fail")
+		return err
 	}
 	return nil
 }
@@ -607,7 +607,7 @@ func UpdateAirdropStatus(tx string, i uint64) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateAirdropStatus err: ", err)
-		return errors.New("UpdateAirdropStatus fail")
+		return err
 	}
 	return nil
 }
@@ -623,7 +623,7 @@ func UpdateAirdropHash(Id, tx string) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(airdrop).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateAirdrop err: ", err)
-		return errors.New("update airdrop fail")
+		return err
 	}
 	return nil
 }
@@ -636,7 +636,7 @@ func AddDailyAirdrop(air DailyAirdropTrade) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).InsertOne(context.Background(), air)
 	if err != nil {
 		log.Error("AddDailyAirdrop InsertOne err: ", err)
-		return errors.New("add daily airdrop fail")
+		return err
 	}
 	return nil
 }
@@ -678,7 +678,7 @@ func UpdateDailyAirdrop(date, symbol, value string) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateDailyAirdrop err: ", err)
-		return errors.New("update airdrop fail")
+		return err
 	}
 	return nil
 }
@@ -696,7 +696,7 @@ func UpdateDailyAirdropRemain(val, symbol, date, total string) error {
 	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops).UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		log.Error("UpdateDailyAirdropStatus err: ", err)
-		return errors.New("update airdrop fail")
+		return err
 	}
 	return nil
 }
@@ -704,15 +704,22 @@ func UpdateDailyAirdropRemain(val, symbol, date, total string) error {
 // 交易详情
 func AddTransaction(tx Transaction) error {
 	if MonCli == nil {
-		return errors.New("mongo client is nil" + "AddTransaction")
+		return fmt.Errorf("mongo client is nil: AddTransaction")
 	}
-	_, err := MonCli.Client.Database(DatabaseNameForChain).Collection(transaction).InsertOne(context.Background(), tx)
+
+	_, err := MonCli.Client.
+		Database(DatabaseNameForChain).
+		Collection(transaction).
+		InsertOne(context.Background(), tx)
+
 	if err != nil {
-		log.Error("AddTransaction InsertOne err: ", err)
-		return errors.New("add transaction fail")
+		log.Errorf("AddTransaction InsertOne err: %v", err)
+		return err // ✅ 保留原始 Mongo 错误
 	}
+
 	return nil
 }
+
 func GetTransaction(tx string) (Transaction, error) {
 	if MonCli == nil {
 		return Transaction{}, errors.New("mongo client is nil" + "GetTransaction")
@@ -1017,7 +1024,7 @@ func AddKLineData(res []Kline, symbol, dataType string) error {
 		_, err := coll.InsertOne(context.Background(), doc)
 		if err != nil {
 			// 检查是否是 duplicate key error
-			if isDuplicateKeyError(err) {
+			if IsDuplicateKeyError(err) {
 				// 跳过这一条
 				log.Infof("跳过重复的 KLine: symbol=%s dataType=%s closeTime=%v", symbol, dataType, kline.CloseTime)
 				continue
@@ -1127,7 +1134,7 @@ func AddBinanceOrder(binanceOrder BinanceOrder) error {
 
 	return nil
 }
-func GetBinanceOrder(tx, addr string) (BinanceOrder, error) {
+func GetBinanceOrder(tx string) (BinanceOrder, error) {
 	if MonCli == nil {
 		return BinanceOrder{}, fmt.Errorf("GetBinanceOrder failed: mongo.Client is nil")
 	}
@@ -1136,12 +1143,33 @@ func GetBinanceOrder(tx, addr string) (BinanceOrder, error) {
 	var res BinanceOrder
 	filter := bson.M{
 		"tx_hash": tx,
-		"address": addr,
 	}
 	err := MonCli.Client.Database(DatabaseNameForChain).Collection(binanceOrders).FindOne(ctx, filter).Decode(&res)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return BinanceOrder{}, nil // 或者返回自定义 NotFound 错误
+			return BinanceOrder{}, ErrNoDocuments // 或者返回自定义 NotFound 错误
+		}
+		log.Errorf("GetBinanceOrder FindOne failed: %v", err)
+		return BinanceOrder{}, err
+	}
+	return res, nil
+}
+
+func GetBinanceOrderById(Id, side string) (BinanceOrder, error) {
+	if MonCli == nil {
+		return BinanceOrder{}, fmt.Errorf("GetBinanceOrder failed: mongo.Client is nil")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	var res BinanceOrder
+	filter := bson.M{
+		"bzt_order_id": Id,
+		"side":         side,
+	}
+	err := MonCli.Client.Database(DatabaseNameForChain).Collection(binanceOrders).FindOne(ctx, filter).Decode(&res)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return BinanceOrder{}, ErrNoDocuments // 或者返回自定义 NotFound 错误
 		}
 		log.Errorf("GetBinanceOrder FindOne failed: %v", err)
 		return BinanceOrder{}, err
@@ -1176,11 +1204,11 @@ func EnsureKlineIndexes() error {
 	//	log.Error("EnsureKlineIndexes err: ", err)
 	//	return err
 	//}
-	//err = TxHashIndex(ctx)
-	//if err != nil {
-	//	log.Error("EnsureKlineIndexes err: ", err)
-	//	return err
-	//}
+	err := TxHashIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
 	//err = AirdropOneIndex(ctx)
 	//if err != nil {
 	//	log.Error("EnsureKlineIndexes err: ", err)
@@ -1211,12 +1239,17 @@ func EnsureKlineIndexes() error {
 	//	log.Error("EnsureKlineIndexes err: ", err)
 	//	return err
 	//}
-	//err = UserIndex(ctx)
-	//if err != nil {
-	//	log.Error("EnsureKlineIndexes err: ", err)
-	//	return err
-	//}
-	err := BinanceOrderIndex(ctx)
+	err = UserIndex(ctx)
+	if err != nil {
+		log.Error("EnsureKlineIndexes err: ", err)
+		return err
+	}
+	err = BinanceOrderIndex(ctx)
+	if err != nil {
+		log.Errorf("EnsureKlineIndexes BinanceOrderIndex err: %v", err)
+		return err
+	}
+	err = BinanceOrderIdIndex(ctx)
 	if err != nil {
 		log.Errorf("EnsureKlineIndexes BinanceOrderIndex err: %v", err)
 		return err
@@ -1509,6 +1542,23 @@ func BinanceOrderIndex(ctx context.Context) error {
 	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, binanceOrders)
 	return nil
 }
+func BinanceOrderIdIndex(ctx context.Context) error {
+	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(binanceOrders)
+	index := mongo.IndexModel{
+		Keys: bson.D{
+			{"bzt_order_id", 1},
+			{"side", 1},
+		},
+		Options: options.Index().SetUnique(true).SetName("bzt_order_id_side_idx"),
+	}
+	_, err := coll.Indexes().CreateOne(ctx, index)
+	if err != nil {
+		log.Warnf("创建 bzt_order_id_side_idx 索引失败: %v", err)
+		return err
+	}
+	log.Infof("✅ 索引已确保存在: %s.%s", DatabaseNameForChain, binanceOrders)
+	return nil
+}
 func DailyAirdropIndex(ctx context.Context) error {
 	coll := MonCli.Client.Database(DatabaseNameForChain).Collection(dailyAirdrops)
 	index := mongo.IndexModel{
@@ -1526,14 +1576,40 @@ func DailyAirdropIndex(ctx context.Context) error {
 	return nil
 }
 
-func isDuplicateKeyError(err error) bool {
+func IsDuplicateKeyError(err error) bool {
+	if err == nil {
+		return false
+	}
+
 	var writeExc mongo.WriteException
 	if errors.As(err, &writeExc) {
 		for _, we := range writeExc.WriteErrors {
-			if we.Code == 11000 { // E11000 是 duplicate key 的 code
+			if we.Code == 11000 || we.Code == 11001 {
 				return true
 			}
 		}
 	}
+
+	var bulkExc mongo.BulkWriteException
+	if errors.As(err, &bulkExc) {
+		for _, we := range bulkExc.WriteErrors {
+			if we.Code == 11000 || we.Code == 11001 {
+				return true
+			}
+		}
+	}
+
+	var cmdErr mongo.CommandError
+	if errors.As(err, &cmdErr) {
+		if cmdErr.Code == 11000 || cmdErr.Code == 11001 {
+			return true
+		}
+	}
+
+	// 最后兜底（部分驱动会包装错误字符串）
+	if strings.Contains(err.Error(), "E11000 duplicate key error") {
+		return true
+	}
+
 	return false
 }

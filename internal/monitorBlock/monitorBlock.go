@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 	"valueguard/internal/api"
+	"valueguard/internal/binance"
+	"valueguard/internal/binanceClient"
 	"valueguard/internal/bzt"
 	"valueguard/internal/conf"
 	"valueguard/internal/mongo"
@@ -245,7 +247,11 @@ func OrderOpenedTrade(tx *types.Transaction, receipt *types.Receipt, blTime uint
 			return err
 		}
 		//TODO binance trade
-
+		err = AddBinanceBuyOrder(event)
+		if err != nil {
+			log.Errorf("AddBinanceBuyOrder err: %v", err)
+			return err
+		}
 	}
 	return nil
 }
@@ -260,15 +266,18 @@ func OrderClosedTrade(event *bzt.BztOrderClosed, status bool, blTime uint64) err
 		log.Errorf("UpdateOrderClosedStatus err: %v", err)
 		return err
 	}
-
 	// 获取订单
 	userOrder, err := mongo.GetOrder(event.OrderId.String())
 	if err != nil {
 		log.Errorf("GetOrder : %v", err)
 		return err
 	}
-
 	//TODO binance trade
+	err = AddBinanceSellOrder(event, userOrder.Symbol)
+	if err != nil {
+		log.Errorf("AddBinanceSellOrder err: %v", err)
+		return err
+	}
 
 	user := strings.ToLower(event.User.String())
 	profitLoss := event.ProfitLoss
@@ -335,36 +344,36 @@ func AirdropTrade(event *bzt.BztAirdrop, blTime uint64, status bool) error {
 
 func AddTransactionTrade(txh *types.Transaction, receipt *types.Receipt,
 	from common.Address, blTime uint64, types string) (bool, error) {
-	_, err := mongo.GetTransaction(strings.ToLower(receipt.TxHash.String()))
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			totalFee := receipt.GasUsed * receipt.EffectiveGasPrice.Uint64()
-			var tx mongo.Transaction
-			tx.TxHash = strings.ToLower(receipt.TxHash.String())
-			tx.From = strings.ToLower(from.String())
-			tx.To = strings.ToLower(txh.To().String())
-			tx.Value = txh.Value().String()
-			tx.Data = hexutil.Encode(txh.Data())
-			tx.Nonce = txh.Nonce()
-			tx.Gas = receipt.GasUsed
-			tx.GasPrice = receipt.EffectiveGasPrice.String()
-			tx.Number = receipt.BlockNumber.Uint64()
-			tx.Status = receipt.Status
-			tx.Time = blTime
-			tx.TransactionType = types
-			tx.TotalFee = totalFee
-			err = mongo.AddTransaction(tx)
-			if err != nil {
-				log.Errorf("AddTransaction err: %v", err)
-				return false, err
-			}
-			return true, nil
-		} else {
-			log.Errorf("GetTransactionerr: %v", err)
-			return false, err
-		}
+
+	totalFee := receipt.GasUsed * receipt.EffectiveGasPrice.Uint64()
+	tx := mongo.Transaction{
+		TxHash:          strings.ToLower(receipt.TxHash.String()),
+		From:            strings.ToLower(from.String()),
+		To:              strings.ToLower(txh.To().String()),
+		Value:           txh.Value().String(),
+		Data:            hexutil.Encode(txh.Data()),
+		Nonce:           txh.Nonce(),
+		Gas:             receipt.GasUsed,
+		GasPrice:        receipt.EffectiveGasPrice.String(),
+		Number:          receipt.BlockNumber.Uint64(),
+		Status:          receipt.Status,
+		Time:            blTime,
+		TransactionType: types,
+		TotalFee:        totalFee,
 	}
-	return false, nil
+
+	err := mongo.AddTransaction(tx)
+	if err != nil {
+		// DuplicateKey error → 忽略
+		if mongo.IsDuplicateKeyError(err) {
+			log.Warnf("Transaction already exists (tx_hash=%s)", receipt.TxHash.String())
+			return false, nil
+		}
+		log.Errorf("AddTransactionTrade error: %v", err)
+		return false, err
+	}
+
+	return true, nil // 插入成功
 }
 
 func RewardPool(value *big.Int, blTime uint64) error {
@@ -472,6 +481,136 @@ func UserProfitAmount(user string, value *big.Int, blTime uint64) error {
 	err = mongo.UpdateUserProfit(user, newValue.String())
 	if err != nil {
 		log.Errorf("UpdateUserLossAmount err: %v", err)
+		return err
+	}
+	return nil
+}
+
+func AddBinanceOrderBuyTrade(binanceOrder *mongo.BinanceOrder, bztOrder *bzt.BztOrderOpened) error {
+	txHash := strings.ToLower(bztOrder.Raw.TxHash.String())
+
+	order := mongo.BinanceOrder{
+		Symbol:                  bztOrder.TokenName,
+		Address:                 strings.ToLower(bztOrder.User.String()),
+		TxHash:                  txHash,
+		BztOrderId:              bztOrder.OrderId.String(),
+		OrderId:                 binanceOrder.OrderId,
+		OrderListId:             binanceOrder.OrderListId,
+		ClientOrderId:           binanceOrder.ClientOrderId,
+		Price:                   binanceOrder.Price,
+		OrigQty:                 binanceOrder.OrigQty,
+		ExecutedQty:             binanceOrder.ExecutedQty,
+		CummulativeQuoteQty:     binanceOrder.CummulativeQuoteQty,
+		Status:                  binanceOrder.Status,
+		TimeInForce:             binanceOrder.TimeInForce,
+		Type:                    binanceOrder.Type,
+		Side:                    binanceOrder.Side,
+		StopPrice:               binanceOrder.StopPrice,
+		IcebergQty:              binanceOrder.IcebergQty,
+		Time:                    binanceOrder.Time,
+		UpdateTime:              binanceOrder.UpdateTime,
+		IsWorking:               binanceOrder.IsWorking,
+		WorkingTime:             binanceOrder.WorkingTime,
+		OrigQuoteOrderQty:       binanceOrder.OrigQuoteOrderQty,
+		SelfTradePreventionMode: binanceOrder.SelfTradePreventionMode,
+	}
+
+	err := mongo.AddBinanceOrder(order)
+	if err != nil {
+		// DuplicateKey error → 忽略
+		if mongo.IsDuplicateKeyError(err) {
+			log.Warnf("BinanceOrder already exists (tx_hash=%s)", txHash)
+			return nil
+		}
+		log.Errorf("AddBinanceOrderBuyTrade error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func AddBinanceOrderSellTrade(binanceOrder *mongo.BinanceOrder, bztOrder *bzt.BztOrderClosed, symbol string) error {
+	txHash := strings.ToLower(bztOrder.Raw.TxHash.String())
+	order := mongo.BinanceOrder{
+		Symbol:                  symbol,
+		Address:                 strings.ToLower(bztOrder.User.String()),
+		TxHash:                  txHash,
+		BztOrderId:              bztOrder.OrderId.String(),
+		OrderId:                 binanceOrder.OrderId,
+		OrderListId:             binanceOrder.OrderListId,
+		ClientOrderId:           binanceOrder.ClientOrderId,
+		Price:                   binanceOrder.Price,
+		OrigQty:                 binanceOrder.OrigQty,
+		ExecutedQty:             binanceOrder.ExecutedQty,
+		CummulativeQuoteQty:     binanceOrder.CummulativeQuoteQty,
+		Status:                  binanceOrder.Status,
+		TimeInForce:             binanceOrder.TimeInForce,
+		Type:                    binanceOrder.Type,
+		Side:                    binanceOrder.Side,
+		StopPrice:               binanceOrder.StopPrice,
+		IcebergQty:              binanceOrder.IcebergQty,
+		Time:                    binanceOrder.Time,
+		UpdateTime:              binanceOrder.UpdateTime,
+		IsWorking:               binanceOrder.IsWorking,
+		WorkingTime:             binanceOrder.WorkingTime,
+		OrigQuoteOrderQty:       binanceOrder.OrigQuoteOrderQty,
+		SelfTradePreventionMode: binanceOrder.SelfTradePreventionMode,
+	}
+
+	err := mongo.AddBinanceOrder(order)
+	if err != nil {
+		// DuplicateKey error → 忽略
+		if mongo.IsDuplicateKeyError(err) {
+			log.Warnf("BinanceOrder already exists (tx_hash=%s)", txHash)
+			return nil
+		}
+		log.Errorf("AddBinanceOrderSellTrade error: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func AddBinanceBuyOrder(event *bzt.BztOrderOpened) error {
+	divisor := big.NewInt(1000000) //单位
+	result := new(big.Int).Div(event.Amount, divisor)
+	byteRes, err := binanceClient.BinanceClient.CreateMarketOrderByAmount(event.TokenName, "BUY", result.String())
+	if err != nil {
+		log.Errorf("BinanceClient.CreateOrder err: %v", err)
+		return err
+	}
+	res, err := binance.ParseBinanceOrder(byteRes)
+	if err != nil {
+		log.Errorf("ParseBinanceOrder err: %v", err)
+		return err
+	}
+	err = AddBinanceOrderBuyTrade(res, event)
+	if err != nil {
+		log.Errorf("AddBinanceOrderTrade err: %v", err)
+		return err
+	}
+	return nil
+}
+
+func AddBinanceSellOrder(event *bzt.BztOrderClosed, symbol string) error {
+	bina, err := mongo.GetBinanceOrderById(strings.ToLower(event.OrderId.String()), "BUY")
+	if err != nil {
+		log.Errorf("GetBinanceOrder err: %v", err)
+		return err
+	}
+	sellOrder, err := binanceClient.BinanceClient.SellByBuyOrder(bina.Symbol, bina.OrderId)
+	if err != nil {
+		log.Errorf("BinanceClient.SellByBuyOrder err: %v", err)
+		return err
+	}
+	res, err := binance.ParseBinanceOrder(sellOrder)
+	if err != nil {
+		log.Errorf("ParseBinanceOrder err: %v", err)
+		return err
+	}
+	err = AddBinanceOrderSellTrade(res, event, symbol)
+	if err != nil {
+		log.Errorf("AddBinanceOrderTrade err: %v", err)
 		return err
 	}
 	return nil
