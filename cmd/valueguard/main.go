@@ -103,22 +103,6 @@ func main() {
 // 加载配置 load
 func LoadConfigInit() error {
 	//配置变量
-	/*
-		os.Setenv("Apikey", "dtcd_xxxxxx")
-		os.Setenv("BaseUrl", "http://47.111.28.25:8016")
-		os.Setenv("KeyId", "0a1382ae-7e21-49e8-928e-0614103b2045")
-		os.Setenv("OwnerAddress", "0x5D001706b0b4bF6a0D5C234E1F966D82D3C84F92") //测试owner
-		os.Setenv("RpcUrl", "http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979") // 测试网
-		os.Setenv("HmacKey", "hmac")
-		os.Setenv("X_Api_Key", "4sip97qapC4vTxS73YdTB6X5hm8Rr8Uk13BdwP2d")
-		os.Setenv("ContractDusdtAddress", "0xaD6780B2A022B79686c5E56017cC4FB8cfCd9726") //测试环境DUSDT
-		//os.Setenv("mongoDbUrl", "mongodb://admin:admin@localhost:27017/?directConnection=true") //本地测试
-		os.Setenv("mongoDbUrl", "mongodb://admin:admin@13.212.58.194:9097") //远程测试
-		os.Setenv("BINANCE_API_KEY", "DWYXI7f0iInbW4GbG3L3rvNmu5bSh9y4yyP8UIo5xpz7ZeBvS2a2A11sYK3nzTfg")
-		os.Setenv("BINANCE_SECRET_KEY", "SnCU4gpwuVlMDZsTYldBKJJGOIXUZkYBsI8NPR5ctDppqBlK9yTmo27gnUE2HAR1")
-		//测试需要修改四步，推送注意还原
-	*/
-
 	//初始化mongo数据库
 	//初始化节点
 	mongoDbUrl := os.Getenv("mongoDbUrl")

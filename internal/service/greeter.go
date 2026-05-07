@@ -353,7 +353,7 @@ func (s *GreeterService) OpenOrder(ctx context.Context, in *v1.OpenOrderRequest)
 		return &v1.OpenOrderReply{}, err
 	}
 
-	orderId := api.GetSnowflakeID()
+	orderId := api.GetSnowflakeID(uid)
 	res, err := mongo.GetPriceByTimestamp(in.GetTimestamp(), in.GetSymbol())
 	if err != nil {
 		log.Error("OpenOrder GetPriceByTimestamp err: ", err)
@@ -546,7 +546,7 @@ func (s *GreeterService) GetAirdrop(ctx context.Context, in *v1.GetAirdropReques
 	err = mongo.QueryAirdrop(strings.ToLower(addr), today)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			OrderId := api.GetSnowflakeID()
+			OrderId := api.GetSnowflakeID(uid)
 			daily, err := mongo.GetDailyAirdrop(today, "DUSDT") // 今日空投总额
 			if err != nil {
 				log.Error("GetAirdrop GetDailyAirdrop:", err)

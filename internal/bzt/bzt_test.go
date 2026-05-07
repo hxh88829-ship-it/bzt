@@ -278,7 +278,7 @@ func TestName(t *testing.T) {
 	}
 	cli := api.Client
 	defer cli.Close()
-	pri, err := crypto.HexToECDSA("272fe71819fa8d8957737986b05535b72ae43ca17e71bbc22c97e04b3d9b78e4")
+	pri, err := crypto.HexToECDSA("")
 	if err != nil {
 		return
 	}

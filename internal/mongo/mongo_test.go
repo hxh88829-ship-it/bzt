@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	dbUrl = "mongodb://admin:admin@13.212.58.194:9097"
+	dbUrl = ""
 )
 
 // 添加用户·
@@ -273,7 +273,7 @@ func TestGetOrderSwitch(t *testing.T) {
 	t.Log(res)
 }
 func TestUpdateDailyAirdrop(t *testing.T) {
-	cli, err := NewMongoClient("mongodb://admin:admin@13.212.58.194:9097")
+	cli, err := NewMongoClient("")
 	if err != nil {
 		t.Error(err)
 		return

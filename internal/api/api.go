@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -471,11 +473,23 @@ func InitSnowflake(nodeID int64) {
 	})
 }
 
-func GetSnowflakeID() string {
+func GetSnowflakeID(uid string) string {
 	if snowflakeNode == nil {
-		panic("Snowflake node not initialized. Call InitSnowflake() first.")
+		panic("Snowflake node not initialized")
 	}
-	return snowflakeNode.Generate().String()
+
+	// 雪花 ID
+	sfID := snowflakeNode.Generate().Int64()
+
+	// 计算 UID 哈希
+	hashBytes := sha256.Sum256([]byte(uid))
+
+	// 取前 4 个字节（32bit）
+	// 转成 uint32 → 十进制 → 全数字
+	mixNum := binary.BigEndian.Uint32(hashBytes[0:4])
+
+	// 最终订单号（纯数字 + 雪花 ID）
+	return fmt.Sprintf("%010d%d", mixNum, sfID)
 }
 func GetJwtKey(uid, addr, secret string) (string, error) {
 	claims := jwt.MapClaims{

@@ -7,8 +7,8 @@ import (
 
 func TestBinanceClient_PlaceOrder(t *testing.T) {
 	// ✅ 从环境变量读取 API Key
-	os.Setenv("BINANCE_API_KEY", "DWYXI7f0iInbW4GbG3L3rvNmu5bSh9y4yyP8UIo5xpz7ZeBvS2a2A11sYK3nzTfg")
-	os.Setenv("BINANCE_SECRET_KEY", "SnCU4gpwuVlMDZsTYldBKJJGOIXUZkYBsI8NPR5ctDppqBlK9yTmo27gnUE2HAR1")
+	os.Setenv("BINANCE_API_KEY", "")
+	os.Setenv("BINANCE_SECRET_KEY", "")
 	BinanceApikey := os.Getenv("BINANCE_API_KEY")
 	BinanceSecretKey := os.Getenv("BINANCE_SECRET_KEY")
 

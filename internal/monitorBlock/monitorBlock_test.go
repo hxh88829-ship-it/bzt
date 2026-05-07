@@ -11,14 +11,14 @@ import (
 // 漏扫块手动复扫
 func TestScanOneBlock(t *testing.T) {
 	var err error
-	Client, err := ethclient.Dial("http://ec2-54-251-227-86.ap-southeast-1.compute.amazonaws.com:6979")
+	Client, err := ethclient.Dial("")
 	if err != nil {
 		t.Error("BLockChain fail")
 		return
 	}
 	defer Client.Close()
 	api.Client = Client
-	cli, err := mongo.NewMongoClient("mongodb://admin:admin@localhost:27017/?directConnection=true")
+	cli, err := mongo.NewMongoClient("")
 	if err != nil {
 		t.Error(err)
 		return
